@@ -8,7 +8,8 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class orderItem {
+@Entity
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
@@ -48,5 +49,5 @@ public class orderItem {
     @Column
     @NotBlank(message = "required")
     private String comment;
-    
+
 }
