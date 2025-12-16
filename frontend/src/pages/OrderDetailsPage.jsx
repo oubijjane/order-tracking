@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router';
+import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
 
 function OrderDetailsPage() {
     const { id } = useParams(); // 1. Get the ID from the URL
+    const navigate = useNavigate();
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -27,13 +28,19 @@ function OrderDetailsPage() {
     return (
         <div style={{ padding: '20px' }}>
             <Link to="/">← Back to List</Link>
-            
+
             <h1>Order #{order.id}</h1>
             <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
                 <h2>{order.companyName}</h2>
                 <p><strong>Car:</strong> {order.carName} {order.carModel}</p>
                 <p><strong>Status:</strong> {order.status}</p>
-                {/* Add more fields here as your backend grows */}
+
+                <button
+                    onClick={() => navigate(`/edit/${order.id}`)}
+                    style={{ backgroundColor: '#ffc107', color: 'black', padding: '10px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                    Edit Order
+                </button>
             </div>
         </div>
     );

@@ -31,8 +31,18 @@ const createOrder = async (orderData) => {
         throw error;
     }
 };
+// 3. Update Order
+const updateOrder = async (id, orderData) => {
+    try {
+        const response = await api.put(`/orders/${id}`, orderData);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating order:", error);
+        throw error;
+    }
+};
 
-// 3. Delete Order
+// 4. Delete Order
 const deleteOrder = async (id) => {
     try {
         const response = await api.delete(`/orders/${id}`);
@@ -48,5 +58,6 @@ export default {
     getAllOrders,
     getOrderById,
     createOrder,
+    updateOrder,
     deleteOrder
 };
