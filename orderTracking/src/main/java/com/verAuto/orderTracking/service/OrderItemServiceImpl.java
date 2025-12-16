@@ -23,38 +23,60 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public List<OrderItem> findByCompanyName(String companyName) {
-        Optional<List<OrderItem>> result = Optional.ofNullable(orderItemDAO.findByCompanyName(companyName));
-        List<OrderItem> orderItems = null;
-        if(result.isPresent()) {
-            orderItems = result.get();
-        } else {
-            throw new RuntimeException("Did not find employee " + companyName);
+        List<OrderItem> orderItems = orderItemDAO.findByCompanyName(companyName);
+
+        // 2. Check if the list is empty to trigger your error
+        if (orderItems.isEmpty()) {
+
+            throw new RuntimeException("Did not find orders for company: " + companyName);
         }
+
         return orderItems;
     }
 
     @Override
     public List<OrderItem> findByDestination(String destination) {
-        return List.of();
+        List<OrderItem> orderItems = orderItemDAO.findByDestination(destination);
+
+        // 2. Check if the list is empty to trigger your error
+        if (orderItems.isEmpty()) {
+
+            throw new RuntimeException("Did not find orders for destination: " + destination);
+        }
+
+        return orderItems;
     }
 
     @Override
     public List<OrderItem> findByRegistrationNumber(String registrationNumber) {
-        return List.of();
+        List<OrderItem> orderItems = orderItemDAO.findByRegistrationNumber(registrationNumber);
+
+        // 2. Check if the list is empty to trigger your error
+        if (orderItems.isEmpty()) {
+
+            throw new RuntimeException("Did not find orders for registrationNumber: " + registrationNumber);
+        }
+
+        return orderItems;
     }
 
     @Override
-    public OrderItem findById(int id) {
-        return null;
+    public OrderItem findById(Long id) {
+        return orderItemDAO.findById(id) // This already returns Optional<OrderItem>
+                .orElseThrow(() -> new RuntimeException("Did not find order number - " + id));
     }
 
     @Override
     public OrderItem save(OrderItem orderItem) {
-        return null;
+        return orderItemDAO.save(orderItem);
     }
 
     @Override
-    public void deleteById(int id) {
-
+    public void deleteById(Long id) {
+        boolean exists = orderItemDAO.existsById(id);
+        if(!exists) {
+            throw new RuntimeException("Order with ID " + id + " does not exist");
+        }
+        orderItemDAO.deleteById(id);
     }
 }

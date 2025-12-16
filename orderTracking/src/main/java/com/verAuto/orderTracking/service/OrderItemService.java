@@ -9,7 +9,7 @@ public interface OrderItemService {
     List<OrderItem> findByCompanyName(String companyName);
     List<OrderItem> findByDestination(String destination);
     List<OrderItem> findByRegistrationNumber(String registrationNumber);
-    OrderItem findById(int id);
+    OrderItem findById(Long id);
     OrderItem save(OrderItem orderItem);
-    void deleteById(int id);
+    void deleteById(Long id);
 }

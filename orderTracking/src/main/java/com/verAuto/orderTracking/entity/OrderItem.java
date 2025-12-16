@@ -12,42 +12,33 @@ import lombok.Setter;
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     @Column
-    @NotBlank(message = "required")
     private String carName;
 
     @Column
-    @NotBlank(message = "required")
     private String carModel;
 
     @Column
-    @NotBlank(message = "required")
     private int year;
 
     @Column
-    @NotBlank(message = "required")
     private String image;
 
     @Column
-    @NotBlank(message = "required")
     private String status;
 
     @Column
-    @NotBlank(message = "required")
     private String destination;
 
     @Column
-    @NotBlank(message = "required")
     private String companyName;
 
     @Column
-    @NotBlank(message = "required")
     private String registrationNumber;
 
     @Column
-    @NotBlank(message = "required")
     private String comment;
 
 }
