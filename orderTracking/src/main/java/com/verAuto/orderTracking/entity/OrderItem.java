@@ -1,10 +1,17 @@
 package com.verAuto.orderTracking.entity;
 
+import com.verAuto.orderTracking.enums.OrderStatus;
 import jakarta.annotation.Generated;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.Year;
 
 @Setter
 @Getter
@@ -15,30 +22,48 @@ public class OrderItem {
     private Long id;
 
     @Column
+    @NotBlank(message = "La Marque de la vehicule est obligatoire")
     private String carName;
 
     @Column
+    @NotBlank(message = "La vitre de la vehicule est obligatoire")
+    private String windowType;
+
+
+    @Column
+    @NotBlank(message = "Le Modèle de la vehicule est obligatoire")
     private String carModel;
 
     @Column
+    @Min(value = 1990, message = "L'année doit être supérieure à 1990")
     private int year;
 
     @Column
+    @NotBlank(message = "L'image est obligatoire")
     private String image;
 
-    @Column
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private OrderStatus status;
 
     @Column
+    @NotBlank(message = "La destination est obligatoire")
     private String destination;
 
     @Column
+    @NotBlank(message = "La Modèle de la vehicule est obligatoire")
     private String companyName;
 
     @Column
+    @NotBlank(message = "L'immatriculation est obligatoire")
     private String registrationNumber;
 
     @Column
     private String comment;
 
+    @AssertTrue(message = "L'année ne peut pas être dans le futur")
+    public boolean isYearValid() {
+        // dynamic check: year must be less than or equal to current year
+        return year <= Year.now().getValue();
+    }
 }
