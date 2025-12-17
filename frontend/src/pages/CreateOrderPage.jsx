@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
+import Form from '../components/form';
 
-function CreateOrderPage() {
+function CreateOrderPage1() {
     const navigate = useNavigate(); // This tool lets us redirect the user
     
     // 1. State for the form data
@@ -105,5 +106,7 @@ function CreateOrderPage() {
         </div>
     );
 }
-
+function CreateOrderPage() {
+    return (<Form />);
+}
 export default CreateOrderPage;

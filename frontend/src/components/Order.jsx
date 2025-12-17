@@ -7,7 +7,8 @@ function Order({ order }) {
             {order.companyName}
           </Link>
       </h3>
-      <p><strong>Details:</strong> {order.carName} {order.carModel}</p>
+      <p><strong>Details:</strong> {order.carName} {order.carModel} {order.year}</p>
+      <p><strong>Matricule n°:</strong> {order.registrationNumber}</p>
       <p><strong>Status:</strong> {order.status}</p>
     </div>
   );

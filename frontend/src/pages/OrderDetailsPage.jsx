@@ -21,6 +21,21 @@ function OrderDetailsPage() {
             });
     }, [id]);
 
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this order? This cannot be undone.");
+        
+        if (confirmDelete) {
+            try {
+                await OrderService.deleteOrder(id);
+                // Redirect to home page after successful delete
+                navigate('/'); 
+            } catch (err) {
+                console.error("Failed to delete:", err);
+                alert("Failed to delete the order.");
+            }
+        }
+    };
+
     if (loading) return <p>Loading details...</p>;
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (!order) return null;
@@ -35,12 +50,25 @@ function OrderDetailsPage() {
                 <p><strong>Car:</strong> {order.carName} {order.carModel}</p>
                 <p><strong>Status:</strong> {order.status}</p>
 
-                <button
-                    onClick={() => navigate(`/edit/${order.id}`)}
-                    style={{ backgroundColor: '#ffc107', color: 'black', padding: '10px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h1>Order #{order.id}</h1>
+                
+                {/* --- THE DELETE BUTTON --- */}
+                <button 
+                    onClick={handleDelete}
+                    style={{ 
+                        backgroundColor: '#dc3545', // Red color
+                        color: 'white', 
+                        padding: '10px 15px', 
+                        border: 'none', 
+                        borderRadius: '5px', 
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                    }}
                 >
-                    Edit Order
+                    Delete Order
                 </button>
+            </div>
             </div>
         </div>
     );
