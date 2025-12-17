@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.entity;
 
 import com.verAuto.orderTracking.enums.OrderStatus;
+import com.verAuto.orderTracking.enums.WindowType;
 import jakarta.annotation.Generated;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
@@ -25,9 +26,9 @@ public class OrderItem {
     @NotBlank(message = "La Marque de la vehicule est obligatoire")
     private String carName;
 
-    @Column
-    @NotBlank(message = "La vitre de la vehicule est obligatoire")
-    private String windowType;
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Le vitre est obligatoire")
+    private WindowType windowType;
 
 
     @Column
@@ -43,7 +44,7 @@ public class OrderItem {
     private String image;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull(message = "Le statut est obligatoire")
     private OrderStatus status;
 
     @Column

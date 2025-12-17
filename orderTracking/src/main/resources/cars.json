@@ -1,0 +1,66 @@
+[
+  {
+    "brand": "Dacia",
+    "models": ["Logan", "Sandero", "Duster", "Dokker", "Lodgy", "Spring", "Jogger"]
+  },
+  {
+    "brand": "Renault",
+    "models": ["Clio", "Megane", "Captur", "Kangoo", "Kadjar", "Talisman", "Express", "Arkana"]
+  },
+  {
+    "brand": "Peugeot",
+    "models": ["208", "301", "308", "3008", "5008", "508", "Partner", "Rifter", "2008"]
+  },
+  {
+    "brand": "Volkswagen",
+    "models": ["Golf", "Polo", "Passat", "Tiguan", "Touareg", "Caddy", "T-Roc", "Arteon"]
+  },
+  {
+    "brand": "Opel",
+    "models": ["Corsa", "Astra", "Mokka", "Crossland", "Grandland", "Insignia", "Combo"]
+  },
+  {
+    "brand": "Skoda",
+    "models": ["Octavia", "Fabia", "Superb", "Kodiaq", "Karoq", "Kamiq", "Scala"]
+  },
+  {
+    "brand": "Mitsubishi",
+    "models": ["L200", "Pajero Sport", "Outlander", "ASX", "Eclipse Cross", "Space Star"]
+  },
+  {
+    "brand": "Hyundai",
+    "models": ["i10", "i20", "i30", "Accent", "Creta", "Tucson", "Santa Fe", "Kona"]
+  },
+  {
+    "brand": "Citroën",
+    "models": ["C3", "C-Elysée", "C4", "C5 Aircross", "Berlingo", "Jumpy"]
+  },
+  {
+    "brand": "Fiat",
+    "models": ["500", "Panda", "Tipo", "Doblo", "Fiorino", "Ducato"]
+  },
+  {
+    "brand": "Toyota",
+    "models": ["Yaris", "Corolla", "C-HR", "RAV4", "Hilux", "Land Cruiser", "Fortuner"]
+  },
+  {
+    "brand": "Audi",
+    "models": ["A3", "A4", "A5", "A6", "Q3", "Q5", "Q7", "Q8", "e-tron"]
+  },
+  {
+    "brand": "Mercedes-Benz",
+    "models": ["A-Class", "C-Class", "E-Class", "S-Class", "CLA", "GLA", "GLC", "GLE"]
+  },
+  {
+    "brand": "BMW",
+    "models": ["Series 1", "Series 3", "Series 5", "X1", "X3", "X5", "X7"]
+  },
+  {
+    "brand": "Kia",
+    "models": ["Picanto", "Rio", "Ceed", "Sportage", "Sorento", "Seltos"]
+  },
+  {
+    "brand": "Ford",
+    "models": ["Fiesta", "Focus", "Kuga", "Ranger", "Transit", "Fusion"]
+  }
+]
