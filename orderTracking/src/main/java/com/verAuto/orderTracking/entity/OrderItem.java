@@ -22,18 +22,14 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column
-    @NotBlank(message = "La Marque de la vehicule est obligatoire")
-    private String carName;
-
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Le vitre est obligatoire")
     private WindowType windowType;
 
 
-    @Column
-    @NotBlank(message = "Le Modèle de la vehicule est obligatoire")
-    private String carModel;
+    @ManyToOne
+    @JoinColumn(name = "model_id", nullable = false)
+    private CarModel carModel;
 
     @Column
     @Min(value = 1990, message = "L'année doit être supérieure à 1990")
