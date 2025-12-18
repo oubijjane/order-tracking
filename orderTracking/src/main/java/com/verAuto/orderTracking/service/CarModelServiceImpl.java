@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CarModeServiceImpl implements CarModelService{
+public class CarModelServiceImpl implements CarModelService{
 
     private CarModelDAO carModelDAO;
 
     @Autowired
-    public CarModeServiceImpl(CarModelDAO carModelDAO) {
+    public CarModelServiceImpl(CarModelDAO carModelDAO) {
         this.carModelDAO = carModelDAO;
     }
     @Override

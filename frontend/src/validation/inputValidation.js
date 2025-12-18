@@ -33,9 +33,9 @@ export const car_validation = {
   },
 }
 export const car_model_validation = {
-  name: 'carModel',
+  name: 'carModelId',
   label: 'Modèle',
-  type: 'text',
+  type: 'select',
   id: 'carModel',
   placeholder: 'Modèle',
   validation: {
@@ -43,9 +43,19 @@ export const car_model_validation = {
       value: true,
       message: 'required',
     },
-    maxLength: {
-      value: 30,
-      message: '30 characters max',
+  },
+}
+
+export const brand_validation = {
+  name: 'brandId',
+  label: 'Marque',
+  type: 'select',
+  id: 'brandId',
+  placeholder: 'Marque',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
     },
   },
 }
@@ -106,4 +116,22 @@ export const year_validation = {
     message: `Year seems too old`,
   },
   step : 1,
+}
+
+export const window_type_validation = {
+  name: 'windowType',
+  label: 'Type de vitre',
+  type: 'select',
+  id: 'windowType',
+  placeholder: 'Type de vitre',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
 }

@@ -1,15 +1,15 @@
 import api from './api';
 
 // 1. Get All Orders
-const getAllOrders = async () => {
-    try {
-        const response = await api.get('/orders');
-        return response.data; // CRITICAL: This passes the data back to App.jsx
-    } catch (error) {
-        console.error("Error fetching orders:", error);
-        throw error;
-    }
-};
+    const getAllOrders = async () => {
+        try {
+            const response = await api.get('/orders');
+            return response.data; // CRITICAL: This passes the data back to App.jsx
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            throw error;
+        }
+    };
 
 const getOrderById = async (id) => {
     try {
@@ -52,6 +52,8 @@ const deleteOrder = async (id) => {
         throw error;
     }
 };
+
+
 
 // EXPORT DEFAULT: This bundles the functions into one object
 export default {

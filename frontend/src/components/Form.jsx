@@ -1,52 +1,86 @@
 import { useForm, FormProvider } from "react-hook-form";
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import InputField from "./Input";
+import {InputField, Dropdown} from "./Input";
 import OrderService from '../services/orderService';
+import { useCarSelection } from '../hooks/useCarSelection'; // Import your new hook
+import { WINDOW_TYPES, formatOrderPayload } from '../utils/formUtils'; // Import helpers
+import brandService from "../services/brandService";
+import modelService from "../services/modelService";
 import {
-    company_name_validation, car_validation, destination_validation,
-    year_validation, registration_number_validation, car_model_validation
+  company_name_validation, window_type_validation, destination_validation,
+  year_validation, registration_number_validation, car_model_validation, brand_validation
 } from '../validation/inputValidation';
 
 function Form() {
     const navigate = useNavigate();
+    
+    // 1. Setup Form
     const methods = useForm({
         defaultValues: {
-            companyName: '',
-            carName: '',
-            carModel: '',
+            brandId: '',
+            carModelId: '',
+            companyName: '', 
+            windowType: '',
             comment: '',
             destination: '',
-            image: '',
             registrationNumber: '',
             year: '',
             status: 'En attente'
         }
     });
 
+    // 2. Use Custom Hook for Dropdown Data
+    // We pass the watched value so the hook knows when to refetch models
+    const selectedBrand = methods.watch('brandId');
+    const { brandOptions, modelOptions } = useCarSelection(selectedBrand);
+
+    // Optional: Reset model when brand changes (UX improvement)
+    useEffect(() => {
+        methods.setValue('carModelId', '');
+    }, [selectedBrand, methods.setValue]);
+
+    // 3. Handle Submit
     const onValidSubmit = async (data) => {
         try {
-            await OrderService.createOrder(data);
-            console.log("Order Created:", data);
+            const payload = formatOrderPayload(data); // Logic is now hidden away
+            await OrderService.createOrder(payload);
+            console.log("Order Created:", payload);
             navigate('/');
         } catch (error) {
             console.error("Failed to create order:", error);
-            // Optional: methods.setError('root', { message: 'Server error' })
         }
     };
 
     return (
         <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onValidSubmit)} noValidate>
+                
+                {/* Text Inputs */}
                 <InputField {...company_name_validation} />
-                <InputField {...car_validation} />
-                <InputField {...car_model_validation} />
                 <InputField {...registration_number_validation} />
                 <InputField {...year_validation} />
                 <InputField {...destination_validation} />
+                
+                {/* Dropdowns */}
+                <Dropdown 
+                    {...window_type_validation} 
+                    options={WINDOW_TYPES} 
+                />
+                <Dropdown 
+                    {...brand_validation} 
+                    options={brandOptions} 
+                />
+                <Dropdown 
+                    {...car_model_validation} 
+                    options={modelOptions}
+                    // Optional: Disable if no brand selected
+                    disabled={!selectedBrand} 
+                />
+
                 <button type="submit">Submit</button>
             </form>
         </FormProvider>
     );
 }
-
 export default Form;

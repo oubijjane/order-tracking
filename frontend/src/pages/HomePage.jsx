@@ -3,7 +3,7 @@ import OrderService from '../services/orderService';
 import OrdersList from '../components/OrdersList';
 
 function HomePage() {
-     const [orders, setOrders] = useState([]); 
+  const [orders, setOrders] = useState([]); 
   const [error, setError] = useState("");
 
   useEffect(() => {

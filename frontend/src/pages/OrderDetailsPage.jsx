@@ -47,7 +47,7 @@ function OrderDetailsPage() {
             <h1>Order #{order.id}</h1>
             <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
                 <h2>{order.companyName}</h2>
-                <p><strong>Car:</strong> {order.carName} {order.carModel}</p>
+                <p><strong>Car:</strong> {order.carModel.carBrand.brand} {order.carModel.model} {order.year}</p>
                 <p><strong>Status:</strong> {order.status}</p>
 
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
