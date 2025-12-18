@@ -1,15 +1,15 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useNavigate } from 'react-router';
 import {InputField, Dropdown} from "./Input";
 import OrderService from '../services/orderService';
 import { useCarSelection } from '../hooks/useCarSelection'; // Import your new hook
+import { useCompanySelection } from '../hooks/useCompanySelection'; // Import company hook
 import { WINDOW_TYPES, formatOrderPayload } from '../utils/formUtils'; // Import helpers
-import brandService from "../services/brandService";
-import modelService from "../services/modelService";
 import {
   company_name_validation, window_type_validation, destination_validation,
-  year_validation, registration_number_validation, car_model_validation, brand_validation
+  year_validation, registration_number_validation, car_model_validation, brand_validation,
+  company_validation
 } from '../validation/inputValidation';
 
 function Form() {
@@ -34,6 +34,8 @@ function Form() {
     // We pass the watched value so the hook knows when to refetch models
     const selectedBrand = methods.watch('brandId');
     const { brandOptions, modelOptions } = useCarSelection(selectedBrand);
+    const companyOptions = useCompanySelection();
+    console.log("Company Options:", companyOptions);
 
     // Optional: Reset model when brand changes (UX improvement)
     useEffect(() => {
@@ -57,12 +59,15 @@ function Form() {
             <form onSubmit={methods.handleSubmit(onValidSubmit)} noValidate>
                 
                 {/* Text Inputs */}
-                <InputField {...company_name_validation} />
                 <InputField {...registration_number_validation} />
                 <InputField {...year_validation} />
                 <InputField {...destination_validation} />
                 
                 {/* Dropdowns */}
+                <Dropdown 
+                    {...company_validation} 
+                    options={companyOptions} 
+                />
                 <Dropdown 
                     {...window_type_validation} 
                     options={WINDOW_TYPES} 

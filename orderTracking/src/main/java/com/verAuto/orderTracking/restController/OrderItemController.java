@@ -2,9 +2,11 @@ package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.DTO.CreateOrderRequest;
 import com.verAuto.orderTracking.entity.CarModel;
+import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import com.verAuto.orderTracking.service.CarModelService;
+import com.verAuto.orderTracking.service.CompanyService;
 import com.verAuto.orderTracking.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,11 +20,15 @@ import java.util.List;
 public class OrderItemController {
     private OrderItemService orderItemService;
     private CarModelService carModelService;
+    private CompanyService companyService;
 
     @Autowired
-    public OrderItemController(OrderItemService orderItemService, CarModelService carModelService) {
+    public OrderItemController(
+            OrderItemService orderItemService, CarModelService carModelService,
+            CompanyService companyService) {
         this.orderItemService = orderItemService;
         this.carModelService = carModelService;
+        this.companyService = companyService;
     }
 
 
@@ -39,9 +45,11 @@ public class OrderItemController {
     @PostMapping()
     public ResponseEntity<OrderItem> createOrder(@RequestBody CreateOrderRequest request) {
         CarModel model = carModelService.findById(request.getCarModelId());
+        Company company = companyService.findById(request.getCompanyId());
         OrderItem orderItem = request.getOrderItem();
         orderItem.setId(null);
         orderItem.setCarModel(model);
+        orderItem.setCompany(company);
         orderItem.setStatus(OrderStatus.PENDING);
         OrderItem createdOrder = orderItemService.save(orderItem);
 
@@ -55,7 +63,7 @@ public class OrderItemController {
         OrderItem updatedOrder = orderItemService.findById(id);
 
         updatedOrder.setCarModel(orderItem.getCarModel());
-        updatedOrder.setCompanyName(orderItem.getCompanyName());
+        updatedOrder.setCompany(orderItem.getCompany());
         updatedOrder.setComment(orderItem.getComment());
         updatedOrder.setYear(orderItem.getYear());
         updatedOrder.setImage(orderItem.getImage());

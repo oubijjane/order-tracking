@@ -22,19 +22,6 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public List<OrderItem> findByCompanyName(String companyName) {
-        List<OrderItem> orderItems = orderItemDAO.findByCompanyName(companyName);
-
-        // 2. Check if the list is empty to trigger your error
-        if (orderItems.isEmpty()) {
-
-            throw new RuntimeException("Did not find orders for company: " + companyName);
-        }
-
-        return orderItems;
-    }
-
-    @Override
     public List<OrderItem> findByDestination(String destination) {
         List<OrderItem> orderItems = orderItemDAO.findByDestination(destination);
 

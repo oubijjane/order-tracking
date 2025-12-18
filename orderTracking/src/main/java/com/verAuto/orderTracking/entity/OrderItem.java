@@ -47,9 +47,9 @@ public class OrderItem {
     @NotBlank(message = "La destination est obligatoire")
     private String destination;
 
-    @Column
-    @NotBlank(message = "La Modèle de la vehicule est obligatoire")
-    private String companyName;
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 
     @Column
     @NotBlank(message = "L'immatriculation est obligatoire")
