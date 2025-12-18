@@ -13,7 +13,15 @@ export const WINDOW_TYPES = [
     { value: 'CUSTAUDE_ARRIERE_DROITE', label: 'Custaude arrière droite' },
     { value: 'LUNETTE_ARRIERE', label: 'Lunette arrière' }
 ];
-
+export const ORDER_STATUS = [
+    { value: 'PENDING', label: 'En attente' },
+    { value: 'IN_PROGRESS', label: 'En cours' },
+    { value: 'AVAILABLE', label: 'Disponible' },
+    { value: 'NOT_AVAILABLE', label: 'Non Disponible' },
+    { value: 'SENT', label: 'Envoyer' },
+    { value: 'CANCELLED', label: 'Annulé' }
+  ];
+  
 // Helper to format data for backend
 export const formatOrderPayload = (data) => {
     return {

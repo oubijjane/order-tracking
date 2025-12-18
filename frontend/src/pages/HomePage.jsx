@@ -13,7 +13,6 @@ function HomePage() {
   const fetchOrders = () => {
     OrderService.getAllOrders()
       .then(data => {
-        console.log("Data from backend:", data); // Check your browser console!
         setOrders(data);
       })
       .catch(err => {

@@ -35,7 +35,6 @@ function Form() {
     const selectedBrand = methods.watch('brandId');
     const { brandOptions, modelOptions } = useCarSelection(selectedBrand);
     const companyOptions = useCompanySelection();
-    console.log("Company Options:", companyOptions);
 
     // Optional: Reset model when brand changes (UX improvement)
     useEffect(() => {
@@ -47,7 +46,6 @@ function Form() {
         try {
             const payload = formatOrderPayload(data); // Logic is now hidden away
             await OrderService.createOrder(payload);
-            console.log("Order Created:", payload);
             navigate('/');
         } catch (error) {
             console.error("Failed to create order:", error);
