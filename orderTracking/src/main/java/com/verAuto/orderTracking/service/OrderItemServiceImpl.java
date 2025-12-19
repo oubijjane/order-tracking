@@ -21,18 +21,6 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItemDAO.findAll();
     }
 
-    @Override
-    public List<OrderItem> findByDestination(String destination) {
-        List<OrderItem> orderItems = orderItemDAO.findByDestination(destination);
-
-        // 2. Check if the list is empty to trigger your error
-        if (orderItems.isEmpty()) {
-
-            throw new RuntimeException("Did not find orders for destination: " + destination);
-        }
-
-        return orderItems;
-    }
 
     @Override
     public List<OrderItem> findByRegistrationNumber(String registrationNumber) {

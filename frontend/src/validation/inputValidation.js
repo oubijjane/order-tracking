@@ -152,3 +152,21 @@ export const company_validation = {
     },
   },
 }
+
+export const city_validation = {
+  name: 'cityId',
+  label: 'Ville',
+  type: 'select',
+  id: 'cityId',
+  placeholder: 'Ville ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}

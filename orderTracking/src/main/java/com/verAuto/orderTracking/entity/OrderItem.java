@@ -29,6 +29,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "model_id", nullable = false)
+    @NotNull
     private CarModel carModel;
 
     @Column
@@ -43,12 +44,14 @@ public class OrderItem {
     @NotNull(message = "Le statut est obligatoire")
     private OrderStatus status;
 
-    @Column
-    @NotBlank(message = "La destination est obligatoire")
-    private String destination;
+    @ManyToOne
+    @JoinColumn(name = "city_id", nullable = false)
+    @NotNull
+    private City city;
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
+    @NotNull
     private Company company;
 
     @Column

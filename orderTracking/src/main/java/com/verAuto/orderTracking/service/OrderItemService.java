@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface OrderItemService {
     List<OrderItem> findAll();
-    List<OrderItem> findByDestination(String destination);
     List<OrderItem> findByRegistrationNumber(String registrationNumber);
     OrderItem findById(Long id);
     OrderItem save(OrderItem orderItem);

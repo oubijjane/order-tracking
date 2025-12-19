@@ -1,15 +1,16 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { useState, useEffect, use } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import {InputField, Dropdown} from "./Input";
 import OrderService from '../services/orderService';
 import { useCarSelection } from '../hooks/useCarSelection'; // Import your new hook
 import { useCompanySelection } from '../hooks/useCompanySelection'; // Import company hook
+import { useCitySelection } from '../hooks/useCitySelection'; // Import city hook
 import { WINDOW_TYPES, formatOrderPayload } from '../utils/formUtils'; // Import helpers
 import {
   company_name_validation, window_type_validation, destination_validation,
   year_validation, registration_number_validation, car_model_validation, brand_validation,
-  company_validation
+  company_validation, city_validation
 } from '../validation/inputValidation';
 
 function Form() {
@@ -35,6 +36,7 @@ function Form() {
     const selectedBrand = methods.watch('brandId');
     const { brandOptions, modelOptions } = useCarSelection(selectedBrand);
     const companyOptions = useCompanySelection();
+    const cityOptions = useCitySelection(); // Placeholder if city dropdown is needed
 
     // Optional: Reset model when brand changes (UX improvement)
     useEffect(() => {
@@ -45,7 +47,7 @@ function Form() {
     const onValidSubmit = async (data) => {
         try {
             const payload = formatOrderPayload(data); // Logic is now hidden away
-            await OrderService.createOrder(payload);
+            await OrderService.createOrder(payload);    
             navigate('/');
         } catch (error) {
             console.error("Failed to create order:", error);
@@ -59,12 +61,15 @@ function Form() {
                 {/* Text Inputs */}
                 <InputField {...registration_number_validation} />
                 <InputField {...year_validation} />
-                <InputField {...destination_validation} />
                 
                 {/* Dropdowns */}
                 <Dropdown 
                     {...company_validation} 
                     options={companyOptions} 
+                />
+                <Dropdown
+                    {...city_validation}
+                    options={cityOptions}
                 />
                 <Dropdown 
                     {...window_type_validation} 

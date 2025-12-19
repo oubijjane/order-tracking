@@ -27,10 +27,10 @@ export const formatOrderPayload = (data) => {
     return {
         carModelId: data.carModelId ? parseInt(data.carModelId, 10) : null,
         companyId: data.companyId ? parseInt(data.companyId, 10) : null,
+        cityId: data.cityId ? parseInt(data.cityId, 10) : null,
         orderItem: {
             registrationNumber: data.registrationNumber,
             year: data.year ? parseInt(data.year, 10) : undefined,
-            destination: data.destination,
             comment: data.comment || '',
             image: data.image || 'placeholder.jpg',
             windowType: data.windowType || null

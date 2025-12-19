@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface OrderItemDAO extends JpaRepository<OrderItem, Long> {
 
-    List<OrderItem> findByDestination(String destination);
     List<OrderItem> findByRegistrationNumber(String registrationNumber);
 
 }

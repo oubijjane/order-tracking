@@ -2,10 +2,12 @@ package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.DTO.CreateOrderRequest;
 import com.verAuto.orderTracking.entity.CarModel;
+import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import com.verAuto.orderTracking.service.CarModelService;
+import com.verAuto.orderTracking.service.CityService;
 import com.verAuto.orderTracking.service.CompanyService;
 import com.verAuto.orderTracking.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +23,16 @@ public class OrderItemController {
     private OrderItemService orderItemService;
     private CarModelService carModelService;
     private CompanyService companyService;
+    private CityService cityService;
 
     @Autowired
     public OrderItemController(
             OrderItemService orderItemService, CarModelService carModelService,
-            CompanyService companyService) {
+            CompanyService companyService, CityService cityService) {
         this.orderItemService = orderItemService;
         this.carModelService = carModelService;
         this.companyService = companyService;
+        this.cityService = cityService;
     }
 
 
@@ -46,7 +50,10 @@ public class OrderItemController {
     public ResponseEntity<OrderItem> createOrder(@RequestBody CreateOrderRequest request) {
         CarModel model = carModelService.findById(request.getCarModelId());
         Company company = companyService.findById(request.getCompanyId());
+        City city = cityService.findCityById(request.getCityId());
+
         OrderItem orderItem = request.getOrderItem();
+        orderItem.setCity(city);
         orderItem.setId(null);
         orderItem.setCarModel(model);
         orderItem.setCompany(company);
