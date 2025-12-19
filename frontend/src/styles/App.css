@@ -1,0 +1,56 @@
+
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+.create-order {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+.form-content {
+   display: grid;
+    gap: 20px;
+    /* space between items */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    max-width: 90%;
+    /* optional – to limit total width */
+    margin: 0 auto;
+    /* center the grid */
+    justify-items: center;
+    /* center items horizontally */
+    align-items: center;
+    /* center items vertically */
+}
+
+.input-field {
+  display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.input-field label {
+  width: 30%;
+}
+.form-input {
+  width: 70%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.input-error {
+  border: 1px solid red;
+}

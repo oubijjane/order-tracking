@@ -32,7 +32,6 @@ export const formatOrderPayload = (data) => {
             registrationNumber: data.registrationNumber,
             year: data.year ? parseInt(data.year, 10) : undefined,
             comment: data.comment || '',
-            image: data.image || 'placeholder.jpg',
             windowType: data.windowType || null
         }
     };

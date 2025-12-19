@@ -10,16 +10,29 @@ import com.verAuto.orderTracking.service.CarModelService;
 import com.verAuto.orderTracking.service.CityService;
 import com.verAuto.orderTracking.service.CompanyService;
 import com.verAuto.orderTracking.service.OrderItemService;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderItemController {
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     private OrderItemService orderItemService;
     private CarModelService carModelService;
     private CompanyService companyService;
@@ -46,18 +59,31 @@ public class OrderItemController {
     public ResponseEntity<OrderItem> getOrderById(@PathVariable Long id) {
         return new ResponseEntity<>(orderItemService.findById(id), HttpStatus.OK);
     }
-    @PostMapping()
-    public ResponseEntity<OrderItem> createOrder(@RequestBody CreateOrderRequest request) {
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<OrderItem> createOrder(@RequestPart("data") CreateOrderRequest request, // The JSON
+                                                 @RequestPart(value = "image", required = false) MultipartFile file) {
+
+        // 1. Handle the File (Save it and get the path)
+        String imagePath = "default.jpg";
+        if (file != null && !file.isEmpty()) {
+            try {
+                // Save file logic (See helper method below)
+                imagePath = saveFile(file);
+            } catch (Exception e) {
+                throw new RuntimeException("Error saving image", e);
+            }
+        }
         CarModel model = carModelService.findById(request.getCarModelId());
         Company company = companyService.findById(request.getCompanyId());
         City city = cityService.findCityById(request.getCityId());
 
         OrderItem orderItem = request.getOrderItem();
         orderItem.setCity(city);
+        orderItem.setImage(imagePath);
         orderItem.setId(null);
         orderItem.setCarModel(model);
         orderItem.setCompany(company);
-        orderItem.setStatus(OrderStatus.PENDING);
+        orderItem.setStatus(OrderStatus.PENDING.getLabel());
         OrderItem createdOrder = orderItemService.save(orderItem);
 
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
@@ -82,11 +108,39 @@ public class OrderItemController {
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
 
     }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<OrderItem> updateStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
+        // 1. Fetch existing order
+        OrderItem order = orderItemService.findById(id);
+        // 2. Modify ONLY the status
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> " + status.getLabel());
+        order.setStatus(status.getLabel());
+        // 3. Save (The other fields remain untouched in Java memory)
+        OrderItem savedOrder = orderItemService.save(order);
+
+        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrderById(@PathVariable Long id) {
         orderItemService.deleteById(id);
         return new ResponseEntity<>("The order number " + id + " has successfully deleted", HttpStatus.NO_CONTENT);
+    }
+
+    private String saveFile(MultipartFile file) throws IOException {
+        // Use the injected path
+        Path uploadPath = Paths.get(uploadDir);
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path filePath = uploadPath.resolve(filename);
+
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return filename;
     }
 
 }

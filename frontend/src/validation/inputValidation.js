@@ -170,3 +170,17 @@ export const city_validation = {
     },
   },
 }
+
+export const image_validation = {
+  name: 'image',
+  label: 'Image',
+  type: 'file',
+  id: 'image',
+  placeholder: 'Image ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+  },
+}

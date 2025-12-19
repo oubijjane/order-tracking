@@ -21,10 +21,27 @@ const getOrderById = async (id) => {
     }
 };
 
-// 2. Create Order
-const createOrder = async (orderData) => {
+const createOrder = async (jsonData, imageFile) => {
     try {
-        const response = await api.post('/orders', orderData);
+        const formData = new FormData();
+
+        // A. Add the JSON Data (Must be stringified and blobbed)
+        const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
+        formData.append("data", jsonBlob);
+
+        // B. Add the Image File (If provided)
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
+
+        // C. Send as Multipart
+        // Note: We send 'formData', NOT 'orderData'
+        const response = await api.post('/orders', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        
         return response.data;
     } catch (error) {
         console.error("Error creating order:", error);
@@ -53,6 +70,17 @@ const deleteOrder = async (id) => {
     }
 };
 
+const handleDecision = async (id, decision) => {
+    try {
+    // decision must be the EXACT string: 'VALIDATED' or 'REJECTED'
+    await api.patch(`/orders/${id}/status?status=${decision}`);
+    } catch (error) {
+        console.error("Error handling decision for order:", error);
+        throw error;
+    }
+    
+};
+
 
 
 // EXPORT DEFAULT: This bundles the functions into one object
@@ -61,5 +89,6 @@ export default {
     getOrderById,
     createOrder,
     updateOrder,
-    deleteOrder
+    deleteOrder,
+    handleDecision
 };

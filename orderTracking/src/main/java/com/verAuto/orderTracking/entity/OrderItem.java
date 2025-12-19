@@ -40,9 +40,9 @@ public class OrderItem {
     @NotBlank(message = "L'image est obligatoire")
     private String image;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull(message = "Le statut est obligatoire")
-    private OrderStatus status;
+    @Column
+    @NotBlank(message = "Le statut est obligatoire")
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "city_id", nullable = false)

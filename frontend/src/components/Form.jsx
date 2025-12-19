@@ -8,7 +8,7 @@ import { useCompanySelection } from '../hooks/useCompanySelection'; // Import co
 import { useCitySelection } from '../hooks/useCitySelection'; // Import city hook
 import { WINDOW_TYPES, formatOrderPayload } from '../utils/formUtils'; // Import helpers
 import {
-  company_name_validation, window_type_validation, destination_validation,
+  company_name_validation, window_type_validation, image_validation,
   year_validation, registration_number_validation, car_model_validation, brand_validation,
   company_validation, city_validation
 } from '../validation/inputValidation';
@@ -46,8 +46,9 @@ function Form() {
     // 3. Handle Submit
     const onValidSubmit = async (data) => {
         try {
-            const payload = formatOrderPayload(data); // Logic is now hidden away
-            await OrderService.createOrder(payload);    
+            const payload = formatOrderPayload(data);
+            const imageFile = data.image ? data.image[0] : null; // Logic is now hidden away
+            await OrderService.createOrder(payload, imageFile);    
             navigate('/');
         } catch (error) {
             console.error("Failed to create order:", error);
@@ -56,13 +57,16 @@ function Form() {
 
     return (
         <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onValidSubmit)} noValidate>
+            <form onSubmit={methods.handleSubmit(onValidSubmit)} className="form-content" noValidate>
                 
                 {/* Text Inputs */}
+                
                 <InputField {...registration_number_validation} />
                 <InputField {...year_validation} />
+                <InputField {...image_validation} />
                 
                 {/* Dropdowns */}
+                
                 <Dropdown 
                     {...company_validation} 
                     options={companyOptions} 
@@ -75,6 +79,8 @@ function Form() {
                     {...window_type_validation} 
                     options={WINDOW_TYPES} 
                 />
+                
+                
                 <Dropdown 
                     {...brand_validation} 
                     options={brandOptions} 
@@ -85,7 +91,6 @@ function Form() {
                     // Optional: Disable if no brand selected
                     disabled={!selectedBrand} 
                 />
-
                 <button type="submit">Submit</button>
             </form>
         </FormProvider>

@@ -5,6 +5,10 @@ import OrderService from '../services/orderService';
 import Form from '../components/Form';
 
 function CreateOrderPage() {
-    return (<Form />);
+    return (
+        <div className='create-order'>
+            <Form />
+        </div>
+    );
 }
 export default CreateOrderPage;

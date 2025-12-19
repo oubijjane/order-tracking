@@ -19,6 +19,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // <--- 1. ENABLE CORS
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // 1. ✅ ALLOW PUBLIC ACCESS TO IMAGES
+                        // This must come BEFORE .anyRequest().authenticated()
+                        .requestMatchers("/uploads/**").permitAll()
+
+                        // 2. Lock everything else
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());
@@ -31,10 +36,10 @@ public class SecurityConfig {
         CorsConfiguration source = new CorsConfiguration();
 
         // Allow your React Frontend
-        source.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        source.setAllowedOriginPatterns(Arrays.asList("*"));
 
         // Allow these methods
-        source.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        source.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
 
         // Allow all headers (Authorization, Content-Type, etc.)
         source.setAllowedHeaders(Arrays.asList("*"));
@@ -43,4 +48,6 @@ public class SecurityConfig {
         urlBasedSource.registerCorsConfiguration("/**", source);
         return urlBasedSource;
     }
+
+
 }

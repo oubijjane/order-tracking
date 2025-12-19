@@ -2,6 +2,7 @@ package com.verAuto.orderTracking.service;
 
 import com.verAuto.orderTracking.dao.OrderItemDAO;
 import com.verAuto.orderTracking.entity.OrderItem;
+import com.verAuto.orderTracking.enums.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,16 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
 
         return orderItems;
+    }
+
+    @Override
+    public OrderItem updateOrderStatus(Long id, OrderStatus status) {
+        OrderItem order = orderItemDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setStatus(status.getLabel());
+
+        return orderItemDAO.save(order);
     }
 
     @Override
