@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
-import {ORDER_STATUS} from '../utils/formUtils';
+import {ORDER_STATUS_MAP, statusLabel} from '../utils/formUtils';
+import ButtonStatus from '../components/ButtonStatus';
 
 function OrderDetailsPage() {
     const { id } = useParams(); // 1. Get the ID from the URL
@@ -21,13 +22,16 @@ function OrderDetailsPage() {
                 setLoading(false);
             });
     }, [id]);
-    const handleSubmit = async () => {
+    const handleSubmit = async (updatedStatus) => {
+        
         try {
-            await OrderService.handleDecision(id, ORDER_STATUS[1].value); // 'VALIDATED'
+            await OrderService.handleDecision(id, updatedStatus); // 'VALIDATED'
             setOrder(prevOrder => ({
                 ...prevOrder,
-                status: ORDER_STATUS[1].label
+                status: updatedStatus
             }));
+            console.log(updatedStatus);
+            
         } catch (err) {
             console.error("Failed to update order status:", err);
         }
@@ -75,7 +79,7 @@ function OrderDetailsPage() {
                                 )}
                             </div>
                 <p><strong>Car:</strong> {order.carModel.carBrand.brand} {order.carModel.model} {order.year}</p>
-                <p><strong>Status:</strong> {order.status}</p>
+                <p><strong>Status:</strong> {ORDER_STATUS_MAP[order.status]}</p>
 
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1>Order #{order.id}</h1>
@@ -95,6 +99,7 @@ function OrderDetailsPage() {
                 >
                     Delete Order
                 </button>
+                {   /*
                 <button 
                     onClick={handleSubmit}
                     style={{ 
@@ -107,12 +112,14 @@ function OrderDetailsPage() {
                         fontWeight: 'bold'
                     }}
                 >
-                    valider
-                </button>
+                    {ORDER_STATUS_MAP[order.status]}
+                </button> */} 
+                <ButtonStatus status={statusLabel(order.status)} handleClick={handleSubmit} />
             </div>
             </div>
         </div>
     );
 }
+
 
 export default OrderDetailsPage;

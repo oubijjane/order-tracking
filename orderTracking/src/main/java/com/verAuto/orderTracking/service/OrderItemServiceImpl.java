@@ -41,7 +41,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItem order = orderItemDAO.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        order.setStatus(status.getLabel());
+        order.setStatus(status);
 
         return orderItemDAO.save(order);
     }

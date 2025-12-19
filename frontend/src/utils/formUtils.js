@@ -21,7 +21,34 @@ export const ORDER_STATUS = [
     { value: 'SENT', label: 'Envoyer' },
     { value: 'CANCELLED', label: 'Annulé' }
   ];
-  
+
+  export const ORDER_STATUS_MAP = Object.fromEntries(
+  ORDER_STATUS.map(s => [s.value, s.label])
+);
+
+export const handleDecision = async (id, decision, action) => {
+        try {
+            await action.patch(`/orders/${id}/status?status=${decision}`);
+            // Refresh the list from the server to see the update
+        } catch (err) {
+            alert("Error updating status: " + err.message);
+        }
+};
+
+export const statusLabel = (statusValue) => {
+    switch(statusValue) {
+        case 'PENDING':
+            return ['IN_PROGRESS'];
+        case 'IN_PROGRESS':
+            return ['AVAILABLE', 'NOT_AVAILABLE']; 
+        case 'AVAILABLE':
+            return ['SENT','CANCELLED'];
+        case 'NOT_AVAILABLE':  
+            return ['CANCELLED','AVAILABLE'];
+        default:
+            return [];
+    }
+}
 // Helper to format data for backend
 export const formatOrderPayload = (data) => {
     return {

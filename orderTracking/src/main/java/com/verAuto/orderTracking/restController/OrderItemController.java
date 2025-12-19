@@ -83,7 +83,7 @@ public class OrderItemController {
         orderItem.setId(null);
         orderItem.setCarModel(model);
         orderItem.setCompany(company);
-        orderItem.setStatus(OrderStatus.PENDING.getLabel());
+        orderItem.setStatus(OrderStatus.PENDING);
         OrderItem createdOrder = orderItemService.save(orderItem);
 
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
@@ -113,8 +113,7 @@ public class OrderItemController {
         // 1. Fetch existing order
         OrderItem order = orderItemService.findById(id);
         // 2. Modify ONLY the status
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> " + status.getLabel());
-        order.setStatus(status.getLabel());
+        order.setStatus(status);
         // 3. Save (The other fields remain untouched in Java memory)
         OrderItem savedOrder = orderItemService.save(order);
 
