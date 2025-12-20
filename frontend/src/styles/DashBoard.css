@@ -1,0 +1,83 @@
+.dashboard-page {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.dashboard-header h1 {
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--verauto-black);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.header-line {
+  width: 60px;
+  height: 5px;
+  background-color: var(--verauto-orange);
+  margin-bottom: 40px;
+}
+
+/* Logic for the StatusList container */
+/* Target the div inside StatusList that wraps the cards */
+.stats-section > div {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  gap: 20px !important;
+  justify-content: stretch !important;
+}
+
+/* Stat Card Styling */
+.stat-card {
+  background: var(--verauto-white);
+  padding: 25px 15px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-bottom: 4px solid #e2e8f0;
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--verauto-black);
+  margin: 0;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Status Colors - Matching your labels */
+.stat-card.en-attente { border-bottom-color: #f59e0b; }
+.stat-card.en-cours { border-bottom-color: #3b82f6; }
+.stat-card.disponible { border-bottom-color: #10b981; }
+.stat-card.non-disponible { border-bottom-color: #6366f1; }
+.stat-card.envoyer { border-bottom-color: var(--verauto-orange); }
+.stat-card.annulé { border-bottom-color: #ef4444; }
+
+@media (max-width: 768px) {
+  .stats-section > div {
+    grid-template-columns: 1fr 1fr; /* 2 cards per row on mobile */
+  }
+}

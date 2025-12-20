@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { useEffect } from 'react';
+import { useEffect, useState,useRef } from 'react';
 import { useNavigate } from 'react-router';
 import {InputField, Dropdown} from "./Input";
 import OrderService from '../services/orderService';
@@ -34,6 +34,8 @@ function Form() {
     // 2. Use Custom Hook for Dropdown Data
     // We pass the watched value so the hook knows when to refetch models
     const selectedBrand = methods.watch('brandId');
+    const [isUpdating, setIsUpdating] = useState(false);
+    const submitLock = useRef(false);
     const { brandOptions, modelOptions } = useCarSelection(selectedBrand);
     const companyOptions = useCompanySelection();
     const cityOptions = useCitySelection(); // Placeholder if city dropdown is needed
@@ -45,6 +47,11 @@ function Form() {
 
     // 3. Handle Submit
     const onValidSubmit = async (data) => {
+        if (submitLock.current) return;
+
+        // 4. Lock it immediately
+        submitLock.current = true;
+        setIsUpdating(true);
         try {
             const payload = formatOrderPayload(data);
             const imageFile = data.image ? data.image[0] : null; // Logic is now hidden away
@@ -52,6 +59,8 @@ function Form() {
             navigate('/');
         } catch (error) {
             console.error("Failed to create order:", error);
+        }finally {
+            setIsUpdating(false);
         }
     };
 
@@ -91,7 +100,7 @@ function Form() {
                     // Optional: Disable if no brand selected
                     disabled={!selectedBrand} 
                 />
-                <button type="submit">Submit</button>
+                <button className={isUpdating ? "disabled-button" : "enabled-button"} type="submit">Submit</button>
             </form>
         </FormProvider>
     );

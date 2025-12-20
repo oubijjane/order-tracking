@@ -1,19 +1,30 @@
 import Order from './Order.jsx';
+import '../styles/Orders.css';
 function OrdersList({ orders, error }) {
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Verauto Order Tracking</h1>
+    <div className="orders-container">
+      {/* Header Section */}
+      <header className="orders-header">
+        <h1>Suivi des Commandes Verauto</h1>
+        <div className="header-line"></div>
+      </header>
       
       {/* Error Message */}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className="alert-error">{error}</div>}
 
-      {/* Loading State */}
-      {!error && orders.length === 0 && <p>No orders found yet...</p>}
+      {/* Loading / Empty State */}
+      {!error && orders.length === 0 && (
+        <div className="empty-state">
+          <p>Aucune commande trouvée pour le moment...</p>
+        </div>
+      )}
 
-      {/* The List */}
-      <div style={{ display: 'grid', gap: '10px' }}>
+      {/* The Grid of Orders */}
+      <div className="orders-grid">
         {orders.map(order => (
-          <Order key={order.id} order={order}/>
+          <div key={order.id} className="order-card-wrapper">
+             <Order order={order}/>
+          </div>
         ))}
       </div>
     </div>

@@ -1,19 +1,12 @@
 import {ORDER_STATUS_MAP} from '../utils/formUtils';
 
-function ButtonStatus( {status=[], handleClick} ) {
+function ButtonStatus( {status=[], handleClick, disabled = false} ) {
     return (
         status.map((stat) => (<button 
             key={stat}
             onClick={() => handleClick(stat)}
-            style={{
-                backgroundColor: '#dc3545', // Red color
-                color: 'white', 
-                padding: '10px 15px', 
-                border: 'none', 
-                borderRadius: '5px', 
-                cursor: 'pointer',
-                fontWeight: 'bold'
-            }}
+            disabled={disabled}
+            className={disabled ? "disabled-button" : "enabled-button"}
         >
             {ORDER_STATUS_MAP[stat]}
         </button>))

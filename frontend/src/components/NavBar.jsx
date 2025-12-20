@@ -1,14 +1,42 @@
-import { Link } from "react-router";
+import { NavLink } from 'react-router';
+import { useState } from 'react';
+import '../styles/NavBar.css';
+import logo from '../assets/verauto-logo.png';
+
 
 function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Close menu when a link is clicked
+  const closeMenu = () => setIsOpen(false);
+
   return (
-      <nav style={{ padding: '15px', background: '#f0f0f0', marginBottom: '20px' }}>
-        {/* If Link doesn't work, use: <a href="/">Home</a> */}
-        <Link to="/" style={{ marginRight: '15px' }}>Home</Link>
-        <Link to="/create" style={{ marginRight: '15px' }}>Create Order</Link>
-        <Link to="/orders" style={{ marginRight: '15px' }}>Orders</Link>
-      </nav>
+    <nav className="main-navbar">
+      <div className="nav-container">
+        <NavLink to="/" className="nav-logo" onClick={closeMenu}>
+          <img src={logo} alt="VerAuto Logo" className="brand-img" />
+        </NavLink>
+
+        {/* This icon is hidden on Desktop via CSS */}
+        <div className={`hamburger ${isOpen ? 'active' : ''}`} onClick={() => setIsOpen(!isOpen)}>
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </div>
+
+        <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
+          <NavLink to="/" className="nav-item" onClick={closeMenu} end>
+            Dashboard
+          </NavLink>
+          <NavLink to="/create" className="nav-item" onClick={closeMenu}>
+            Nouveau Dossier
+          </NavLink>
+          <NavLink to="/orders" className="nav-item" onClick={closeMenu}>
+            Historique
+          </NavLink>
+        </div>
+      </div>
+    </nav>
   );
 }
-
 export default Navbar;
