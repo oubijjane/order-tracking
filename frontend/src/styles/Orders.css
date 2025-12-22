@@ -29,20 +29,21 @@
 }
 
 /* Styling the Order component container */
-.order-card-wrapper > div {
+.order-card-wrapper > .info-card {
     /* This targets the div inside your Order component */
-    background: white !important;
-    border: 1px solid #e2e8f0 !important;
-    border-left: 6px solid #1a1a1b !important; /* Bold Black Edge */
-    border-radius: 8px !important;
-    padding: 20px !important;
-    transition: all 0.3s ease !important;
+    background: white ;
+    border: 1px solid #e2e8f0 ;
+    border-left: 6px solid #1a1a1b; 
+    border-radius: 8px ;
+    padding: 20px ;
+    transition: all 0.3s ease;
     height: 80%;
 }
 
 .order-card-wrapper > div:hover {
     transform: translateY(-5px);
-    border-left-color: #ef7d00 !important; /* Verauto Orange on Hover */
+    border-left-color: #ef7d00 !important;
+    border-top-color: #ef7d00 !important;
     box-shadow: 0 12px 25px rgba(0,0,0,0.1);
 }
 
@@ -88,3 +89,20 @@
         grid-template-columns: 1fr;
     }
 }
+
+.info-card.border-pending,
+.info-card.border-en-attente { border-left-color: #f59e0b; } /* Warning Orange */
+
+.info-card.border-available,
+.info-card.border-disponible { border-left-color: #10b981; } /* Success Green */
+
+.info-card.border-cancelled,
+.info-card.border-annulé { border-left-color: #ef4444; }    /* Danger Red */
+
+.info-card.border-in_progress,
+.info-card.border-en-cours { border-left-color: #3b82f6; }   /* Info Blue */
+
+.info-card.border-sent,
+.info-card.border-envoyer { border-left-color: var(--verauto-orange); } /* Brand Orange */
+.info-card.border-not_available,
+.info-card.border-non-disponible { border-left-color: #6366f1; } /* Indigo */

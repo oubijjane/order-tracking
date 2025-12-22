@@ -74,8 +74,8 @@ function OrderDetailsPage() {
         <div className="details-container">
             {/* Navigation Header */}
             <nav className="details-nav">
-                <Link to="/" className="back-link">
-                    ← Back to List
+                <Link to="/orders" className="back-link">
+                    ← Retour
                 </Link>
             </nav>
 

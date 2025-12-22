@@ -3,7 +3,7 @@ import {ORDER_STATUS_MAP} from '../utils/formUtils';
 
 function Order({ order }) {
   return (
-    <div >
+    <div className={`info-card border-${order.status?.toLowerCase().replace(/\s+/g, '-')}`}>
       <h3><Link to={`/orders/${order.id}`} style={{ textDecoration: 'none', color: '#333' }}>
             {order.company.companyName}
           </Link>

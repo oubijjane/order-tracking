@@ -29,10 +29,10 @@ function Navbar() {
             Dashboard
           </NavLink>
           <NavLink to="/create" className="nav-item" onClick={closeMenu}>
-            Nouveau Dossier
+            nouvelle Commande
           </NavLink>
           <NavLink to="/orders" className="nav-item" onClick={closeMenu}>
-            Historique
+            Tous les Commandes
           </NavLink>
         </div>
       </div>
