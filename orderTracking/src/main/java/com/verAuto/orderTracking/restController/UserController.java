@@ -5,12 +5,15 @@ import com.verAuto.orderTracking.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@PreAuthorize("hasRole('ADMIN')")
 public class UserController {
 
     private UserService userService;
@@ -20,8 +23,10 @@ public class UserController {
         this.userService = userService;
     }
 
+
     @GetMapping
     public ResponseEntity<List<User>> findAllUsers() {
+        System.out.println("Principal: " + SecurityContextHolder.getContext().getAuthentication());
         return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
 

@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,10 +51,13 @@ public class OrderItemController {
     }
 
 
-    @GetMapping
-    public ResponseEntity<List<OrderItem>> getAllOrders() {
-        List<OrderItem> orders = orderItemService.findAll();
 
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<OrderItem>> getAllOrders(Authentication authentication) {
+        List<OrderItem> orders = orderItemService.findAll();
+        System.out.println("User in Controller: " + authentication.getName());
+        System.out.println("Is Authenticated: " + authentication.isAuthenticated());
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
     @GetMapping("/{id}")

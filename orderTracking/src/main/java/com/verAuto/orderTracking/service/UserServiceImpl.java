@@ -3,6 +3,7 @@ package com.verAuto.orderTracking.service;
 import com.verAuto.orderTracking.dao.UserDAO;
 import com.verAuto.orderTracking.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -30,7 +31,8 @@ public class UserServiceImpl implements UserService{
     }
     @Override
     public User findUserByName(String name) {
-        return userDAO.findByUserName(name);
+        return userDAO.findByUserName(name)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found after auth"));
     }
 
     @Override

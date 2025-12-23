@@ -1,19 +1,41 @@
 package com.verAuto.orderTracking.security;
 
+
+import com.verAuto.orderTracking.Config.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    @Bean
+    private final AuthenticationProvider authenticationProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            AuthenticationProvider authenticationProvider
+    ) {
+        this.authenticationProvider = authenticationProvider;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+  /* @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // <--- 1. ENABLE CORS
@@ -29,9 +51,26 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults());
 
         return httpSecurity.build();
-    }
+    }*/
 
     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for JWT-based APIs
+                .authorizeHttpRequests(auth -> auth// Allow public access to auth endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users").hasRole("ADMIN")// All other requests need a token
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No JSESSIONID cookies
+                )
+                .authenticationProvider(authenticationProvider) // Use your custom DaoAuthenticationProvider
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+   @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration source = new CorsConfiguration();
 
