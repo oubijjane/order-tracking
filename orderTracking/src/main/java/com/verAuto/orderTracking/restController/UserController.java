@@ -26,7 +26,6 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<User>> findAllUsers() {
-        System.out.println("Principal: " + SecurityContextHolder.getContext().getAuthentication());
         return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
 
