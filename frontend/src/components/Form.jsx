@@ -8,7 +8,7 @@ import { useCompanySelection } from '../hooks/useCompanySelection'; // Import co
 import { useCitySelection } from '../hooks/useCitySelection'; // Import city hook
 import { WINDOW_TYPES, formatOrderPayload } from '../utils/formUtils'; // Import helpers
 import {
-  company_name_validation, window_type_validation, image_validation,
+  window_type_validation, image_validation,
   year_validation, registration_number_validation, car_model_validation, brand_validation,
   company_validation, city_validation
 } from '../validation/inputValidation';

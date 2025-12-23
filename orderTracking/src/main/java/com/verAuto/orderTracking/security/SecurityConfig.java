@@ -59,8 +59,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for JWT-based APIs
                 .authorizeHttpRequests(auth -> auth// Allow public access to auth endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users").hasRole("ADMIN")// All other requests need a token
+                        .requestMatchers("/api/auth/**", "/uploads/**").permitAll()
+                        .anyRequest().hasRole("ADMIN")
+                       // All other requests need a token
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No JSESSIONID cookies

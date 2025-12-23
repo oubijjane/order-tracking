@@ -77,6 +77,41 @@ export const destination_validation = {
   },
 }
 
+export const user_name_validation = {
+  name: 'username',
+  label: 'Nom d\'utilisateur',
+  type: 'text',
+  id: 'username',
+  placeholder: 'Nom d\'utilisateur ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+
+export const password_validation = {
+  name: 'password',
+  label: 'Mot de passe',
+  type: 'password',
+  id: 'password',
+  placeholder: 'Mot de passe ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 export const registration_number_validation = {
   name: 'registrationNumber',
   label: 'Numéro d\'immatriculation',
