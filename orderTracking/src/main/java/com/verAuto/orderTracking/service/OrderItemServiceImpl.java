@@ -6,7 +6,9 @@ import com.verAuto.orderTracking.enums.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -45,6 +47,28 @@ public class OrderItemServiceImpl implements OrderItemService {
         order.setStatus(status);
 
         return orderItemDAO.save(order);
+    }
+
+    @Override
+    public Map<OrderStatus, Long> getStatusCounts() {
+        List<Object[]> results = orderItemDAO.countOrdersByStatusRaw();
+        Map<OrderStatus, Long> counts = new HashMap<>();
+
+        // Initialize all statuses to 0 so the UI doesn't break
+        for (OrderStatus s : OrderStatus.values()) {
+            counts.put(s, 0L);
+        }
+
+        // Fill with real data
+        for (Object[] result : results) {
+            counts.put((OrderStatus) result[0], (Long) result[1]);
+        }
+        return counts;
+    }
+
+    @Override
+    public List<OrderItem> findOrderByStatus(OrderStatus status) {
+        return orderItemDAO.findByStatus(status);
     }
 
     @Override

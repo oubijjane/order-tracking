@@ -131,6 +131,16 @@
   .nav-item.active {
     box-shadow: none; /* Cleaner look on mobile */
   }
+  .btn-logout-simple{
+    background: transparent ;
+    border: none ;
+    color: #64748b ;
+    font-weight: 600 ;
+    cursor: pointer ;
+    font-size: 0.9rem ;
+    transition: 0.2s ;
+    margin-bottom: 10px;
+}
 
   .brand-img {
     height: 40px;

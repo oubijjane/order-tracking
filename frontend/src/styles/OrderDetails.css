@@ -124,7 +124,19 @@
     font-size: 0.9rem;
     transition: 0.2s;
 }
-
+.btn-back-simple{
+    background: transparent ;
+    border: none ;
+    color: #64748b ;
+    font-weight: 600 ;
+    cursor: pointer ;
+    font-size: 0.9rem ;
+    transition: 0.2s ;
+    margin-bottom: 10px;
+}
+.btn-back-simple:hover { 
+    color: var(--verauto-orange) !important;  
+}
 .btn-delete-simple:hover { text-decoration: underline; opacity: 0.8; }
 
 /* Responsive */

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
 import { ORDER_STATUS_MAP, statusLabel } from '../utils/formUtils';
 import ButtonStatus from '../components/ButtonStatus';
+import Button from '../components/Button';
 import '../styles/OrderDetails.css';
 
 function OrderDetailsPage() {
@@ -74,9 +75,11 @@ function OrderDetailsPage() {
         <div className="details-container">
             {/* Navigation Header */}
             <nav className="details-nav">
-                <Link to="/orders" className="back-link">
-                    ← Retour
-                </Link>
+                <Button 
+                    text="← Retour" 
+                    onClick={() =>navigate(-1)} 
+                    className="btn-back-simple"
+                />
             </nav>
 
             <div className="details-grid">

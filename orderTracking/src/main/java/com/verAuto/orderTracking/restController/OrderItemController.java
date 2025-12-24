@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -56,8 +57,16 @@ public class OrderItemController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderItem>> getAllOrders(Authentication authentication) {
         List<OrderItem> orders = orderItemService.findAll();
-        System.out.println("User in Controller: " + authentication.getName());
-        System.out.println("Is Authenticated: " + authentication.isAuthenticated());
+        return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+    @GetMapping("/count")
+    public ResponseEntity<Map<OrderStatus, Long>> getOrdersCount() {
+
+        return new ResponseEntity<>(orderItemService.getStatusCounts(), HttpStatus.OK);
+    }
+    @GetMapping("/status")
+    public ResponseEntity<List<OrderItem>> getOrdersByStatus(@RequestParam OrderStatus status) {
+        List<OrderItem> orders = orderItemService.findOrderByStatus(status);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
     @GetMapping("/{id}")

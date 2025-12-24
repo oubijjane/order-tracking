@@ -11,6 +11,27 @@ import api from './api';
         }
     };
 
+    const getOrderCountByStatus = async () => {
+        try {
+            const response = await api.get('/orders/count');
+            return response.data; // CRITICAL: This passes the data back to App.jsx
+        } catch (error) {
+            console.error("Error fetching order counts:", error);
+            throw error;
+        }
+    };
+
+    const getOrderByStatus = async (status) => {
+        try {
+            const response = await api.get(`/orders/status?status=${status}`);
+            return response.data; // CRITICAL: This passes the data back to App.jsx
+        } catch (error) {
+            console.error("Error fetching order counts:", error);
+            throw error;
+        }
+    };
+
+
 const getOrderById = async (id) => {
     try {
         const response = await api.get(`/orders/${id}`);
@@ -86,6 +107,8 @@ const handleDecision = async (id, decision) => {
 // EXPORT DEFAULT: This bundles the functions into one object
 export default {
     getAllOrders,
+    getOrderCountByStatus,
+    getOrderByStatus,
     getOrderById,
     createOrder,
     updateOrder,

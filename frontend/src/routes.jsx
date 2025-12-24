@@ -6,23 +6,33 @@ import CreateOrderPage from "./pages/CreateOrderPage";
 import EditOrderPage from "./pages/EditOrderPage";
 import DashBoard from "./pages/DashBoard";
 import LogIn from "./pages/LogIn";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import OrdersByStatus from "./pages/OrderByStatus";
 
 const routes = [
+  { 
+    path: "/login", 
+    element: <LogIn /> 
+  },
   {
     path: "/",
-    element: <App />, // The Layout (Navbar + Outlet)
-    children: [
-        // 1. "index: true" means this loads when path is exactly "/"
-        { index: true, element: <DashBoard /> },
-        
-        // 2. Future routes (ready for you to build)
-        { path: "orders", element: <HomePage /> },
-        { path: "create", element: <CreateOrderPage /> },
-        { path: "login", element: <LogIn /> },
-        { path: "orders/:id", element: <OrderDetailsPage /> },
-        { path: "edit/:id", element: <EditOrderPage /> },
-    ],
+    element: <App />, 
     errorElement: <ErrorPage />,
+    children: [
+      // --- PROTECTED ROUTES ---
+      {
+        element: <ProtectedRoute />, // All routes inside this block need a token
+        children: [
+          { index: true, element: <DashBoard /> },
+          { path: "orders", element: <HomePage /> },
+          { path: "create", element: <CreateOrderPage /> },
+          { path: "orders/:id", element: <OrderDetailsPage /> },
+          { path: "edit/:id", element: <EditOrderPage /> },
+          { path: "status/:status", element: <OrdersByStatus /> },
+          
+        ],
+      },
+    ],
   },
 ];
 

@@ -1,6 +1,10 @@
 import Order from './Order.jsx';
 import '../styles/Orders.css';
+import { useNavigate } from 'react-router';
+import Button from './Button';
+
 function OrdersList({ orders, error }) {
+  const navigate = useNavigate();
   return (
     <div className="orders-container">
       {/* Header Section */}
@@ -20,6 +24,11 @@ function OrdersList({ orders, error }) {
       )}
 
       {/* The Grid of Orders */}
+       <Button 
+                    text="← Retour" 
+                    onClick={() =>navigate(-1)} 
+                    className="btn-back-simple"
+                />
       <div className="orders-grid">
         {orders.map(order => (
           <div key={order.id} className="order-card-wrapper">

@@ -1,14 +1,22 @@
-import { NavLink } from 'react-router';
+import { NavLink,useNavigate } from 'react-router';
 import { useState } from 'react';
+import Button from '../components/Button';
 import '../styles/NavBar.css';
 import logo from '../assets/verauto-logo.png';
 
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-
+  const navigate = useNavigate();
   // Close menu when a link is clicked
   const closeMenu = () => setIsOpen(false);
+
+  const logout = () => {
+    // 1. Remove the token from storage
+    localStorage.removeItem('token');
+    navigate('/login');
+    
+};
 
   return (
     <nav className="main-navbar">
@@ -32,7 +40,10 @@ function Navbar() {
             nouvelle Commande
           </NavLink>
           <NavLink to="/orders" className="nav-item" onClick={closeMenu}>
-            Tous les Commandes
+            Commandes
+          </NavLink>
+          <NavLink to="/login" className="nav-item" onClick={logout}>
+            logout
           </NavLink>
         </div>
       </div>

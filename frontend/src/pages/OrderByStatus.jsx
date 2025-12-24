@@ -4,26 +4,18 @@ import OrderService from '../services/orderService';
 import OrdersList from '../components/OrdersList';
 import api from '../services/api';
 
-function HomePage() {
+function OrdersByStatus() {
   const [orders, setOrders] = useState([]); 
   const [error, setError] = useState("");
   const { status } = useParams();
 
   useEffect(() => {
     fetchOrders();
-  }, [status]);
+  }, []);
 
   const fetchOrders = () => {
-    let apiCall;
-    if (status) {
-      // If a status exists in the URL, call the filtered endpoint
-      apiCall = OrderService.getOrderByStatus(status);
-      console.log("Fetching orders with status:", apiCall);
-    } else {
-      // Otherwise, call the endpoint to get all orders 
-      apiCall = OrderService.getAllOrders();
-    }
-    apiCall.then(data => {
+   
+    OrderService.getOrderByStatus(status).then(data => {
         setOrders(data);
       })
       .catch(err => {
@@ -38,4 +30,4 @@ function HomePage() {
   
 }
 
-export default HomePage;
+export default OrdersByStatus;
