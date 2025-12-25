@@ -6,6 +6,7 @@ import OrderService from '../services/orderService';
 import { useCarSelection } from '../hooks/useCarSelection'; // Import your new hook
 import { useCompanySelection } from '../hooks/useCompanySelection'; // Import company hook
 import { useCitySelection } from '../hooks/useCitySelection'; // Import city hook
+import { useImageResizer } from '../hooks/useImageResizer'; // Import image hook
 import { WINDOW_TYPES, formatOrderPayload } from '../utils/formUtils'; // Import helpers
 import {
   window_type_validation, image_validation,
@@ -37,6 +38,7 @@ function Form() {
     const [isUpdating, setIsUpdating] = useState(false);
     const submitLock = useRef(false);
     const { brandOptions, modelOptions } = useCarSelection(selectedBrand);
+    const { resizeImage, isProcessing } = useImageResizer();
     const companyOptions = useCompanySelection();
     const cityOptions = useCitySelection(); // Placeholder if city dropdown is needed
 
@@ -54,11 +56,17 @@ function Form() {
         setIsUpdating(true);
         try {
             const payload = formatOrderPayload(data);
-            const imageFile = data.image ? data.image[0] : null; // Logic is now hidden away
-            await OrderService.createOrder(payload, imageFile);    
+
+            let finalImage = null;
+            const rawFile = data.image ? data.image[0] : null;
+            if (rawFile) {
+                finalImage = await resizeImage(rawFile);
+            } // Logic is now hidden away
+            await OrderService.createOrder(payload, finalImage);    
             navigate('/');
         } catch (error) {
             console.error("Failed to create order:", error);
+            submitLock.current = false;
         }finally {
             setIsUpdating(false);
         }

@@ -1,18 +1,22 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.OrderItem;
+import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.enums.OrderStatus;
+import org.hibernate.query.Order;
 
 import java.util.List;
 import java.util.Map;
 
 public interface OrderItemService {
-    List<OrderItem> findAll();
+    List<OrderItem> findAll(User user);
     List<OrderItem> findByRegistrationNumber(String registrationNumber);
     OrderItem updateOrderStatus(Long id, OrderStatus orderStatus);
-    Map<OrderStatus, Long> getStatusCounts();
-    List<OrderItem> findOrderByStatus(OrderStatus status);
+    Map<OrderStatus, Long> getStatusCounts(User user);
+    List<OrderItem> findOrderByStatus(OrderStatus status, User user);
     OrderItem findById(Long id);
+    List<OrderItem> findUserOrders(User user);
     OrderItem save(OrderItem orderItem);
     void deleteById(Long id);
 }

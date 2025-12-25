@@ -1,10 +1,12 @@
 package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.entity.Company;
+import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +22,8 @@ public class CompanyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Company>> findAllCompanies() {
-        List<Company> companies = companyService.findAll();
+    public ResponseEntity<List<Company>> findAllCompanies(@AuthenticationPrincipal User user) {
+        List<Company> companies = companyService.findAll(user);
 
         return new ResponseEntity<>(companies, HttpStatus.OK);
     }

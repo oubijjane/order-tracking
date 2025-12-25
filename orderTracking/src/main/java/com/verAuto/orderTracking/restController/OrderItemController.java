@@ -1,10 +1,7 @@
 package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.DTO.CreateOrderRequest;
-import com.verAuto.orderTracking.entity.CarModel;
-import com.verAuto.orderTracking.entity.City;
-import com.verAuto.orderTracking.entity.Company;
-import com.verAuto.orderTracking.entity.OrderItem;
+import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import com.verAuto.orderTracking.service.CarModelService;
 import com.verAuto.orderTracking.service.CityService;
@@ -18,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,19 +52,27 @@ public class OrderItemController {
 
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<OrderItem>> getAllOrders(Authentication authentication) {
-        List<OrderItem> orders = orderItemService.findAll();
+    public ResponseEntity<List<OrderItem>> getAllOrders(@AuthenticationPrincipal User user) {
+        List<OrderItem> orders = orderItemService.findAll(user);
+        return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+
+    @GetMapping("/city")
+    public ResponseEntity<List<OrderItem>> getAllUserOrder(@AuthenticationPrincipal User user) {
+
+        List<OrderItem> orders =   orderItemService.findUserOrders(user);;
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
     @GetMapping("/count")
-    public ResponseEntity<Map<OrderStatus, Long>> getOrdersCount() {
+    public ResponseEntity<Map<OrderStatus, Long>> getOrdersCount(@AuthenticationPrincipal User user) {
 
-        return new ResponseEntity<>(orderItemService.getStatusCounts(), HttpStatus.OK);
+        return new ResponseEntity<>(orderItemService.getStatusCounts(user), HttpStatus.OK);
     }
     @GetMapping("/status")
-    public ResponseEntity<List<OrderItem>> getOrdersByStatus(@RequestParam OrderStatus status) {
-        List<OrderItem> orders = orderItemService.findOrderByStatus(status);
+    public ResponseEntity<List<OrderItem>> getOrdersByStatus(
+            @RequestParam OrderStatus status
+            , @AuthenticationPrincipal User user) {
+        List<OrderItem> orders = orderItemService.findOrderByStatus(status, user);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
     @GetMapping("/{id}")

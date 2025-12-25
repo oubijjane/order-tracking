@@ -4,6 +4,7 @@ package com.verAuto.orderTracking.security;
 import com.verAuto.orderTracking.Config.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -60,8 +61,25 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for JWT-based APIs
                 .authorizeHttpRequests(auth -> auth// Allow public access to auth endpoints
                         .requestMatchers("/api/auth/**", "/uploads/**").permitAll()
-                        .anyRequest().hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
                        // All other requests need a token
+                        .requestMatchers("/api/orders/**").hasAnyRole("ADMIN",
+                                 "GARAGISTE", "MANAGER",
+                                       "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers("/api/cities/**").hasAnyRole("ADMIN",
+                                "GARAGISTE", "MANAGER",
+                                "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers("/api/companies/**").hasAnyRole("ADMIN",
+                                "GARAGISTE", "MANAGER",
+                                "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers("/api/brands/**").hasAnyRole("ADMIN",
+                                "GARAGISTE", "MANAGER",
+                                "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers("/api/models/**").hasAnyRole("ADMIN",
+                                "GARAGISTE", "MANAGER",
+                                "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No JSESSIONID cookies

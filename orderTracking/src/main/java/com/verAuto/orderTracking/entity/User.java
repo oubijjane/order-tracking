@@ -2,6 +2,7 @@ package com.verAuto.orderTracking.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,6 +38,10 @@ public class User implements UserDetails {
     @JsonManagedReference(value = "user-userrole")
     private Set<UserRole> roles;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonManagedReference(value = "user-usercompany")
+    private Set<UserCompany> companies;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at", columnDefinition = "DATETIME(0)")
     private LocalDate createdAt;
@@ -44,6 +49,11 @@ public class User implements UserDetails {
     @UpdateTimestamp
     @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
     private Date updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    private City city;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

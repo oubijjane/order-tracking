@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.restController;
 
+import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@PreAuthorize("hasRole('ADMIN')")
 public class UserController {
 
     private UserService userService;
@@ -28,6 +28,12 @@ public class UserController {
     public ResponseEntity<List<User>> findAllUsers() {
         return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
+
+    @GetMapping("/{id}/companies")
+    public ResponseEntity<List<Company>> findUserCompanies(@PathVariable int id) {
+        return new ResponseEntity<>(userService.getUserCompany(id), HttpStatus.OK);
+    }
+
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {

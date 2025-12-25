@@ -2,10 +2,14 @@ package com.verAuto.orderTracking.service;
 
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.entity.City;
+import com.verAuto.orderTracking.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CityServiceImpl implements CityService{
@@ -15,8 +19,22 @@ public class CityServiceImpl implements CityService{
     public CityServiceImpl(CityDAO cityDAO) {
         this.cityDAO = cityDAO;
     }
+
     @Override
-    public List<City> findAll() {
+    public List<City> findAll(User user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(r -> r.getRole().getName().toUpperCase())
+                .collect(Collectors.toSet());
+
+        // Rule 1: Garagiste (City-based)
+        if (roleNames.contains("ROLE_GARAGISTE")) {
+            City userCity = user.getCity();
+            if (userCity != null) {
+                return List.of(userCity); // Wrap the single city in a list
+            } else {
+                return Collections.emptyList();
+            }
+        }
         return cityDAO.findAll();
     }
 

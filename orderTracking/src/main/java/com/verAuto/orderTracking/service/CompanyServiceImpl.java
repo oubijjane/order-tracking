@@ -2,10 +2,13 @@ package com.verAuto.orderTracking.service;
 
 import com.verAuto.orderTracking.dao.CompanyDAO;
 import com.verAuto.orderTracking.entity.Company;
+import com.verAuto.orderTracking.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CompanyServiceImpl implements CompanyService{
@@ -17,7 +20,15 @@ public class CompanyServiceImpl implements CompanyService{
     }
 
     @Override
-    public List<Company> findAll() {
+    public List<Company> findAll(User user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(r -> r.getRole().getName().toUpperCase())
+                .collect(Collectors.toSet());
+
+        // Rule 1: Garagiste (City-based)
+        if (roleNames.contains("ROLE_GESTIONNAIRE")) {
+            return companyDAO.findAllByUserId(user.getId());
+        }
         return companyDAO.findAll();
     }
 

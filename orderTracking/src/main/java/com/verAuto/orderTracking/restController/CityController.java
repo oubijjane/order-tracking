@@ -1,10 +1,12 @@
 package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.entity.City;
+import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.service.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +22,8 @@ public class CityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<City>> getAllCities() {
-        return new ResponseEntity<>(cityService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<City>> getAllCities(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(cityService.findAll(user), HttpStatus.OK);
     }
 
 

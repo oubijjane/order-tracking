@@ -1,27 +1,51 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
+import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.OrderItem;
+import com.verAuto.orderTracking.entity.User;
+import com.verAuto.orderTracking.entity.UserCompany;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
-    private OrderItemDAO orderItemDAO;
+    private final OrderItemDAO orderItemDAO;
+    private final CityDAO cityDAO ;
+
 
     @Autowired
-    public OrderItemServiceImpl (OrderItemDAO orderItemDAO) {
+    public OrderItemServiceImpl (OrderItemDAO orderItemDAO, CityDAO cityDAO) {
         this.orderItemDAO = orderItemDAO;
+        this.cityDAO = cityDAO;
     }
 
     @Override
-    public List<OrderItem> findAll() {
+    public List<OrderItem> findAll(User user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(r -> r.getRole().getName().toUpperCase())
+                .collect(Collectors.toSet());
+
+        if (roleNames.contains("ROLE_GARAGISTE")) {
+            // Assuming User entity has a 'city' field
+            Long id = user.getCity().getId();
+            City city = cityDAO.findById(id)
+                    .orElseThrow(() -> new RuntimeException("could not find a city with the id - " + id));
+            return orderItemDAO.findByCity(city);
+        }
+        if (roleNames.contains("ROLE_GESTIONNAIRE")) {
+            // Assuming User entity has a 'city' field
+            Set<UserCompany> userCompanies = user.getCompanies();
+            List<Long> companyIds = userCompanies.stream()
+                    .map(uc -> uc.getCompany().getId()) // Get the ID from the Company inside UserCompany
+                    .toList();      // Turn it into a List
+            return orderItemDAO.findAllByCompanyIds(companyIds);
+        }
         return orderItemDAO.findAll();
     }
 
@@ -50,8 +74,24 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public Map<OrderStatus, Long> getStatusCounts() {
-        List<Object[]> results = orderItemDAO.countOrdersByStatusRaw();
+    public Map<OrderStatus, Long> getStatusCounts(User user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(r -> r.getRole().getName().toUpperCase())
+                .collect(Collectors.toSet());
+        List<Object[]> results;
+        if (roleNames.contains("ROLE_GARAGISTE")) {
+            results = orderItemDAO.countOrdersByStatusAndCity(user.getCity());
+        } else if (roleNames.contains("ROLE_GESTIONNAIRE")) {
+            // Filter by the companies assigned to this user
+            List<Long> companyIds = user.getCompanies().stream()
+                    .map(uc -> uc.getCompany().getId())
+                    .collect(Collectors.toList());
+            results = orderItemDAO.countOrdersByStatusAndCompanies(companyIds);
+
+        }else {
+
+            results = orderItemDAO.countOrdersByStatusRaw();
+        }
         Map<OrderStatus, Long> counts = new HashMap<>();
 
         // Initialize all statuses to 0 so the UI doesn't break
@@ -67,7 +107,24 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public List<OrderItem> findOrderByStatus(OrderStatus status) {
+    public List<OrderItem> findOrderByStatus(OrderStatus status, User user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(r -> r.getRole().getName().toUpperCase())
+                .collect(Collectors.toSet());
+
+
+        // Rule 1: Garagiste (City-based)
+        if (roleNames.contains("ROLE_GARAGISTE")) {
+            return orderItemDAO.findByStatusAndCity(status, user.getCity());
+        }
+        if (roleNames.contains("ROLE_GESTIONNAIRE")) {
+            List<Long> companyIds = user.getCompanies().stream()
+                    .map(uc -> uc.getCompany().getId())
+                    .toList();
+            return orderItemDAO.findByStatusAndCompanies(status, companyIds);
+        }
+
+
         return orderItemDAO.findByStatus(status);
     }
 
@@ -75,6 +132,14 @@ public class OrderItemServiceImpl implements OrderItemService {
     public OrderItem findById(Long id) {
         return orderItemDAO.findById(id) // This already returns Optional<OrderItem>
                 .orElseThrow(() -> new RuntimeException("Did not find order number - " + id));
+    }
+
+    @Override
+    public List<OrderItem> findUserOrders(User user) {
+        Long id = user.getCity().getId();
+        City city = cityDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("could not find the city with the id - " + id));
+        return orderItemDAO.findByCity(city);
     }
 
     @Override

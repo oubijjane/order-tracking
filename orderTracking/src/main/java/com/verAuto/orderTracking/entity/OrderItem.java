@@ -50,6 +50,11 @@ public class OrderItem {
     private City city;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @NotNull
+    private User user;
+
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     @NotNull
     private Company company;

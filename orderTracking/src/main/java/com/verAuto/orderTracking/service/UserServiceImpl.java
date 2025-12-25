@@ -1,6 +1,8 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.dao.CompanyDAO;
 import com.verAuto.orderTracking.dao.UserDAO;
+import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,10 +15,12 @@ import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService{
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+    private final CompanyDAO companyDAO;
 
     @Autowired
-    public UserServiceImpl( UserDAO userDAO ) {
+    public UserServiceImpl(UserDAO userDAO, CompanyDAO companyDAO) {
+        this.companyDAO = companyDAO;
         this.userDAO = userDAO;
     }
     @Override
@@ -33,6 +37,12 @@ public class UserServiceImpl implements UserService{
     public User findUserByName(String name) {
         return userDAO.findByUserName(name)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found after auth"));
+    }
+
+    @Override
+    public List<Company> getUserCompany(int id) {
+
+        return companyDAO.findAllByUserId(id);
     }
 
     @Override

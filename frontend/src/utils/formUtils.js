@@ -1,4 +1,4 @@
-// constants/windowTypes.js (or inside formUtils)
+
 export const WINDOW_TYPES = [
     { value: 'PARE_BRISE', label: 'Pare-brise' },
     { value: 'VITRE_AVANT_GAUCHE', label: 'Vitre avant gauche' },
