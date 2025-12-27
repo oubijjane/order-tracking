@@ -81,7 +81,8 @@ public class OrderItemController {
     }
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<OrderItem> createOrder(@RequestPart("data") CreateOrderRequest request, // The JSON
-                                                 @RequestPart(value = "image", required = false) MultipartFile file) {
+                                                 @RequestPart(value = "image", required = false) MultipartFile file,
+                                                 @AuthenticationPrincipal User user) {
 
         // 1. Handle the File (Save it and get the path)
         String imagePath = "default.jpg";
@@ -104,38 +105,19 @@ public class OrderItemController {
         orderItem.setCarModel(model);
         orderItem.setCompany(company);
         orderItem.setStatus(OrderStatus.PENDING);
-        OrderItem createdOrder = orderItemService.save(orderItem);
+        OrderItem createdOrder = orderItemService.save(orderItem, user);
 
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
 
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<OrderItem> updateOrder(@PathVariable Long id, @RequestBody OrderItem orderItem) {
-
-        OrderItem updatedOrder = orderItemService.findById(id);
-
-        updatedOrder.setCarModel(orderItem.getCarModel());
-        updatedOrder.setCompany(orderItem.getCompany());
-        updatedOrder.setComment(orderItem.getComment());
-        updatedOrder.setYear(orderItem.getYear());
-        updatedOrder.setImage(orderItem.getImage());
-        updatedOrder.setStatus(orderItem.getStatus());
-        updatedOrder.setRegistrationNumber(orderItem.getRegistrationNumber());
-
-        OrderItem savedOrder =  orderItemService.save(updatedOrder);
-
-        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
-
-    }
     @PatchMapping("/{id}/status")
-    public ResponseEntity<OrderItem> updateStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
+    public ResponseEntity<OrderItem> updateStatus(
+            @PathVariable Long id, @RequestParam OrderStatus status,
+            @AuthenticationPrincipal User user) {
         // 1. Fetch existing order
-        OrderItem order = orderItemService.findById(id);
-        // 2. Modify ONLY the status
-        order.setStatus(status);
         // 3. Save (The other fields remain untouched in Java memory)
-        OrderItem savedOrder = orderItemService.save(order);
+        OrderItem savedOrder = orderItemService.updateStatus(id, status, user);
 
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
     }

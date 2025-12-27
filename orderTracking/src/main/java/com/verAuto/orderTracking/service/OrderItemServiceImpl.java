@@ -7,6 +7,7 @@ import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.entity.UserCompany;
 import com.verAuto.orderTracking.enums.OrderStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -143,9 +144,45 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItem save(OrderItem orderItem) {
-
+    public OrderItem save(OrderItem orderItem, User user) {
+        orderItem.setUser(user);
         return orderItemDAO.save(orderItem);
+    }
+
+    @Override
+    public OrderItem updateStatus(Long id, OrderStatus newStatus, User user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(r -> r.getRole().getName().toUpperCase())
+                .collect(Collectors.toSet());
+        OrderItem existingOrder = findById(id);
+        OrderStatus currentStatus = existingOrder.getStatus();
+        System.out.println("new Status " + newStatus + " " + "curreent status " + currentStatus);
+
+        validateStatusTransition(currentStatus, newStatus);
+
+        // --- RULE 1: Garagiste & Gestionnaire Restrictions ---
+        // These roles can ONLY move an order to specific statuses (e.g., 'CANCELLED' or 'PENDING')
+        if (roleNames.contains("ROLE_GARAGISTE") || roleNames.contains("ROLE_GESTIONNAIRE")) {
+            List<OrderStatus> forbiddenForThem = Arrays.asList(
+                    OrderStatus.AVAILABLE,
+                    OrderStatus.IN_PROGRESS,
+                    OrderStatus.SENT,
+                    OrderStatus.NOT_AVAILABLE
+            );
+
+            if (forbiddenForThem.contains(newStatus)) {
+                throw new RuntimeException("Role " + roleNames + " is not allowed to set status to " + newStatus);
+            }
+        }
+
+        // --- RULE 2: Logisticien Restrictions ---
+        if (roleNames.contains("ROLE_LOGISTICIEN")) {
+            if (newStatus == OrderStatus.SENT || newStatus == OrderStatus.CANCELLED) {
+                throw new RuntimeException("Logisticians cannot mark orders as Sent or Cancelled.");
+            }
+        }
+        existingOrder.setStatus(newStatus);
+        return orderItemDAO.save(existingOrder);
     }
 
     @Override
@@ -155,5 +192,20 @@ public class OrderItemServiceImpl implements OrderItemService {
             throw new RuntimeException("Order with ID " + id + " does not exist");
         }
         orderItemDAO.deleteById(id);
+    }
+
+    private void validateStatusTransition(OrderStatus current, OrderStatus next) {
+        boolean isValid = switch (current) {
+            case PENDING -> next == OrderStatus.IN_PROGRESS;
+            case IN_PROGRESS -> next == OrderStatus.AVAILABLE || next == OrderStatus.NOT_AVAILABLE;
+            case AVAILABLE -> next == OrderStatus.SENT || next == OrderStatus.CANCELLED;
+            case NOT_AVAILABLE -> next == OrderStatus.AVAILABLE || next == OrderStatus.CANCELLED;
+            // SENT and CANCELLED are final; no transitions allowed
+            default -> false;
+        };
+
+        if (!isValid) {
+            throw new RuntimeException("Invalid transition: Cannot move order from " + current + " to " + next);
+        }
     }
 }

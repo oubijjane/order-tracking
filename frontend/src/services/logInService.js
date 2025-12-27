@@ -3,19 +3,24 @@ import api from './api';
 const login = async (username, password) => {
     try {
         const response = await api.post('/auth/login', {
-            username: username, // Make sure this matches your User entity field name
+            username: username,
             password: password
         });
 
-        // The backend returns { token: "eyJhbG..." }
-        const token = response.data.token;
+        // 1. Get the whole object
+        const data = response.data; 
         
-        // Store it so the interceptor above can find it
-        localStorage.setItem('token', token);
+        // 2. Store the token separately
+        localStorage.setItem('token', data.token);
         
-        console.log("Logged in successfully!");
+        // 3. Store the rest as the 'user' object
+        // We remove the token from this object so we don't store it twice
+        const { token, ...userWithoutToken } = data;
+        localStorage.setItem('user', JSON.stringify(userWithoutToken));
+        return userWithoutToken; 
     } catch (error) {
-        console.error("Login failed", error.response.data);
+        console.error("Login failed", error.response?.data);
+        throw error;
     }
 };
 

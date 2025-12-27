@@ -7,7 +7,10 @@ import com.verAuto.orderTracking.service.AuthenticationService;
 import com.verAuto.orderTracking.service.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,10 +27,15 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponse> authenticate(@RequestBody AuthRequest loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
+        List<String> roles = authenticatedUser.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(jwtToken);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
-
+        loginResponse.setRoles(roles);
+        loginResponse.setUsername(authenticatedUser.getUsername());
         return ResponseEntity.ok(loginResponse);
     }
 

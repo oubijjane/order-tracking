@@ -17,6 +17,7 @@ public interface OrderItemService {
     List<OrderItem> findOrderByStatus(OrderStatus status, User user);
     OrderItem findById(Long id);
     List<OrderItem> findUserOrders(User user);
-    OrderItem save(OrderItem orderItem);
+    OrderItem save(OrderItem orderItem, User user);
+    OrderItem updateStatus(Long id, OrderStatus status, User user);
     void deleteById(Long id);
 }

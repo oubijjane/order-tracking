@@ -35,7 +35,7 @@ export const handleDecision = async (id, decision, action) => {
         }
 };
 
-export const statusLabel = (statusValue) => {
+export const statusLabel1 = (statusValue) => {
     switch(statusValue) {
         case 'PENDING':
             return ['IN_PROGRESS'];
@@ -49,6 +49,53 @@ export const statusLabel = (statusValue) => {
             return [];
     }
 }
+
+export const statusLabel = (statusValue, userRoles = []) => {
+    // 1. Define all possible logical transitions
+    let possibleTransitions = [];
+
+    switch(statusValue) {
+        case 'PENDING':
+            possibleTransitions = ['IN_PROGRESS'];
+            break;
+        case 'IN_PROGRESS':
+            possibleTransitions = ['AVAILABLE', 'NOT_AVAILABLE'];
+            break;
+        case 'AVAILABLE':
+            possibleTransitions = ['SENT', 'CANCELLED'];
+            break;
+        case 'NOT_AVAILABLE':
+            possibleTransitions = ['CANCELLED', 'AVAILABLE'];
+            break;
+        default:
+            possibleTransitions = [];
+    }
+
+    // 2. Filter these transitions based on the user's Roles
+    return possibleTransitions.filter(nextStatus => {
+        // Logisticians can mark as SENT but cannot CANCEL
+        if (nextStatus === 'SENT') {
+            return userRoles.includes('ROLE_GESTIONNAIRE') || 
+                   userRoles.includes('ROLE_ADMIN') ||
+                   userRoles.includes('ROLE_GARAGISTE');
+        }
+
+        // Only Gestionnaires or Admins can CANCEL
+        if (nextStatus === 'CANCELLED') {
+            return userRoles.includes('ROLE_GESTIONNAIRE') || 
+                   userRoles.includes('ROLE_ADMIN') ||
+                   userRoles.includes('ROLE_GARAGISTE');
+        }
+
+        // Garagistes & Gestionnaires usually handle the early stages
+        if (nextStatus === 'IN_PROGRESS' || nextStatus === 'AVAILABLE' || nextStatus === 'NOT_AVAILABLE') {
+            return userRoles.includes('ROLE_LOGISTICIEN') ||  
+                   userRoles.includes('ROLE_ADMIN');
+        }
+
+        return false;
+    });
+};
 // Helper to format data for backend
 export const formatOrderPayload = (data) => {
     return {
