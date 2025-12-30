@@ -9,10 +9,16 @@ import com.verAuto.orderTracking.entity.UserCompany;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+
 
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
@@ -32,7 +38,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .map(r -> r.getRole().getName().toUpperCase())
                 .collect(Collectors.toSet());
 
-        if (roleNames.contains("ROLE_GARAGISTE")) {
+       if (roleNames.contains("ROLE_GARAGISTE")) {
             // Assuming User entity has a 'city' field
             Long id = user.getCity().getId();
             City city = cityDAO.findById(id)
@@ -108,25 +114,29 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public List<OrderItem> findOrderByStatus(OrderStatus status, User user) {
+    public Page<OrderItem> findOrderByStatus(OrderStatus status, User user, int page, int size) {
         Set<String> roleNames = user.getRoles().stream()
                 .map(r -> r.getRole().getName().toUpperCase())
                 .collect(Collectors.toSet());
 
+        // 1. Create the pageable object once
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
-        // Rule 1: Garagiste (City-based)
+        // 2. Branch logic for different roles
         if (roleNames.contains("ROLE_GARAGISTE")) {
-            return orderItemDAO.findByStatusAndCity(status, user.getCity());
+            return orderItemDAO.findByStatusAndCity(status, user.getCity(), pageable);
         }
+
         if (roleNames.contains("ROLE_GESTIONNAIRE")) {
             List<Long> companyIds = user.getCompanies().stream()
                     .map(uc -> uc.getCompany().getId())
                     .toList();
-            return orderItemDAO.findByStatusAndCompanies(status, companyIds);
+            // Now passing pageable here
+            return orderItemDAO.findByStatusAndCompanies(status, companyIds, pageable);
         }
 
-
-        return orderItemDAO.findByStatus(status);
+        // Default case (e.g. ROLE_ADMIN): Now passing pageable here
+        return orderItemDAO.findByStatus(status, pageable);
     }
 
     @Override
@@ -200,7 +210,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             case IN_PROGRESS -> next == OrderStatus.AVAILABLE || next == OrderStatus.NOT_AVAILABLE;
             case AVAILABLE -> next == OrderStatus.SENT || next == OrderStatus.CANCELLED;
             case NOT_AVAILABLE -> next == OrderStatus.AVAILABLE || next == OrderStatus.CANCELLED;
-            // SENT and CANCELLED are final; no transitions allowed
+            case SENT -> next == OrderStatus.REPAIRED;
             default -> false;
         };
 

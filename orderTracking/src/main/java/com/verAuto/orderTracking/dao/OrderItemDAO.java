@@ -3,6 +3,8 @@ package com.verAuto.orderTracking.dao;
 import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.enums.OrderStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +14,7 @@ import java.util.List;
 public interface OrderItemDAO extends JpaRepository<OrderItem, Long> {
 
     List<OrderItem> findByRegistrationNumber(String registrationNumber);
-    List<OrderItem> findByStatus(OrderStatus status);
+    Page<OrderItem> findByStatus(OrderStatus status, Pageable pageable);
     @Query("SELECT o.status, COUNT(o) FROM OrderItem o GROUP BY o.status")
     List<Object[]> countOrdersByStatusRaw();
     List<OrderItem> findByCity(City city);
@@ -21,7 +23,7 @@ public interface OrderItemDAO extends JpaRepository<OrderItem, Long> {
     @Query("SELECT o FROM OrderItem o WHERE o.company.id IN :companyIds")
     List<OrderItem> findAllByCompanyIds(@Param("companyIds") List<Long> companyIds);
     @Query("SELECT oi FROM OrderItem oi WHERE oi.status = :status AND oi.city = :city")
-    List<OrderItem> findByStatusAndCity(@Param("status") OrderStatus status, @Param("city") City city);
+    Page<OrderItem> findByStatusAndCity(@Param("status") OrderStatus status, @Param("city") City city, Pageable pageable);
     @Query("SELECT o.status, COUNT(o) FROM OrderItem o " +
             "WHERE o.company.id IN :companyIds " +
             "GROUP BY o.status")
@@ -29,9 +31,10 @@ public interface OrderItemDAO extends JpaRepository<OrderItem, Long> {
     @Query("SELECT oi FROM OrderItem oi " +
             "WHERE oi.status = :status " +
             "AND oi.company.id IN :companyIds")
-    List<OrderItem> findByStatusAndCompanies(
+    Page<OrderItem> findByStatusAndCompanies(
             @Param("status") OrderStatus status,
-            @Param("companyIds") List<Long> companyIds
+            @Param("companyIds") List<Long> companyIds,
+            Pageable pageable // <--- Added this parameter
     );
 
 

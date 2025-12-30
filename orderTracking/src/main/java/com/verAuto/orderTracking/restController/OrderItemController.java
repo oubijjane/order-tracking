@@ -10,6 +10,7 @@ import com.verAuto.orderTracking.service.OrderItemService;
 import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -69,11 +70,14 @@ public class OrderItemController {
         return new ResponseEntity<>(orderItemService.getStatusCounts(user), HttpStatus.OK);
     }
     @GetMapping("/status")
-    public ResponseEntity<List<OrderItem>> getOrdersByStatus(
+    public ResponseEntity<Page<OrderItem>> getOrdersByStatus(
             @RequestParam OrderStatus status
-            , @AuthenticationPrincipal User user) {
-        List<OrderItem> orders = orderItemService.findOrderByStatus(status, user);
-        return new ResponseEntity<>(orders, HttpStatus.OK);
+            ,@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size
+            , @AuthenticationPrincipal User user
+    ) {
+        Page<OrderItem> ordersPage = orderItemService.findOrderByStatus(status, user, page, size);
+        return new ResponseEntity<>(ordersPage, HttpStatus.OK);
     }
     @GetMapping("/{id}")
     public ResponseEntity<OrderItem> getOrderById(@PathVariable Long id) {

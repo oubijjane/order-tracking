@@ -19,7 +19,8 @@ export const ORDER_STATUS = [
     { value: 'AVAILABLE', label: 'Disponible' },
     { value: 'NOT_AVAILABLE', label: 'Non Disponible' },
     { value: 'SENT', label: 'Envoyer' },
-    { value: 'CANCELLED', label: 'Annulé' }
+    { value: 'CANCELLED', label: 'Annulé' }, 
+    { value: 'REPAIRED', label: 'Réparé' }
   ];
 
   export const ORDER_STATUS_MAP = Object.fromEntries(
@@ -45,6 +46,8 @@ export const statusLabel1 = (statusValue) => {
             return ['SENT','CANCELLED'];
         case 'NOT_AVAILABLE':  
             return ['CANCELLED','AVAILABLE'];
+        case 'SENT':
+            return ['REPAIRED'];
         default:
             return [];
     }
@@ -67,6 +70,10 @@ export const statusLabel = (statusValue, userRoles = []) => {
         case 'NOT_AVAILABLE':
             possibleTransitions = ['CANCELLED', 'AVAILABLE'];
             break;
+        case 'SENT':
+            possibleTransitions = ['REPAIRED'];
+            break;
+        
         default:
             possibleTransitions = [];
     }
@@ -91,6 +98,12 @@ export const statusLabel = (statusValue, userRoles = []) => {
         if (nextStatus === 'IN_PROGRESS' || nextStatus === 'AVAILABLE' || nextStatus === 'NOT_AVAILABLE') {
             return userRoles.includes('ROLE_LOGISTICIEN') ||  
                    userRoles.includes('ROLE_ADMIN');
+        }
+        // REPAIRED can only be set by Garagistes
+        if (nextStatus === 'REPAIRED') {
+            return userRoles.includes('ROLE_GARAGISTE') || 
+                   userRoles.includes('ROLE_ADMIN') ||
+                   userRoles.includes('ROLE_MANAGER');
         }
 
         return false;

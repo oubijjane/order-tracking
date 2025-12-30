@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.Config;
 
 import com.verAuto.orderTracking.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.security.SignatureException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -77,8 +79,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (Exception exception) {
             System.out.println("Filter caught an error: " + exception.getMessage());
+
             // Show the full error in console to debug
             exception.printStackTrace();
+
+            if (exception instanceof ExpiredJwtException) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+            } else {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);    // 403
+            }
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }

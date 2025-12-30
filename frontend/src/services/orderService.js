@@ -21,9 +21,9 @@ import api from './api';
         }
     };
 
-    const getOrderByStatus = async (status) => {
+    const getOrderByStatus = async (status, size=9, page=0) => {
         try {
-            const response = await api.get(`/orders/status?status=${status}`);
+            const response = await api.get(`/orders/status?status=${status}&size=${size}&page=${page}`);
             return response.data; // CRITICAL: This passes the data back to App.jsx
         } catch (error) {
             console.error("Error fetching order counts:", error);
