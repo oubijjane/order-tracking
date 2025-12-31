@@ -184,14 +184,9 @@ public class OrderItemServiceImpl implements OrderItemService {
                 throw new RuntimeException("Failed to store images, rolling back order creation", e);
             }
         }
-        userRoleService.findUsersByRoleName("ROLE_LOGISTICIEN")
-                .forEach(receiverUser -> {
-                    try {
-                        emailService.sendOrderNotification(savedOrder, receiverUser.getEmail());
-                    } catch (Exception e) {
-                        log.error("Failed to send email to logistcien: {}", receiverUser.getEmail(), e);
-                    }
-                });
+       //3. send emails to the logistic team
+        emailService.sendOrderNotification(savedOrder, getLogisticTeamEmails());
+
         return savedOrder;
     }
 
@@ -254,12 +249,13 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
     }
 
-    private void sendEmail(OrderItem orderItem, String receiverEmail) {
-        try {
-            emailService.sendOrderNotification(orderItem, receiverEmail);
-        } catch (Exception e) {
-            // Log the error but don't break the order creation flow
-            logger.error("Failed to send notification email", e);
-        }
+    private List<String> getLogisticTeamEmails() {
+        List<String> emails = new ArrayList<>();
+        userRoleService.findUsersByRoleName("ROLE_LOGISTICIEN")
+                .forEach(receiverUser ->
+                    emails.add(receiverUser.getEmail()));
+
+
+        return emails;
     }
 }
