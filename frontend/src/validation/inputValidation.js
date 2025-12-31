@@ -207,15 +207,16 @@ export const city_validation = {
 }
 
 export const image_validation = {
-  name: 'image',
-  label: 'Image',
+  name: 'images', // Changed to plural for clarity
+  label: 'Images',
   type: 'file',
-  id: 'image',
-  placeholder: 'Image ...',
+  id: 'images',
+  multiple: true, // This allows selecting multiple files in the browser
+  placeholder: 'Upload images...',
   validation: {
     required: {
       value: true,
-      message: 'required',
+      message: 'At least one image is required',
     },
   },
 }

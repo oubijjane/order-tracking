@@ -14,7 +14,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,14 +24,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
+
+    private final OrderItemImagesService orderItemImagesService;
     private final OrderItemDAO orderItemDAO;
     private final CityDAO cityDAO ;
 
 
     @Autowired
-    public OrderItemServiceImpl (OrderItemDAO orderItemDAO, CityDAO cityDAO) {
+    public OrderItemServiceImpl (OrderItemDAO orderItemDAO,
+                                 CityDAO cityDAO,
+                                 OrderItemImagesService orderItemImagesService) {
         this.orderItemDAO = orderItemDAO;
         this.cityDAO = cityDAO;
+        this.orderItemImagesService = orderItemImagesService;
     }
 
     @Override
@@ -154,9 +161,23 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItem save(OrderItem orderItem, User user) {
+    @Transactional // Ensures both Order and Images save or both fail
+    public OrderItem save(OrderItem orderItem, User user, MultipartFile[] files) {
+        // 1. Associate the user and save the Order first (to get the ID)
         orderItem.setUser(user);
-        return orderItemDAO.save(orderItem);
+        OrderItem savedOrder = orderItemDAO.save(orderItem);
+
+        // 2. If there are images, delegate to ImageService
+        if (files != null && files.length > 0) {
+            try {
+                orderItemImagesService.saveImages(files, savedOrder);
+            } catch (IOException e) {
+                // Throwing a RuntimeException triggers the @Transactional rollback
+                throw new RuntimeException("Failed to store images, rolling back order creation", e);
+            }
+        }
+
+        return savedOrder;
     }
 
     @Override
@@ -176,7 +197,6 @@ public class OrderItemServiceImpl implements OrderItemService {
             List<OrderStatus> forbiddenForThem = Arrays.asList(
                     OrderStatus.AVAILABLE,
                     OrderStatus.IN_PROGRESS,
-                    OrderStatus.SENT,
                     OrderStatus.NOT_AVAILABLE
             );
 

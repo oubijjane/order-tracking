@@ -6,6 +6,7 @@ import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import org.hibernate.query.Order;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ public interface OrderItemService {
     Page<OrderItem> findOrderByStatus(OrderStatus status, User user, int page, int size);
     OrderItem findById(Long id);
     List<OrderItem> findUserOrders(User user);
-    OrderItem save(OrderItem orderItem, User user);
+    OrderItem save(OrderItem orderItem, User user, MultipartFile[] files);
     OrderItem updateStatus(Long id, OrderStatus status, User user);
     void deleteById(Long id);
 }

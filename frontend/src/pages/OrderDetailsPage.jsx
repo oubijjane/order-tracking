@@ -13,12 +13,13 @@ function OrderDetailsPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     
+    const [selectedImgIndex, setSelectedImgIndex] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const IMAGE_BASE_URL = "http://192.168.1.242:8080/uploads/";
+    const IMAGE_BASE_URL = "http://192.168.1.242:8080";
 
     // 2. Safe Role Extraction (only runs when user exists)
     const roles = user?.roles || [];
@@ -93,20 +94,43 @@ function OrderDetailsPage() {
             </nav>
 
             <div className="details-grid">
-                <div className="details-visual">
-                    <div className="image-card">
-                        {order.image ? (
-                            <img 
-                                src={`${IMAGE_BASE_URL}${order.image}`} 
-                                alt="Car Damage"
-                                onError={(e) => { e.target.src = '/placeholder.png'; }}
-                            />
-                        ) : (
-                            <div className="no-image-placeholder"><p>No Image Available</p></div>
-                        )}
-                        <div className="image-caption">Preuve Visuelle du Dommage</div>
-                    </div>
+               <div className="details-visual">
+    <div className="image-card">
+        {order.images && order.images.length > 0 ? (
+            <div className="image-gallery">
+                {/* Main large image (shows the first one by default) */}
+                <div className="main-image-container">
+                    <img 
+                        src={`${IMAGE_BASE_URL}${order.images[selectedImgIndex].url}`} 
+                        alt="Car Damage"
+                        onError={(e) => { e.target.src = '/placeholder.png'; }}
+                    />
                 </div>
+                
+                {/* Thumbnails list if there is more than 1 image */}
+                {order.images.length > 1 && (
+                    <div className="thumbnail-grid">
+                        {order.images.map((img, idx) => (
+                            <img 
+                                key={img.id || idx}
+                                src={`${IMAGE_BASE_URL}${img.url}`} 
+                                alt={`Thumbnail ${idx + 1}`}
+                                className="thumbnail-item"
+                                // Optional: add a click handler to change the main image
+                                onClick={() => setSelectedImgIndex(idx)}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+        ) : (
+            <div className="no-image-placeholder"><p>No Images Available</p></div>
+        )}
+        <div className="image-caption">
+            {order.images?.length || 0} Photo(s) de Preuve Visuelle
+        </div>
+    </div>
+</div>
 
                 <div className="details-info">
                     <div className={`info-card border-${order.status?.toLowerCase().replace(/\s+/g, '-')}`}>

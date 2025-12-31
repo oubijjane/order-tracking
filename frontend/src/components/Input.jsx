@@ -1,13 +1,21 @@
 import { useFormContext} from "react-hook-form";
 
-function InputField({ label, type, name, placeholder = "", validation }) {
-    const { register, formState: { errors } } = useFormContext()
+function InputField({ label, type, name, placeholder = "", validation, multiple }) {
+    const { register, formState: { errors } } = useFormContext();
+    
     return (
         <div className="input-field">
             <div className="lable-field">
                 <label htmlFor={name}>{label}</label>
             </div>
-            <input type={type} id={name} name={name}  placeholder={placeholder} className={errors[name] ? "form-input input-error" : "form-input"}  {...register(name, validation)} />
+            <input 
+                type={type} 
+                id={name} 
+                placeholder={placeholder} 
+                multiple={multiple} // Add this line
+                className={errors[name] ? "form-input input-error" : "form-input"}  
+                {...register(name, validation)} 
+            />
         </div>
     );
 }

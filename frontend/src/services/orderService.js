@@ -41,26 +41,24 @@ const getOrderById = async (id) => {
         throw error;
     }
 };
-
-const createOrder = async (jsonData, imageFile) => {
+// 2. Create Order with JSON and Multiple Images
+const createOrder = async (jsonData, imageFiles) => {
     try {
         const formData = new FormData();
 
-        // A. Add the JSON Data (Must be stringified and blobbed)
+        // A. Add the JSON Data
         const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
         formData.append("data", jsonBlob);
 
-        // B. Add the Image File (If provided)
-        if (imageFile) {
-            formData.append("image", imageFile);
+        // B. Add Multiple Image Files
+        if (imageFiles && imageFiles.length > 0) {
+            imageFiles.forEach(file => {
+                formData.append("images", file); // Must match @RequestPart("images")
+            });
         }
 
-        // C. Send as Multipart
-        // Note: We send 'formData', NOT 'orderData'
         const response = await api.post('/orders', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
         
         return response.data;

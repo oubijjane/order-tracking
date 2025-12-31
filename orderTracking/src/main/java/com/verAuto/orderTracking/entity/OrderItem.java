@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import com.verAuto.orderTracking.enums.WindowType;
 import jakarta.annotation.Generated;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Year;
+import java.util.List;
 
 @Setter
 @Getter
@@ -36,9 +38,9 @@ public class OrderItem {
     @Min(value = 1990, message = "L'année doit être supérieure à 1990")
     private int year;
 
-    @Column
-    @NotBlank(message = "L'image est obligatoire")
-    private String image;
+    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<OrderImage> images;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Le statut est obligatoire")

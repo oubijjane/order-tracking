@@ -64,11 +64,13 @@ public class OrderItemController {
         List<OrderItem> orders =   orderItemService.findUserOrders(user);;
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
+
     @GetMapping("/count")
     public ResponseEntity<Map<OrderStatus, Long>> getOrdersCount(@AuthenticationPrincipal User user) {
 
         return new ResponseEntity<>(orderItemService.getStatusCounts(user), HttpStatus.OK);
     }
+
     @GetMapping("/status")
     public ResponseEntity<Page<OrderItem>> getOrdersByStatus(
             @RequestParam OrderStatus status
@@ -79,40 +81,36 @@ public class OrderItemController {
         Page<OrderItem> ordersPage = orderItemService.findOrderByStatus(status, user, page, size);
         return new ResponseEntity<>(ordersPage, HttpStatus.OK);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderItem> getOrderById(@PathVariable Long id) {
         return new ResponseEntity<>(orderItemService.findById(id), HttpStatus.OK);
     }
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<OrderItem> createOrder(@RequestPart("data") CreateOrderRequest request, // The JSON
-                                                 @RequestPart(value = "image", required = false) MultipartFile file,
-                                                 @AuthenticationPrincipal User user) {
 
-        // 1. Handle the File (Save it and get the path)
-        String imagePath = "default.jpg";
-        if (file != null && !file.isEmpty()) {
-            try {
-                // Save file logic (See helper method below)
-                imagePath = saveFile(file);
-            } catch (Exception e) {
-                throw new RuntimeException("Error saving image", e);
-            }
-        }
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<OrderItem> createOrder(
+            @RequestPart("data") CreateOrderRequest request,
+            @RequestPart(value = "images", required = false) MultipartFile[] files, // Changed to array
+            @AuthenticationPrincipal User user) {
+
+        // 1. Fetch dependencies
         CarModel model = carModelService.findById(request.getCarModelId());
         Company company = companyService.findById(request.getCompanyId());
         City city = cityService.findCityById(request.getCityId());
 
+        // 2. Map DTO to Entity
         OrderItem orderItem = request.getOrderItem();
+        orderItem.setId(null); // Ensure new record
         orderItem.setCity(city);
-        orderItem.setImage(imagePath);
-        orderItem.setId(null);
         orderItem.setCarModel(model);
         orderItem.setCompany(company);
         orderItem.setStatus(OrderStatus.PENDING);
-        OrderItem createdOrder = orderItemService.save(orderItem, user);
+
+        // 3. Save Order and Images via Service
+        // We pass the files array directly to the service
+        OrderItem createdOrder = orderItemService.save(orderItem, user, files);
 
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
-
     }
 
     @PatchMapping("/{id}/status")

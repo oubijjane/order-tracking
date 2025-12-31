@@ -38,7 +38,7 @@ function Form() {
     const [isUpdating, setIsUpdating] = useState(false);
     const submitLock = useRef(false);
     const { brandOptions, modelOptions } = useCarSelection(selectedBrand);
-    const { resizeImage, isProcessing } = useImageResizer();
+    const { resizeMultipleImages, isProcessing } = useImageResizer();
     const companyOptions = useCompanySelection();
     const cityOptions = useCitySelection(); // Placeholder if city dropdown is needed
 
@@ -49,28 +49,29 @@ function Form() {
 
     // 3. Handle Submit
     const onValidSubmit = async (data) => {
-        if (submitLock.current) return;
+    if (submitLock.current) return;
+    submitLock.current = true;
+    setIsUpdating(true);
 
-        // 4. Lock it immediately
-        submitLock.current = true;
-        setIsUpdating(true);
-        try {
-            const payload = formatOrderPayload(data);
+    try {
+        const payload = formatOrderPayload(data);
 
-            let finalImage = null;
-            const rawFile = data.image ? data.image[0] : null;
-            if (rawFile) {
-                finalImage = await resizeImage(rawFile);
-            } // Logic is now hidden away
-            await OrderService.createOrder(payload, finalImage);    
-            navigate('/');
-        } catch (error) {
-            console.error("Failed to create order:", error);
-            submitLock.current = false;
-        }finally {
-            setIsUpdating(false);
-        }
-    };
+        // 1. Get files from the input (FileList -> Array)
+        const rawFiles = data.images ? Array.from(data.images) : [];
+
+        // 2. Resize all images (This returns an array of File objects)
+        const processedImages = await resizeMultipleImages(rawFiles);
+
+        // 3. Send to Service
+        await OrderService.createOrder(payload, processedImages);    
+        navigate('/');
+    } catch (error) {
+        console.error("Failed to create order:", error);
+        submitLock.current = false;
+    } finally {
+        setIsUpdating(false);
+    }
+};
 
     return (
         <FormProvider {...methods}>
