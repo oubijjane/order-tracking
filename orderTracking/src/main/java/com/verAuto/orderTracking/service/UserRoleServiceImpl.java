@@ -41,6 +41,11 @@ public class UserRoleServiceImpl implements UserRoleService{
     }
 
     @Override
+    public List<User> findUsersByRoleName(String role) {
+        return userRoleDOA.findUsersByRoleName(role);
+    }
+
+    @Override
     public UserRole saveUserRole(CreatUserRole userRole) {
         Role role = roleDAO.findById(userRole.getRoleId())
                 .orElseThrow(() -> new RuntimeException("could not find role with the id - " + userRole.getRoleId()));

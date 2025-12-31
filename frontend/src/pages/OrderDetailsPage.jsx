@@ -12,7 +12,7 @@ function OrderDetailsPage() {
     const { user, loading: authLoading } = useAuth(); 
     const { id } = useParams();
     const navigate = useNavigate();
-    
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImgIndex, setSelectedImgIndex] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
     const [order, setOrder] = useState(null);
@@ -99,7 +99,7 @@ function OrderDetailsPage() {
         {order.images && order.images.length > 0 ? (
             <div className="image-gallery">
                 {/* Main large image (shows the first one by default) */}
-                <div className="main-image-container">
+                <div className="main-image-container" onClick={() => setIsModalOpen(true)}>
                     <img 
                         src={`${IMAGE_BASE_URL}${order.images[selectedImgIndex].url}`} 
                         alt="Car Damage"
@@ -177,8 +177,44 @@ function OrderDetailsPage() {
                     </div>
                 </div>
             </div>
+            {isModalOpen && (
+    <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+        {/* Navigation Buttons */}
+        <button 
+            className="modal-nav-btn prev" 
+            onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImgIndex((prev) => (prev === 0 ? order.images.length - 1 : prev - 1));
+            }}
+        >
+            &#10094;
+        </button>
+
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-modal" onClick={() => setIsModalOpen(false)}>&times;</button>
+            <img 
+                src={`${IMAGE_BASE_URL}${order.images[selectedImgIndex].url}`} 
+                alt="Full Size View" 
+            />
+            {/* Counter for UX */}
+            <div className="modal-counter">
+                {selectedImgIndex + 1} / {order.images.length}
+            </div>
         </div>
-    );
+
+        <button 
+            className="modal-nav-btn next" 
+            onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImgIndex((prev) => (prev === order.images.length - 1 ? 0 : prev + 1));
+            }}
+        >
+            &#10095;
+        </button>
+    </div>
+)}
+        </div>
+    );  
 }
 
 export default OrderDetailsPage;

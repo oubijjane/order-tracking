@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.service;
 
 import com.verAuto.orderTracking.entity.Role;
+import com.verAuto.orderTracking.entity.User;
 
 import java.util.List;
 

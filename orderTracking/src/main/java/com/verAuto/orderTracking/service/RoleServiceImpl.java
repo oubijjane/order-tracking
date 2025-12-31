@@ -4,6 +4,7 @@ package com.verAuto.orderTracking.service;
 import com.verAuto.orderTracking.dao.RoleDAO;
 import com.verAuto.orderTracking.dao.UserDAO;
 import com.verAuto.orderTracking.entity.Role;
+import com.verAuto.orderTracking.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class RoleServiceImpl implements RoleService {
         return roleDAO.findById(id)
                 .orElseThrow(() -> new RuntimeException("could not find a role with the id - " + id));
     }
+
 
     @Override
     public Role saveRole(Role role) {

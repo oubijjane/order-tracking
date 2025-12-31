@@ -8,6 +8,8 @@ import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.entity.UserCompany;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,23 +22,29 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderItemService.class);
 
+    private final EmailService emailService;
     private final OrderItemImagesService orderItemImagesService;
     private final OrderItemDAO orderItemDAO;
     private final CityDAO cityDAO ;
+    private final UserRoleServiceImpl userRoleService;
 
 
     @Autowired
-    public OrderItemServiceImpl (OrderItemDAO orderItemDAO,
+    public OrderItemServiceImpl (EmailService emailService, OrderItemDAO orderItemDAO,
                                  CityDAO cityDAO,
-                                 OrderItemImagesService orderItemImagesService) {
+                                 OrderItemImagesService orderItemImagesService, UserRoleServiceImpl userRoleService) {
+        this.emailService = emailService;
         this.orderItemDAO = orderItemDAO;
         this.cityDAO = cityDAO;
         this.orderItemImagesService = orderItemImagesService;
+        this.userRoleService = userRoleService;
     }
 
     @Override
@@ -176,7 +184,14 @@ public class OrderItemServiceImpl implements OrderItemService {
                 throw new RuntimeException("Failed to store images, rolling back order creation", e);
             }
         }
-
+        userRoleService.findUsersByRoleName("ROLE_LOGISTICIEN")
+                .forEach(receiverUser -> {
+                    try {
+                        emailService.sendOrderNotification(savedOrder, receiverUser.getEmail());
+                    } catch (Exception e) {
+                        log.error("Failed to send email to logistcien: {}", receiverUser.getEmail(), e);
+                    }
+                });
         return savedOrder;
     }
 
@@ -236,6 +251,15 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         if (!isValid) {
             throw new RuntimeException("Invalid transition: Cannot move order from " + current + " to " + next);
+        }
+    }
+
+    private void sendEmail(OrderItem orderItem, String receiverEmail) {
+        try {
+            emailService.sendOrderNotification(orderItem, receiverEmail);
+        } catch (Exception e) {
+            // Log the error but don't break the order creation flow
+            logger.error("Failed to send notification email", e);
         }
     }
 }

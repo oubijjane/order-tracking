@@ -185,12 +185,12 @@
 
 .main-image-container {
    width: 100%;
-    height: 400px;
+  height: 400px;
 }
 
 .main-image-container > img {
   width: 100%;
-  height: 400px;
+  height: 100%;
   object-fit: scale-down;
 }
 
@@ -234,6 +234,91 @@
 .thumbnail-item:hover {
     border:5px solid var(--verauto-orange);
     border-radius: 10px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9); /* Darker backdrop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Ensure it's above everything */
+    backdrop-filter: blur(5px);
+    cursor: zoom-out;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.modal-content img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* Close button */
+.close-modal {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+.modal-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    font-size: 3rem;
+    padding: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 2100;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+}
+
+.modal-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: var(--verauto-orange);
+}
+
+.modal-nav-btn.prev { left: 30px; }
+.modal-nav-btn.next { right: 30px; }
+
+.modal-counter {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Hide navigation if there is only one image */
+.modal-nav-btn:only-of-type {
+    display: none;
 }
 
 .info-card.border-available,

@@ -11,6 +11,7 @@ import java.util.List;
 public interface UserRoleService {
     List<UserRole> findUserRolesById(int id);
     List<UserRole> findAll();
+    List<User> findUsersByRoleName(String role);
     UserRole saveUserRole(CreatUserRole userRole);
     void deleteRole(UserRoleId id);
 }
