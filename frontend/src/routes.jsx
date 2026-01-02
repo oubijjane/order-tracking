@@ -8,6 +8,8 @@ import DashBoard from "./pages/DashBoard";
 import LogIn from "./pages/LogIn";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import OrdersByStatus from "./pages/OrderByStatus";
+import SearchPage from "./pages/SearchPage";
+
 
 const routes = [
   { 
@@ -29,6 +31,7 @@ const routes = [
           { path: "orders/:id", element: <OrderDetailsPage /> },
           { path: "edit/:id", element: <EditOrderPage /> },
           { path: "status/:status", element: <OrdersByStatus /> },
+          {path: "search", element: <SearchPage />}
           
         ],
       },

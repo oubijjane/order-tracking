@@ -7,6 +7,7 @@ import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.entity.UserCompany;
 import com.verAuto.orderTracking.enums.OrderStatus;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 
 @Service
@@ -71,6 +70,64 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItemDAO.findAll();
     }
 
+    public Page<OrderItem> findOrdersDynamic(User user, String companyName, String cityName,
+                                             String registrationNumber, String status,
+                                             int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        return orderItemDAO.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // --- 1. ROLE-BASED SECURITY (The "Boundary") ---
+            Set<String> roleNames = user.getRoles().stream()
+                    .map(r -> r.getRole().getName().toUpperCase())
+                    .collect(Collectors.toSet());
+
+            if (roleNames.contains("ROLE_GARAGISTE")) {
+                // Must belong to the user's city
+                predicates.add(cb.equal(root.get("city"), user.getCity()));
+            }
+            else if (roleNames.contains("ROLE_GESTIONNAIRE")) {
+                // Get all IDs for the companies this user manages
+                List<Long> companyIds = user.getCompanies().stream()
+                        .map(uc -> uc.getCompany().getId())
+                        .toList();
+
+                if (!companyIds.isEmpty()) {
+                    // This acts as a hard filter: WHERE company_id IN (1, 2, 3...)
+                    predicates.add(root.get("company").get("id").in(companyIds));
+                } else {
+                    // If a gestionnaire has no companies assigned, they should see nothing
+                    predicates.add(cb.disjunction());
+                }
+            }
+
+            // --- 2. DYNAMIC SEARCH FILTERS (The "Refinement") ---
+
+            if (companyName != null && !companyName.trim().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("company").get("companyName")), "%" + companyName.toLowerCase() + "%"));
+            }
+
+            if (cityName != null && !cityName.trim().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("city").get("cityName")), "%" + cityName.toLowerCase() + "%"));
+            }
+
+            if (registrationNumber != null && !registrationNumber.trim().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("registrationNumber")), "%" + registrationNumber.toLowerCase() + "%"));
+            }
+
+            if (status != null && !status.trim().isEmpty()) {
+                try {
+                    OrderStatus statusEnum = OrderStatus.valueOf(status.toUpperCase());
+                    predicates.add(cb.equal(root.get("status"), statusEnum));
+                } catch (IllegalArgumentException ignored) {}
+            }
+
+            // Combine everything with AND
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable);
+    }
 
     @Override
     public List<OrderItem> findByRegistrationNumber(String registrationNumber) {

@@ -44,8 +44,9 @@
 
 /* Input & Select Styling */
 .form-input, select {
-    width: 90%;
+    width: 100%;
     padding: 12px 15px;
+    box-sizing: border-box;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 1rem;

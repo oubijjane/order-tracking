@@ -15,6 +15,22 @@ export const company_name_validation = {
     },
   },
 }
+export const company_name_search = {
+  name: 'companyName',
+  label: 'Assurance',
+  type: 'text',
+  id: 'companyName',
+  placeholder: 'Assurance ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 export const car_validation = {
   name: 'carName',
   label: 'Marque',
@@ -77,6 +93,23 @@ export const destination_validation = {
   },
 }
 
+export const destination_search = {
+  name: 'destination',
+  label: 'Destination',
+  multiline: true,
+  id: 'destination',
+  placeholder: ' destination ...',
+  validation: {
+    required: {
+      value: false,
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+
 export const user_name_validation = {
   name: 'username',
   label: 'Nom d\'utilisateur',
@@ -122,6 +155,22 @@ export const registration_number_validation = {
     required: {
       value: true,
       message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+export const registration_number_search = {
+  name: 'registrationNumber',
+  label: 'Numéro d\'immatriculation',
+  type: 'text',
+  id: 'registrationNumber',
+  placeholder: 'Numéro d\'immatriculation ...',
+  validation: {
+    required: {
+      value: false
     },
     maxLength: {
       value: 30,
@@ -188,6 +237,48 @@ export const company_validation = {
   },
 }
 
+export const company_search = {
+  name: 'companyId',
+  label: 'Assurance',
+  type: 'select',
+  id: 'companyId',
+  placeholder: 'Assurance ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+
+export const status_search = {
+  name: 'status',
+  label: 'statut',
+  type: 'select',
+  id: 'status',
+  placeholder: 'statut ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+
 export const city_validation = {
   name: 'cityId',
   label: 'Ville',
@@ -198,6 +289,23 @@ export const city_validation = {
     required: {
       value: true,
       message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+
+export const city_search = {
+  name: 'cityId',
+  label: 'Ville',
+  type: 'select',
+  id: 'cityId',
+  placeholder: 'Ville ...',
+  validation: {
+    required: {
+      value: false
     },
     maxLength: {
       value: 30,

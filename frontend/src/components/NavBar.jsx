@@ -42,6 +42,9 @@ function Navbar() {
           <NavLink to="/orders" className="nav-item" onClick={closeMenu}>
             Commandes
           </NavLink>
+          <NavLink to="/search" className="nav-item" onClick={closeMenu}>
+            Recherche
+          </NavLink>
           <NavLink to="/login" className="nav-item" onClick={logout}>
             logout
           </NavLink>

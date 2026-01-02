@@ -6,12 +6,13 @@ import com.verAuto.orderTracking.enums.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface OrderItemDAO extends JpaRepository<OrderItem, Long> {
+public interface OrderItemDAO extends JpaRepository<OrderItem, Long>, JpaSpecificationExecutor<OrderItem> {
 
     List<OrderItem> findByRegistrationNumber(String registrationNumber);
     Page<OrderItem> findByStatus(OrderStatus status, Pageable pageable);

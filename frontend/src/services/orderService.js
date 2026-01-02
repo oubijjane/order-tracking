@@ -11,6 +11,7 @@ import api from './api';
         }
     };
 
+    
     const getOrderCountByStatus = async () => {
         try {
             const response = await api.get('/orders/count');
@@ -99,6 +100,26 @@ const handleDecision = async (id, decision) => {
     }
     
 };
+const getFilteredOrders = async (company, status, registrationNumber, city, size=9, page=0) => {
+        try {
+            const response = await api.get('/orders/filter', {
+               params: {
+        company,
+        status,
+        reg: registrationNumber, // Match the backend key
+        city,
+        size,
+        page
+    }
+            });
+            console.log("API CALL URL:", response.request.responseURL);
+            return response.data; // CRITICAL: This passes the data back to App.jsx
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            throw error;
+        }
+    };
+
 
 
 
@@ -107,6 +128,7 @@ export default {
     getAllOrders,
     getOrderCountByStatus,
     getOrderByStatus,
+    getFilteredOrders,
     getOrderById,
     createOrder,
     updateOrder,

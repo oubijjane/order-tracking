@@ -33,7 +33,13 @@ function HomePage() {
   };
 
   return (
+    <div>
+    <header className="orders-container">
+        <h1>Suivi des Commandes Verauto</h1>
+        <div className="header-line"></div>
+      </header>
     <OrdersList orders={orders} error={error} />
+    </div>
   )
   
 }

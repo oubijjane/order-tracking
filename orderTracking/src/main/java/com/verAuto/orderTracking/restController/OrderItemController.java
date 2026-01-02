@@ -82,6 +82,19 @@ public class OrderItemController {
         return new ResponseEntity<>(ordersPage, HttpStatus.OK);
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<Page<OrderItem>> filterOrders(
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String reg,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        System.out.println("company: " + company + " city : " + city);
+        return ResponseEntity.ok(orderItemService.findOrdersDynamic(user, company, city, reg, status, page, size));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderItem> getOrderById(@PathVariable Long id) {
         return new ResponseEntity<>(orderItemService.findById(id), HttpStatus.OK);
