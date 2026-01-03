@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.DTO.UserDTO;
 import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
 
@@ -10,6 +11,6 @@ public interface UserService {
     User findById(int id);
     User findUserByName(String name);
     List<Company> getUserCompany(int id);
-    User saveNewUser(User user);
+    User saveNewUser(UserDTO user);
     void deleteUserById(int id);
 }

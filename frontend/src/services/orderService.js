@@ -90,15 +90,23 @@ const deleteOrder = async (id) => {
     }
 };
 
-const handleDecision = async (id, decision) => {
+
+const handleDecision = async (id, decision, commentId = null) => {
     try {
-    // decision must be the EXACT string: 'VALIDATED' or 'REJECTED'
-    await api.patch(`/orders/${id}/status?status=${decision}`);
+        const updateData = {
+            orderStatus: decision, // e.g., 'CANCELLED'
+            comment: commentId   // This will now be 3
+        };
+
+        console.log("Final JSON being sent to Java:", updateData);
+
+        // This sends the JSON body { "orderStatus": "CANCELLED", "commentId": 3 }
+        return await api.patch(`/orders/${id}`, updateData);
+        
     } catch (error) {
-        console.error("Error handling decision for order:", error);
+        console.error("Axios Error:", error);
         throw error;
     }
-    
 };
 const getFilteredOrders = async (company, status, registrationNumber, city, size=9, page=0) => {
         try {

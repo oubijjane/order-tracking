@@ -145,6 +145,24 @@ export const password_validation = {
     },
   },
 }
+
+export const email_validation = {
+  name: 'email',
+  label: 'email',
+  type: 'email',
+  id: 'email',
+  placeholder: 'email ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'false',
+    },
+    maxLength: {
+      value: 50,
+      message: '30 characters max',
+    },
+  },
+}
 export const registration_number_validation = {
   name: 'registrationNumber',
   label: 'Numéro d\'immatriculation',
@@ -279,6 +297,26 @@ export const status_search = {
   },
 }
 
+export const comment_search = {
+  name: 'commentId',
+  label: 'commentaire',
+  type: 'select',
+  id: 'commentId',
+  placeholder: 'commentaire ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 export const city_validation = {
   name: 'cityId',
   label: 'Ville',

@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.DTO.UserDTO;
 import com.verAuto.orderTracking.dao.CompanyDAO;
 import com.verAuto.orderTracking.dao.UserDAO;
 import com.verAuto.orderTracking.entity.Company;
@@ -17,11 +18,13 @@ import java.util.List;
 public class UserServiceImpl implements UserService{
     private final UserDAO userDAO;
     private final CompanyDAO companyDAO;
+    private final CityService cityService;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, CompanyDAO companyDAO) {
+    public UserServiceImpl(UserDAO userDAO, CompanyDAO companyDAO, CityService cityService) {
         this.companyDAO = companyDAO;
         this.userDAO = userDAO;
+        this.cityService = cityService;
     }
     @Override
     public List<User> findAll() {
@@ -46,10 +49,15 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User saveNewUser(User user) {
-        user.setId(null);
+    public User saveNewUser(UserDTO user) {
+        User newUser = new User();
 
-        return userDAO.save(user);
+        newUser.setUserName(user.getUsername());
+        newUser.setCity(cityService.findCityById(user.getCityId()));
+        newUser.setEmail(user.getEmail());
+        newUser.setPassword(user.getPassword());
+
+        return userDAO.save(newUser);
     }
 
     @Override

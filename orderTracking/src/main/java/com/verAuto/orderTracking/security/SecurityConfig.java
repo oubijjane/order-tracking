@@ -66,6 +66,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/**").hasAnyRole("ADMIN",
                                  "GARAGISTE", "MANAGER",
                                        "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.GET,"/api/comments/**").hasAnyRole("ADMIN",
+                                "GARAGISTE", "MANAGER",
+                                "LOGISTICIEN", "GESTIONNAIRE")
                         .requestMatchers("/api/cities/**").hasAnyRole("ADMIN",
                                 "GARAGISTE", "MANAGER",
                                 "LOGISTICIEN", "GESTIONNAIRE")

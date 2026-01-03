@@ -321,6 +321,56 @@
     display: none;
 }
 
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-container {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.reason-textarea {
+    width: 100%;
+    height: 120px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+    font-family: inherit;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.confirm-btn {
+    background-color: #d9534f; /* Red for cancellation */
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirm-btn:disabled {
+    background-color: #eea29a;
+    cursor: not-allowed;
+}
 .info-card.border-available,
 .info-card.border-disponible { border-top-color: #10b981; } /* Success Green */
 

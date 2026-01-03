@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.DTO.CreateOrderRequest;
+import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
 import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import com.verAuto.orderTracking.service.CarModelService;
@@ -126,13 +127,15 @@ public class OrderItemController {
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<OrderItem> updateStatus(
-            @PathVariable Long id, @RequestParam OrderStatus status,
+    @PatchMapping("/{id}")
+    public ResponseEntity<OrderItem> updateStatusAndComment(
+            @PathVariable Long id,
+            @RequestBody UpdateOrderStatus dto, // Change this from @RequestParam to @RequestBody
             @AuthenticationPrincipal User user) {
-        // 1. Fetch existing order
-        // 3. Save (The other fields remain untouched in Java memory)
-        OrderItem savedOrder = orderItemService.updateStatus(id, status, user);
+
+        System.out.println("comment id" + dto.getComment());
+        // Use dto.getStatus() and dto.getComment() here
+        OrderItem savedOrder = orderItemService.updateStatusAndComment(id, dto, user);
 
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
     }

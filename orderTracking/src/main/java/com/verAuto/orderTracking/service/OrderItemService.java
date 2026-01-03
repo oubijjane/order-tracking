@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
 import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.entity.User;
@@ -22,6 +23,6 @@ public interface OrderItemService {
     OrderItem findById(Long id);
     List<OrderItem> findUserOrders(User user);
     OrderItem save(OrderItem orderItem, User user, MultipartFile[] files);
-    OrderItem updateStatus(Long id, OrderStatus status, User user);
+    OrderItem updateStatusAndComment(Long id, UpdateOrderStatus status, User user);
     void deleteById(Long id);
 }

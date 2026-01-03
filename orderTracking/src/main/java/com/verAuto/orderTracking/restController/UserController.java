@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.restController;
 
+import com.verAuto.orderTracking.DTO.UserDTO;
 import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.service.UserService;
@@ -29,6 +30,11 @@ public class UserController {
         return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<User> findUserById(@PathVariable int id) {
+        return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}/companies")
     public ResponseEntity<List<Company>> findUserCompanies(@PathVariable int id) {
         return new ResponseEntity<>(userService.getUserCompany(id), HttpStatus.OK);
@@ -36,8 +42,7 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        user.setId(null);
+    public ResponseEntity<User> createUser(@RequestBody UserDTO user) {
         return new ResponseEntity<>(userService.saveNewUser(user), HttpStatus.CREATED);
     }
 }

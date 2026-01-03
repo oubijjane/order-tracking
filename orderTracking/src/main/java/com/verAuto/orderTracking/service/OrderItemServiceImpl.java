@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
 import com.verAuto.orderTracking.entity.City;
@@ -32,17 +33,19 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final OrderItemImagesService orderItemImagesService;
     private final OrderItemDAO orderItemDAO;
     private final CityDAO cityDAO ;
+    private final CommentService commentService;
     private final UserRoleServiceImpl userRoleService;
 
 
     @Autowired
     public OrderItemServiceImpl (EmailService emailService, OrderItemDAO orderItemDAO,
                                  CityDAO cityDAO,
-                                 OrderItemImagesService orderItemImagesService, UserRoleServiceImpl userRoleService) {
+                                 OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService) {
         this.emailService = emailService;
         this.orderItemDAO = orderItemDAO;
         this.cityDAO = cityDAO;
         this.orderItemImagesService = orderItemImagesService;
+        this.commentService = commentService;
         this.userRoleService = userRoleService;
     }
 
@@ -248,37 +251,45 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItem updateStatus(Long id, OrderStatus newStatus, User user) {
+    public OrderItem updateStatusAndComment(Long id, UpdateOrderStatus newStatus, User user) {
         Set<String> roleNames = user.getRoles().stream()
                 .map(r -> r.getRole().getName().toUpperCase())
                 .collect(Collectors.toSet());
         OrderItem existingOrder = findById(id);
         OrderStatus currentStatus = existingOrder.getStatus();
         System.out.println("new Status " + newStatus + " " + "curreent status " + currentStatus);
+        if(newStatus.getOrderStatus() != null) {
+            validateStatusTransition(currentStatus, newStatus.getOrderStatus());
 
-        validateStatusTransition(currentStatus, newStatus);
+            // --- RULE 1: Garagiste & Gestionnaire Restrictions ---
+            // These roles can ONLY move an order to specific statuses (e.g., 'CANCELLED' or 'PENDING')
 
-        // --- RULE 1: Garagiste & Gestionnaire Restrictions ---
-        // These roles can ONLY move an order to specific statuses (e.g., 'CANCELLED' or 'PENDING')
-        if (roleNames.contains("ROLE_GARAGISTE") || roleNames.contains("ROLE_GESTIONNAIRE")) {
-            List<OrderStatus> forbiddenForThem = Arrays.asList(
-                    OrderStatus.AVAILABLE,
-                    OrderStatus.IN_PROGRESS,
-                    OrderStatus.NOT_AVAILABLE
-            );
+            if (roleNames.contains("ROLE_GARAGISTE") || roleNames.contains("ROLE_GESTIONNAIRE")) {
+                List<OrderStatus> forbiddenForThem = Arrays.asList(
+                        OrderStatus.AVAILABLE,
+                        OrderStatus.IN_PROGRESS,
+                        OrderStatus.NOT_AVAILABLE
+                );
 
-            if (forbiddenForThem.contains(newStatus)) {
-                throw new RuntimeException("Role " + roleNames + " is not allowed to set status to " + newStatus);
+                if (forbiddenForThem.contains(newStatus)) {
+                    throw new RuntimeException("Role " + roleNames + " is not allowed to set status to " + newStatus);
+                }
             }
-        }
 
-        // --- RULE 2: Logisticien Restrictions ---
-        if (roleNames.contains("ROLE_LOGISTICIEN")) {
-            if (newStatus == OrderStatus.SENT || newStatus == OrderStatus.CANCELLED) {
-                throw new RuntimeException("Logisticians cannot mark orders as Sent or Cancelled.");
+            // --- RULE 2: Logisticien Restrictions ---
+            if (roleNames.contains("ROLE_LOGISTICIEN")) {
+                if (newStatus.getOrderStatus() == OrderStatus.SENT || newStatus.getOrderStatus() == OrderStatus.CANCELLED) {
+                    throw new RuntimeException("Logisticians cannot mark orders as Sent or Cancelled.");
+                }
             }
+            existingOrder.setStatus(newStatus.getOrderStatus());
         }
-        existingOrder.setStatus(newStatus);
+        System.out.printf("comment id: " + newStatus.getComment() );
+        if (newStatus.getComment() != null) {
+            String comment = commentService.findCommentById(newStatus.getComment()).getLabel();
+            System.out.println("comment: " + comment);
+            existingOrder.setComment(comment);
+        }
         return orderItemDAO.save(existingOrder);
     }
 

@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -14,10 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -41,10 +39,12 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonManagedReference(value = "user-userrole")
-    private Set<UserRole> roles;
+    @Nullable
+    private Set<UserRole> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonManagedReference(value = "user-usercompany")
+    @Nullable
     private Set<UserCompany> companies;
 
     @CreationTimestamp
@@ -57,6 +57,7 @@ public class User implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "city_id")
+    @Nullable
     private City city;
 
 

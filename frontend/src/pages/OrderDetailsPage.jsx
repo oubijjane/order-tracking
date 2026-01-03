@@ -3,30 +3,33 @@ import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
 import { ORDER_STATUS_MAP, statusLabel } from '../utils/formUtils';
 import ButtonStatus from '../components/ButtonStatus';
+import { CancellationModal } from '../components/CancellationModal';
+import { ImageGallery } from '../components/ImageGallery';
 import { useAuth } from '../context/AuthContext';
-import Button from '../components/Button';
 import '../styles/OrderDetails.css';
 
 function OrderDetailsPage() {
-    // 1. Destructure 'loading' from AuthContext to track auth state
-    const { user, loading: authLoading } = useAuth(); 
+    const { user, loading: authLoading } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // UI States
     const [selectedImgIndex, setSelectedImgIndex] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const IMAGE_BASE_URL = "http://192.168.1.242:8080";
+    // Data State
+    const [order, setOrder] = useState(null);
 
-    // 2. Safe Role Extraction (only runs when user exists)
+    // Cancellation Modal States
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [cancelReason, setCancelReason] = useState("");
+    const [pendingStatus, setPendingStatus] = useState(null);
+
     const roles = user?.roles || [];
 
-
     useEffect(() => {
-        // Only fetch order if we aren't waiting for auth to finish
         if (!authLoading) {
             OrderService.getOrderById(id)
                 .then(data => {
@@ -34,104 +37,93 @@ function OrderDetailsPage() {
                     setLoading(false);
                 })
                 .catch(err => {
-                    setError("Could not find this order.");
+                    setError("Impossible de trouver cette commande.");
                     setLoading(false);
                 });
         }
-    }, [id, authLoading, user]); // Added user and authLoading to dependencies
+    }, [id, authLoading]);
 
-    const handleSubmit = async (updatedStatus) => {
-        setIsUpdating(true);
-        try {
-            await OrderService.handleDecision(id, updatedStatus);
-            setOrder(prevOrder => ({
-                ...prevOrder,
-                status: updatedStatus
-            }));
-        } catch (err) {
-            console.error("Failed to update order status:", err);
-        } finally {
-            setIsUpdating(false);
+    /**
+     * logic 1: Intercept the status change
+     */
+    const handleStatusClick = (newStatus) => {
+        if (newStatus === 'CANCELLED' || newStatus === 'NOT_AVAILABLE') {
+            setPendingStatus(newStatus);
+
+            setShowCancelModal(true);
+        } else {
+            handleSubmit(newStatus);
         }
     };
 
+    
+    const handleSubmit = async (updatedStatus, reasonId = null) => {
+    setIsUpdating(true);
+    try {
+        // Pass the ID to the service
+        await OrderService.handleDecision(id, updatedStatus, reasonId);
+        console.log("reason id in the OrderDetailsPafe " + reasonId)
+        setOrder(prevOrder => ({
+            ...prevOrder,
+            status: updatedStatus,
+            // Note: Since we only sent the ID, the UI 'comment' 
+            // will only update after a page refresh unless the backend 
+            // returns the full object.
+        }));
+        const freshData = await OrderService.getOrderById(id);
+        setOrder(freshData);
+
+        setShowCancelModal(false);
+    } catch (err) {
+        console.error("Update failed:", err);
+        alert("La mise à jour a échoué.");
+    } finally {
+        setIsUpdating(false);
+    }
+};
+
     const handleDelete = async () => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this order?");
-        if (confirmDelete) {
+        if (window.confirm("Êtes-vous sûr de vouloir supprimer cette commande ?")) {
             try {
                 await OrderService.deleteOrder(id);
-                navigate('/'); 
+                navigate('/');
             } catch (err) {
-                console.error("Failed to delete:", err);
-                alert("Failed to delete the order.");
+                console.error("Delete failed:", err);
+                alert("Erreur lors de la suppression.");
             }
         }
     };
 
-    // 3. Show a specific loader while checking if user is logged in
     if (authLoading || loading) return (
         <div className="loader-container">
             <div className="spinner"></div>
-            <p>{authLoading ? "Checking permissions..." : "Chargement des détails..."}</p>
+            <p>Chargement...</p>
         </div>
     );
 
-    if (error) return (
+    if (error || !order) return (
         <div className="details-container">
-            <div className="alert-error">{error}</div>
+            <div className="alert-error">{error || "Commande introuvable"}</div>
             <Link to="/" className="back-link">← Retour au Dashboard</Link>
         </div>
     );
 
-    if (!order) return null;
-
     return (
         <div className="details-container">
             <nav className="details-nav">
-                <button onClick={() => navigate(-1)} className="btn-back-simple">
-                    ← Retour
-                </button>
+                <button onClick={() => navigate(-1)} className="btn-back-simple">← Retour</button>
             </nav>
 
             <div className="details-grid">
-               <div className="details-visual">
-    <div className="image-card">
-        {order.images && order.images.length > 0 ? (
-            <div className="image-gallery">
-                {/* Main large image (shows the first one by default) */}
-                <div className="main-image-container" onClick={() => setIsModalOpen(true)}>
-                    <img 
-                        src={`${IMAGE_BASE_URL}${order.images[selectedImgIndex].url}`} 
-                        alt="Car Damage"
-                        onError={(e) => { e.target.src = '/placeholder.png'; }}
-                    />
-                </div>
-                
-                {/* Thumbnails list if there is more than 1 image */}
-                {order.images.length > 1 && (
-                    <div className="thumbnail-grid">
-                        {order.images.map((img, idx) => (
-                            <img 
-                                key={img.id || idx}
-                                src={`${IMAGE_BASE_URL}${img.url}`} 
-                                alt={`Thumbnail ${idx + 1}`}
-                                className="thumbnail-item"
-                                // Optional: add a click handler to change the main image
-                                onClick={() => setSelectedImgIndex(idx)}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
-        ) : (
-            <div className="no-image-placeholder"><p>No Images Available</p></div>
-        )}
-        <div className="image-caption">
-            {order.images?.length || 0} Photo(s) de Preuve Visuelle
-        </div>
-    </div>
-</div>
+                {/* Visual Section */}
+                <ImageGallery 
+                    images={order.images} 
+                    selectedImgIndex={selectedImgIndex} 
+                    setSelectedImgIndex={setSelectedImgIndex}
+                    IMAGE_BASE_URL="http://192.168.1.242:8080"
+                />
 
+                {/* Info Section */}
                 <div className="details-info">
                     <div className={`info-card border-${order.status?.toLowerCase().replace(/\s+/g, '-')}`}>
                         <div className="info-header">
@@ -156,65 +148,31 @@ function OrderDetailsPage() {
                         </div>
 
                         <div className="action-footer">
-                            {/* Pass roles to the status label logic */}
                             <ButtonStatus 
                                 status={statusLabel(order.status, roles)} 
-                                handleClick={handleSubmit} 
+                                handleClick={handleStatusClick} 
                                 disabled={isUpdating}
                             />
                             
-                            {/* 4. PROTECT THE DELETE BUTTON: Only Admins/Gestionnaires see this */}
                             {(roles.includes('ROLE_ADMIN') || roles.includes('ROLE_GESTIONNAIRE')) && (
-                                <button 
-                                    className="btn-delete-simple"
-                                    onClick={handleDelete}
-                                    disabled={isUpdating}
-                                >
-                                    Delete Order
+                                <button className="btn-delete-simple" onClick={handleDelete} disabled={isUpdating}>
+                                    Supprimer l'ordre
                                 </button>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
-            {isModalOpen && (
-    <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-        {/* Navigation Buttons */}
-        <button 
-            className="modal-nav-btn prev" 
-            onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImgIndex((prev) => (prev === 0 ? order.images.length - 1 : prev - 1));
-            }}
-        >
-            &#10094;
-        </button>
 
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setIsModalOpen(false)}>&times;</button>
-            <img 
-                src={`${IMAGE_BASE_URL}${order.images[selectedImgIndex].url}`} 
-                alt="Full Size View" 
-            />
-            {/* Counter for UX */}
-            <div className="modal-counter">
-                {selectedImgIndex + 1} / {order.images.length}
-            </div>
+            {/* Cancellation Reason Modal */}
+            <CancellationModal isOpen={showCancelModal}
+                onClose={() => setShowCancelModal(false)}
+                onSubmit={(id) => handleSubmit(pendingStatus, id)}
+                         isUpdating={isUpdating}
+                reason={cancelReason}
+                updateReason={setCancelReason}/>
         </div>
-
-        <button 
-            className="modal-nav-btn next" 
-            onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImgIndex((prev) => (prev === order.images.length - 1 ? 0 : prev + 1));
-            }}
-        >
-            &#10095;
-        </button>
-    </div>
-)}
-        </div>
-    );  
+    );
 }
 
 export default OrderDetailsPage;
