@@ -255,6 +255,41 @@ export const company_validation = {
   },
 }
 
+export const role_validation = {
+  name: 'roleId',
+  label: 'rôle',
+  type: 'select',
+  id: 'roleId',
+  placeholder: 'rôle ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+export const status_validation = {
+  name: 'status',
+  label: 'statut',
+  type: 'select',
+  id: 'status',
+  placeholder: 'statut ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+
 export const company_search = {
   name: 'companyId',
   label: 'Assurance',
@@ -267,6 +302,43 @@ export const company_search = {
     },
     maxLength: {
       value: 30,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+export const company_multi_select = {
+  name: 'companies',
+  label: 'Assurance',
+  type: 'multiSelect',
+  id: 'companies',
+  placeholder: 'Assurance ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+export const role_one_select = {
+  name: 'roles',
+  label: 'rôle',
+  type: 'multiSelect',
+  id: 'roles',
+  placeholder: 'rôle ...',
+  validation: {
+    required: {
+      value: true,
       message: 'required',
     },
     maxLength: {

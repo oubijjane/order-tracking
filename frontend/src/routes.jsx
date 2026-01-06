@@ -9,6 +9,13 @@ import LogIn from "./pages/LogIn";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import OrdersByStatus from "./pages/OrderByStatus";
 import SearchPage from "./pages/SearchPage";
+import AdminDashBoard from "./pages/AdminDashBoard";
+import AdminRoute from "./pages/AdminRoute";
+import EditUserPage from "./pages/EditUser";
+import UserList from "./pages/UsersList";
+import CreateNewUser from "./pages/CreatNewUser";
+
+
 
 
 const routes = [
@@ -31,8 +38,16 @@ const routes = [
           { path: "orders/:id", element: <OrderDetailsPage /> },
           { path: "edit/:id", element: <EditOrderPage /> },
           { path: "status/:status", element: <OrdersByStatus /> },
-          {path: "search", element: <SearchPage />}
-          
+          {path: "search", element: <SearchPage />},
+          {
+            element: <AdminRoute />, // Nested guard for admin only
+            children: [
+              { path: "admin", element: <AdminDashBoard /> },
+              { path: "admin/Utilisateurs", element: <UserList /> },
+              { path: "admin/Utilisateurs/:id", element: <EditUserPage /> },
+              { path: "admin/Utilisateurs/create-user", element: <CreateNewUser /> },
+            ]
+          },
         ],
       },
     ],

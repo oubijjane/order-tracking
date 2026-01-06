@@ -9,6 +9,15 @@ const getAllusers= async () => {
             throw error;
         }
     };
+    const getUserById= async (id) => {
+        try {
+            const response = await api.get(`/users/${id}`);
+            return response.data; // CRITICAL: This passes the data back to App.jsx
+        } catch (error) {
+            console.error("Error fetching user with ID: " + id , error);
+            throw error;
+        }
+    };
 
     const getUserCompanies = async (id) => {
     try {
@@ -22,7 +31,8 @@ const getAllusers= async () => {
 
 const createNewUser = async (userData) => {
     try {
-        const response = await api.put(`/users/`, orderData);
+        const response = await api.post(`/users`, userData);
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error("Error creating new user:", error);
@@ -33,6 +43,7 @@ const createNewUser = async (userData) => {
 export default {
     getAllusers,
     getUserCompanies,
+    getUserById,
     createNewUser
 }
 

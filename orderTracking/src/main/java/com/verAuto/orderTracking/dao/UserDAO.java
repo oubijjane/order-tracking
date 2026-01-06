@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface UserDAO extends JpaRepository<User, Integer> {
     Optional<User> findByUserName(String name);
+    boolean existsByUserName(String name);
 }

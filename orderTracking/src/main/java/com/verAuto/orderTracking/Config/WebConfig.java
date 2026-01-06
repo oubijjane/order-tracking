@@ -20,13 +20,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final UserService userService;
+    private final BCryptPasswordEncoder passwordEncoder;
+
 
     // Read the path from application.properties (e.g., file.upload-dir=./uploads)
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public WebConfig(UserService userService) {
+    public WebConfig(UserService userService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
@@ -34,10 +37,6 @@ public class WebConfig implements WebMvcConfigurer {
         return username -> userService.findUserByName(username);
     }
 
-    @Bean
-    BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -48,7 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
     AuthenticationProvider  authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
 
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
 
         return authProvider;
     }

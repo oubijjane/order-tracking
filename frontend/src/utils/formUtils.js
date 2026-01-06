@@ -123,3 +123,13 @@ export const formatOrderPayload = (data) => {
         }
     };
 };
+
+export const formatNewUserPayload = (data) => {
+    return {
+        username: data.username || '',
+        email: data.email || '',
+        password: data.password || '',
+        cityId: data.cityId ? parseInt(data.cityId, 10) : null,
+        
+    };
+};

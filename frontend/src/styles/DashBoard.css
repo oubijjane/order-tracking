@@ -76,6 +76,7 @@
 .stat-card.envoyer { border-bottom-color: var(--verauto-orange); }
 .stat-card.annulé { border-bottom-color: #ef4444; }
 .stat-card.réparé { border-bottom-color: #44bfef; }
+.stat-card.action { border-bottom-color: #000000; }
 
 @media (max-width: 768px) {
   .stats-section > div {

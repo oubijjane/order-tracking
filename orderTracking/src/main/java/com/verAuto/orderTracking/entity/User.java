@@ -55,6 +55,9 @@ public class User implements UserDetails {
     @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
     private Date updatedAt;
 
+    @Column
+    private Boolean isActive = true;
+
     @ManyToOne
     @JoinColumn(name = "city_id")
     @Nullable
@@ -89,6 +92,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return getIsActive();
     }
 }

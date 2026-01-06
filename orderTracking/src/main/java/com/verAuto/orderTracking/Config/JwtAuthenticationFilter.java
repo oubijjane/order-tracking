@@ -85,8 +85,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (exception instanceof ExpiredJwtException) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
-            } else {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);    // 403
             }
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }

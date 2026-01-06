@@ -1,6 +1,6 @@
-import { NavLink,useNavigate } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { useState } from 'react';
-import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
 import '../styles/NavBar.css';
 import logo from '../assets/verauto-logo.png';
 
@@ -10,13 +10,15 @@ function Navbar() {
   const navigate = useNavigate();
   // Close menu when a link is clicked
   const closeMenu = () => setIsOpen(false);
+  const { user, loading: authLoading } = useAuth();
+  const roles = user?.roles || [];
 
   const logout = () => {
     // 1. Remove the token from storage
     localStorage.removeItem('token');
     navigate('/login');
-    
-};
+
+  };
 
   return (
     <nav className="main-navbar">
@@ -45,6 +47,11 @@ function Navbar() {
           <NavLink to="/search" className="nav-item" onClick={closeMenu}>
             Recherche
           </NavLink>
+          {(roles.includes('ROLE_ADMIN') || roles.includes('ROLE_GESTIONNAIRE')) && (
+            <NavLink to="/admin" className="nav-item" onClick={closeMenu}>
+              Admin
+            </NavLink>
+          )}
           <NavLink to="/login" className="nav-item" onClick={logout}>
             logout
           </NavLink>
