@@ -1,26 +1,26 @@
-import UserRow from "../components/UserRow";
-import userService from '../services/userService';
+import Row from "../components/Row";
+import brandService from '../services/brandService';
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router';
 import "../styles/TableStyle.css";
 
 
 
-function UserList() {
-    const [users, setUsers] = useState([]);
+function BrandsList() {
+    const [brand, setBrand] = useState([]);
     const navigate = useNavigate();
 
 
 
     useEffect(() => {
-        fetchUsers();
+        fetchBrands();
     }, []);
 
-    const fetchUsers = () => {
+    const fetchBrands = () => {
          let apiCall;
-        apiCall = userService.getAllusers();
+        apiCall = brandService.getAllBrands();
         apiCall.then(data => {
-            setUsers(data);
+            setBrand(data);
           })
           .catch(err => {
             console.error("Failed:", err);
@@ -30,12 +30,12 @@ function UserList() {
     return (
         <div className="admin-table-container"> {/* Added wrapper */}
         <div className="table-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2>Liste des utilisateurs</h2>
+                <h2>Liste des Marques</h2>
                 
                 {/* New Create Button */}
                 <button 
                     className="create-btn" 
-                    onClick={() => navigate('create-user')} // Adjust path to match your App.js
+                    onClick={() => navigate('create-brand')} // Adjust path to match your App.js
                     style={{
                         padding: '10px 20px',
                         backgroundColor: '#28a745',
@@ -45,21 +45,19 @@ function UserList() {
                         cursor: 'pointer'
                     }}
                 >
-                    + Nouveau Utilisateur
+                    + nouvelle marque
                 </button>
             </div>
         <table className="user-table">
                 <thead>
                     <tr>
                         <th>Nom</th>
-                        <th>Email</th>
-                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map(user => (
-                        <UserRow key={user.id} {...user}/>
+                    {brand.map(brand => (
+                        <Row key={brand.id} name={brand.brand} id={brand.id} type={"brand"}/>
                     ))}
                 </tbody>
             </table>
@@ -67,5 +65,4 @@ function UserList() {
     );
 }
 
-export default UserList;
-        
+export default BrandsList;

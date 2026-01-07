@@ -17,6 +17,17 @@ import CreateNewUser from "./pages/CreatNewUser";
 import CompaniesList from "./pages/CompaniesList";
 import EditCompanyPage from "./pages/EditCompany";
 import CreateCompanyPage from "./pages/CreateNewCompany";
+import BrandsList from "./pages/BrandList";
+import EditPage from "./pages/EditPage";
+import EditUserForm from "./components/EditUser";
+import EditCompany from "./components/EditCompany";
+import EditBrand from "./components/EditBrand";
+import BrandForm from "./components/NewBrandForm";
+
+
+
+
+
 
 
 
@@ -24,13 +35,13 @@ import CreateCompanyPage from "./pages/CreateNewCompany";
 
 
 const routes = [
-  { 
-    path: "/login", 
-    element: <LogIn /> 
+  {
+    path: "/login",
+    element: <LogIn />
   },
   {
     path: "/",
-    element: <App />, 
+    element: <App />,
     errorElement: <ErrorPage />,
     children: [
       // --- PROTECTED ROUTES ---
@@ -43,17 +54,34 @@ const routes = [
           { path: "orders/:id", element: <OrderDetailsPage /> },
           { path: "edit/:id", element: <EditOrderPage /> },
           { path: "status/:status", element: <OrdersByStatus /> },
-          {path: "search", element: <SearchPage />},
+          { path: "search", element: <SearchPage /> },
           {
             element: <AdminRoute />, // Nested guard for admin only
             children: [
               { path: "admin", element: <AdminDashBoard /> },
               { path: "admin/Utilisateurs", element: <UserList /> },
-              { path: "admin/Utilisateurs/:id", element: <EditUserPage /> },
+              {
+                path: "admin/edit", element: <EditPage />,
+                children: [
+                  {
+                    path: "user/:id", // Resolves to: admin/edit/user/:id
+                    element: <EditUserForm /> // This is the Child
+                  },
+                {
+                    path: "company/:id", 
+                    element: <EditCompany /> 
+                  },
+                {
+                    path: "brand/:id", 
+                    element: <EditBrand /> 
+                  },
+                ]
+              },
               { path: "admin/Utilisateurs/create-user", element: <CreateNewUser /> },
               { path: "admin/Companies", element: <CompaniesList /> },
-              { path: "admin/Companies/:id", element: <EditCompanyPage /> },
               { path: "admin/Companies/create-company", element: <CreateCompanyPage /> },
+              { path: "admin/Marques", element: <BrandsList /> },
+              { path: "admin/Marques/create-brand", element: <BrandForm /> },
             ]
           },
         ],

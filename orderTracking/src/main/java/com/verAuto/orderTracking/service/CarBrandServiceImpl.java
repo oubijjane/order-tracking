@@ -1,16 +1,19 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.DTO.BrandDTO;
 import com.verAuto.orderTracking.dao.CarBrandDAO;
 import com.verAuto.orderTracking.entity.CarBrand;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
 public class CarBrandServiceImpl implements CarBrandService{
 
-    private CarBrandDAO carBrandDAO;
+    private final CarBrandDAO carBrandDAO;
 
     @Autowired
     public CarBrandServiceImpl(CarBrandDAO carBrandDAO) {
@@ -29,7 +32,24 @@ public class CarBrandServiceImpl implements CarBrandService{
     }
 
     @Override
-    public CarBrand save(CarBrand carBrand) {
+    public CarBrand saveNewBrand(BrandDTO brandDTO) {
+        CarBrand carBrand = new CarBrand();
+        String newBrand = brandDTO.getBrand().trim();
+        if(carBrandDAO.existsByBrand(newBrand)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La marque existe déjà");
+        }
+        carBrand.setBrand(newBrand);
+        return carBrandDAO.save(carBrand);
+    }
+
+    @Override
+    public CarBrand updateBrand(long id, BrandDTO brandDTO) {
+        CarBrand carBrand = findById(id);
+        String newBrand = brandDTO.getBrand().trim();
+        if(carBrandDAO.existsByBrand(newBrand) && !carBrand.getBrand().equals(newBrand)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La marque existe déjà");
+        }
+        carBrand.setBrand(newBrand);
         return carBrandDAO.save(carBrand);
     }
 

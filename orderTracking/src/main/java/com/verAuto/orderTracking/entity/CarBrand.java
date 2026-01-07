@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -23,7 +24,7 @@ public class CarBrand {
 
     @OneToMany(mappedBy = "carBrand", cascade = CascadeType.ALL)
     @JsonIgnore // Prevents infinite loop when fetching JSON
-    private List<CarModel> models;
+    private List<CarModel> models = new ArrayList<>();
 
 
 }

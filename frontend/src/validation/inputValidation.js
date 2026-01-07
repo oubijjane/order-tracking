@@ -31,11 +31,11 @@ export const company_name_search = {
     },
   },
 }
-export const car_validation = {
-  name: 'carName',
+export const car_brand_validation = {
+  name: 'brand',
   label: 'Marque',
   type: 'text',
-  id: 'carName',
+  id: 'brand',
   placeholder: 'Marque',
   validation: {
     required: {

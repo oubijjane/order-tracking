@@ -12,7 +12,7 @@ function UserRow({ username, email, enabled, id }) {
                 </span>
             </td>
             <td>
-                <Link to={`${id}`} style={{ textDecoration: 'none', color: '#333' }}>
+                <Link to={`/admin/edit/user/${id}`} style={{ textDecoration: 'none', color: '#333' }}>
                     edit
                 </Link>
             </td>

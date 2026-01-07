@@ -1,4 +1,4 @@
-import CompanyRow from "../components/CompanyRow";
+import Row from "../components/Row";
 import companyService from '../services/companyService';
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router';
@@ -57,7 +57,7 @@ function CompaniesList() {
                 </thead>
                 <tbody>
                     {company.map(company => (
-                        <CompanyRow key={company.id} {...company} />
+                        <Row key={company.id} name={company.companyName} id={company.id} type={"companie"}/>
                     ))}
                 </tbody>
             </table>
