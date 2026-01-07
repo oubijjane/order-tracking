@@ -145,6 +145,22 @@ export const password_validation = {
     },
   },
 }
+export const password_validation_edit = {
+  name: 'password',
+  label: 'Mot de passe',
+  type: 'password',
+  id: 'password',
+  placeholder: 'Mot de passe ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 
 export const email_validation = {
   name: 'email',
@@ -333,7 +349,7 @@ export const company_multi_select = {
 export const role_one_select = {
   name: 'roles',
   label: 'rôle',
-  type: 'multiSelect',
+  type: 'select',
   id: 'roles',
   placeholder: 'rôle ...',
   validation: {

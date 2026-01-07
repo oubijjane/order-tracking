@@ -10,4 +10,5 @@ import java.util.List;
 public interface UserCompanyDAO extends JpaRepository<UserCompany, UserCompanyId> {
     List<UserCompany> findByUserId(int usedId);
     List<UserCompany> findByCompanyId(Long companyId);
+    void deleteByUserId(int id);
 }

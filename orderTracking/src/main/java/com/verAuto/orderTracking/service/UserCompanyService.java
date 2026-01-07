@@ -11,5 +11,6 @@ public interface UserCompanyService {
     List<UserCompany> findAll();
     UserCompany saveNewUserCompany(CreateUserCompany userCompany);
     List<UserCompany> findCompanyByUserId(int userId);
+    void deleteByUserId(int id);
     void deleteUserCompany(UserCompanyId id);
 }

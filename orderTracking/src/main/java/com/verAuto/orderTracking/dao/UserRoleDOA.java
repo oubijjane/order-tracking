@@ -20,4 +20,5 @@ public interface UserRoleDOA extends JpaRepository<UserRole, UserRoleId> {
 
     List<UserRole> findByIdRoleId(int roleId);
     List<UserRole> findByIdUserId(int userId);
+    void deleteByUserId(int id);
 }

@@ -12,6 +12,6 @@ public interface UserService {
     User findUserByName(String name);
     List<Company> getUserCompany(int id);
     User saveNewUser(UserDTO user);
-    User updateUser(UserDTO user);
+    User updateUser(int id, UserDTO user);
     void deleteUserById(int id);
 }

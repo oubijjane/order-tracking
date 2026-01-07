@@ -39,11 +39,23 @@ const createNewUser = async (userData) => {
         throw error;
     }
 };
+const updateUser = async (id,userData) => {
+    try {
+       // console.log(userData);
+        const response = await api.put(`/users/${id}`, userData);
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error creating new user:", error);
+        throw error;
+    }
+};
 
 export default {
     getAllusers,
     getUserCompanies,
     getUserById,
+    updateUser,
     createNewUser
 }
 

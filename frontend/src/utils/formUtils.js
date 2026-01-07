@@ -133,3 +133,28 @@ export const formatNewUserPayload = (data) => {
         
     };
 };
+export const formatEditUserPayload = (data) => {
+    // 1. Ensure roles is always an array of numbers
+    let rolesArray = [];
+    if (Array.isArray(data.roles)) {
+        rolesArray = data.roles.map(id => parseInt(id, 10));
+    } else if (data.roles) {
+        rolesArray = [parseInt(data.roles, 10)]; // If it's a single string, make it an array
+    }
+
+    // 2. Ensure companies is always an array of numbers
+    const companiesArray = Array.isArray(data.companies) 
+        ? data.companies.map(id => parseInt(id, 10)) 
+        : [];
+
+    return {
+        username: data.username,
+        email: data.email,
+        // Only send password if it has been changed/typed
+        password: data.password || '', 
+        cityId: data.cityId ? parseInt(data.cityId, 10) : null,
+        status: data.status === true || data.status === 'true',
+        roles: rolesArray,
+        companies: companiesArray
+    };
+};  

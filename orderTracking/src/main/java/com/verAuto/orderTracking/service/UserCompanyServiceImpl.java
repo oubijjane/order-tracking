@@ -55,6 +55,11 @@ public class UserCompanyServiceImpl implements UserCompanyService{
     }
 
     @Override
+    public void deleteByUserId(int id) {
+        userCompanyDAO.deleteByUserId(id);
+    }
+
+    @Override
     public void deleteUserCompany(UserCompanyId id) {
 
     }

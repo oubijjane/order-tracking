@@ -7,9 +7,9 @@ import {useRoleSelection} from '../hooks/useRoleSelection';
 import {InputField, Dropdown} from "./Input";
 import userService from '../services/userService';
 import {useCompanySelection} from "../hooks/useCompanySelection";
-import { WINDOW_TYPES, formatOrderPayload } from '../utils/formUtils';
+import { formatEditUserPayload } from '../utils/formUtils';
 import {user_name_validation, email_validation, company_multi_select,
-    password_validation, city_validation, role_one_select, status_validation
+    password_validation_edit, city_validation, role_one_select, status_validation
     } from '../validation/inputValidation';
 
 
@@ -107,10 +107,10 @@ function EditUserForm() {
     setIsUpdating(true);
 
     try {
-        const payload = formatOrderPayload(data);
+        const payload = formatEditUserPayload(data);
 
         // 3. Send to Service
-        await userService.createNewUser(payload);    
+        await userService.updateUser(id,payload);    
         navigate('/');
     } catch (error) {
         console.error("Failed to create user:", error);
@@ -131,7 +131,7 @@ function EditUserForm() {
                             {/* Text Inputs */}
                             
                             <InputField {...user_name_validation} />
-                            <InputField {...password_validation} />
+                            <InputField {...password_validation_edit} />
                             <InputField {...email_validation} />
                             <Dropdown 
                                 {...city_validation} 

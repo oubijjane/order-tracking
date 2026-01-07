@@ -13,5 +13,6 @@ public interface UserRoleService {
     List<UserRole> findAll();
     List<User> findUsersByRoleName(String role);
     UserRole saveUserRole(CreatUserRole userRole);
+    void deleteByUserId(int id);
     void deleteRole(UserRoleId id);
 }

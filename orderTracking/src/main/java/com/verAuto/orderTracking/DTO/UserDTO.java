@@ -15,7 +15,7 @@ public class UserDTO {
     private String email;
     private String username;
     private long cityId;
-    private List<Role> roles = new ArrayList<>();
-    private List<Company> companies = new ArrayList<>();
-    private boolean status = false;
+    private List<Integer> roles = new ArrayList<>();
+    private List<Long> companies = new ArrayList<>();
+    private boolean status;
 }

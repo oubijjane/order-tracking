@@ -46,4 +46,10 @@ public class UserController {
         System.out.println("i'm heeeeer" + user);
         return new ResponseEntity<>(userService.saveNewUser(user), HttpStatus.CREATED);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody UserDTO user) {
+        System.out.println("i'm heeeeer" + user);
+        return new ResponseEntity<>(userService.updateUser(id, user), HttpStatus.OK);
+    }
 }

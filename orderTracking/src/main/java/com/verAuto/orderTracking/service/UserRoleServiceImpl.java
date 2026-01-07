@@ -61,6 +61,11 @@ public class UserRoleServiceImpl implements UserRoleService{
     }
 
     @Override
+    public void deleteByUserId(int id) {
+        userRoleDOA.deleteByUserId(id);
+    }
+
+    @Override
     public void deleteRole(UserRoleId id) {
         boolean exists = userRoleDOA.existsById(id);
         if(!exists) {
