@@ -1,26 +1,20 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { useState,useRef } from 'react';
 import { useNavigate } from 'react-router';
-import {InputField, Dropdown} from "./Input";
-import userService from '../services/userService';
-import { formatNewUserPayload } from '../utils/formUtils'; // Import helpers
+import {InputField} from "./Input";
+import companyService from '../services/companyService';
 import {
-  user_name_validation, email_validation,
-  password_validation,city_validation
+  company_name_validation
 } from '../validation/inputValidation';
-import { useCitySelection } from "../hooks/useCitySelection";
 
-function UserForm() {
+
+function CompanyForm() {
     const navigate = useNavigate();
-    const cityOptions = useCitySelection();
     
     // 1. Setup Form
     const methods = useForm({
         defaultValues: {
-            username: '',
-            password: '',
-            email: '',
-            cityId:''
+            companyName: ''
         }
     });
 
@@ -38,10 +32,9 @@ function UserForm() {
     setIsUpdating(true);
 
     try {
-        const payload = formatNewUserPayload(data);
 
         // 3. Send to Service
-        await userService.createNewUser(payload);    
+        await companyService.createCompany(data);    
         navigate('/');
     } catch (error) {
         if (error.response && error.response.status === 400) {
@@ -65,13 +58,8 @@ function UserForm() {
                 
                 {/* Text Inputs */}
                 
-                <InputField {...user_name_validation} />
-                <InputField {...password_validation} />
-                <InputField {...email_validation} />
-                <Dropdown 
-                    {...city_validation} 
-                    options={cityOptions} 
-                />
+                <InputField {...company_name_validation} />
+                
                 
                 <button className={isUpdating ? "disabled-button" : "enabled-button"} type="submit">Submit</button>
             </form>
@@ -79,4 +67,4 @@ function UserForm() {
     );
 }
 
-export default UserForm;
+export default CompanyForm;

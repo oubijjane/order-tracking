@@ -82,6 +82,10 @@ public class UserServiceImpl implements UserService{
         User existingUser = findById(id);
 
 
+        if (userDAO.existsByUserName(userDto.getUsername()) && !existingUser.getUsername().equals(userDto.getUsername())) {
+            // Throw a custom exception or a built-in one
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le nom d'utilisateur existe déjà");
+        }
         // 2. Update basic fields
         existingUser.setUserName(userDto.getUsername());
         existingUser.setEmail(userDto.getEmail());
@@ -100,6 +104,9 @@ public class UserServiceImpl implements UserService{
         // Note: This usually involves clearing the old set and adding new ones
         // depending on how your UserRole/UserCompany junction entities are structured.
         userRoleService.deleteByUserId(id);
+        assert existingUser.getRoles() != null;
+        existingUser.getRoles().clear();
+
 
 // 2. Only add new ones if the list actually has items
         if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
@@ -112,6 +119,9 @@ public class UserServiceImpl implements UserService{
         }
 
         userCompanyService.deleteByUserId(id);
+        assert existingUser.getCompanies() != null;
+        existingUser.getCompanies().clear();
+        userDAO.saveAndFlush(existingUser);
         if(userDto.getCompanies() != null && !userDto.getCompanies().isEmpty()) {
             userDto.getCompanies().forEach((company -> {
                 CreateUserCompany request = new CreateUserCompany();

@@ -14,6 +14,11 @@ import AdminRoute from "./pages/AdminRoute";
 import EditUserPage from "./pages/EditUser";
 import UserList from "./pages/UsersList";
 import CreateNewUser from "./pages/CreatNewUser";
+import CompaniesList from "./pages/CompaniesList";
+import EditCompanyPage from "./pages/EditCompany";
+import CreateCompanyPage from "./pages/CreateNewCompany";
+
+
 
 
 
@@ -46,6 +51,9 @@ const routes = [
               { path: "admin/Utilisateurs", element: <UserList /> },
               { path: "admin/Utilisateurs/:id", element: <EditUserPage /> },
               { path: "admin/Utilisateurs/create-user", element: <CreateNewUser /> },
+              { path: "admin/Companies", element: <CompaniesList /> },
+              { path: "admin/Companies/:id", element: <EditCompanyPage /> },
+              { path: "admin/Companies/create-company", element: <CreateCompanyPage /> },
             ]
           },
         ],

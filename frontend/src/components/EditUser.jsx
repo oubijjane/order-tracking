@@ -113,6 +113,15 @@ function EditUserForm() {
         await userService.updateUser(id,payload);    
         navigate('/');
     } catch (error) {
+         if (error.response && error.response.status === 400) {
+        // Option 1 & 2 both provide error.response.data.message
+        const errorMessage = error.response.data.message;
+
+        methods.setError("username", {
+            type: "manual",
+            message: errorMessage || "Ce nom d'utilisateur est déjà utilisé"
+        });
+    }
         console.error("Failed to create user:", error);
         submitLock.current = false;
     } finally {

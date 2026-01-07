@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -21,5 +22,5 @@ public class Company {
 
     @OneToMany(mappedBy = "company")
     @JsonManagedReference(value = "company-usercompany")
-    private Set<UserCompany> users;
+    private Set<UserCompany> users = new HashSet<>();
 }
