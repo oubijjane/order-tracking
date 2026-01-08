@@ -2,6 +2,7 @@ import api from './api';
 
 // 1. Get All Brands
     const getAllBrands = async () => {
+     
         try {
             const response = await api.get('/brands');
             return response.data; // CRITICAL: This passes the data back to App.jsx

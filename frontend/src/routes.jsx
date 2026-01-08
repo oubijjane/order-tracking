@@ -15,14 +15,17 @@ import EditUserPage from "./pages/EditUser";
 import UserList from "./pages/UsersList";
 import CreateNewUser from "./pages/CreatNewUser";
 import CompaniesList from "./pages/CompaniesList";
-import EditCompanyPage from "./pages/EditCompany";
 import CreateCompanyPage from "./pages/CreateNewCompany";
 import BrandsList from "./pages/BrandList";
 import EditPage from "./pages/EditPage";
 import EditUserForm from "./components/EditUser";
 import EditCompany from "./components/EditCompany";
 import EditBrand from "./components/EditBrand";
-import BrandForm from "./components/NewBrandForm";
+import CreatBrandPage from "./pages/CreateNewBrand";
+import ModelsList from "./pages/ModelsListPage";
+import EditModelPage from "./pages/EditModelPage";
+
+
 
 
 
@@ -68,7 +71,7 @@ const routes = [
                     element: <EditUserForm /> // This is the Child
                   },
                 {
-                    path: "company/:id", 
+                    path: "companie/:id", 
                     element: <EditCompany /> 
                   },
                 {
@@ -81,7 +84,9 @@ const routes = [
               { path: "admin/Companies", element: <CompaniesList /> },
               { path: "admin/Companies/create-company", element: <CreateCompanyPage /> },
               { path: "admin/Marques", element: <BrandsList /> },
-              { path: "admin/Marques/create-brand", element: <BrandForm /> },
+              { path: "admin/Marques/create-brand", element: <CreatBrandPage /> },
+              { path: "admin/Modèles", element: <ModelsList /> },
+              { path: "admin/Modèles/edit/:id", element: <EditModelPage /> },
             ]
           },
         ],

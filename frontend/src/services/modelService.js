@@ -1,9 +1,14 @@
 import api from './api';
 
 // 1. Get All Models
-    const getAllModels = async () => {
+    const getAllModels = async (page, size) => {
         try {
-            const response = await api.get('/models');
+            const response = await api.get('/models', {
+                params: {
+                    page,
+                    size
+                }
+            });
             return response.data; // CRITICAL: This passes the data back to App.jsx
         } catch (error) {
             console.error("Error fetching models:", error);
@@ -44,6 +49,7 @@ const createModel = async (modelData) => {
 const updateModel = async (id, modelData) => {
     try {
         const response = await api.put(`/models/${id}`, modelData);
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error("Error updating model:", error);

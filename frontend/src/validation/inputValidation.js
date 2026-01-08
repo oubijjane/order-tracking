@@ -62,6 +62,20 @@ export const car_model_validation = {
   },
 }
 
+export const car_model_input = {
+  name: 'model',
+  label: 'Modèle',
+  type: 'text',
+  id: 'model',
+  placeholder: 'Modèle',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+  },
+}
+
 export const brand_validation = {
   name: 'brandId',
   label: 'Marque',
