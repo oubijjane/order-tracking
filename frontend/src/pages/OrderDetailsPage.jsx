@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
-import { ORDER_STATUS_MAP, statusLabel } from '../utils/formUtils';
+import { ORDER_STATUS_MAP, statusLabel, formatDate } from '../utils/formUtils';
 import ButtonStatus from '../components/ButtonStatus';
 import { CancellationModal } from '../components/CancellationModal';
+import { TransitModal } from '../components/TransitModal'; // Import the new modal
 import { ImageGallery } from '../components/ImageGallery';
 import { useAuth } from '../context/AuthContext';
 import '../styles/OrderDetails.css';
@@ -22,8 +23,9 @@ function OrderDetailsPage() {
     // Data State
     const [order, setOrder] = useState(null);
 
-    // Cancellation Modal States
+    // Modal States
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showTransitModal, setShowTransitModal] = useState(false); // New State
     const [cancelReason, setCancelReason] = useState("");
     const [pendingStatus, setPendingStatus] = useState(null);
 
@@ -49,38 +51,40 @@ function OrderDetailsPage() {
     const handleStatusClick = (newStatus) => {
         if (newStatus === 'CANCELLED' || newStatus === 'NOT_AVAILABLE') {
             setPendingStatus(newStatus);
-
             setShowCancelModal(true);
+        } else if (newStatus === 'IN_TRANSIT') {
+            // Logic 2: Intercept IN_TRANSIT to open TransitModal
+            setPendingStatus(newStatus);
+            setShowTransitModal(true);
         } else {
             handleSubmit(newStatus);
         }
     };
 
-    
-    const handleSubmit = async (updatedStatus, reasonId = null) => {
-    setIsUpdating(true);
-    try {
-        // Pass the ID to the service
-        await OrderService.handleDecision(id, updatedStatus, reasonId);
-        console.log("reason id in the OrderDetailsPafe " + reasonId)
-        setOrder(prevOrder => ({
-            ...prevOrder,
-            status: updatedStatus,
-            // Note: Since we only sent the ID, the UI 'comment' 
-            // will only update after a page refresh unless the backend 
-            // returns the full object.
-        }));
-        const freshData = await OrderService.getOrderById(id);
-        setOrder(freshData);
+    /**
+     * Logic 3: Update handleSubmit to accept transit parameters
+     */
+    const handleSubmit = async (updatedStatus, reasonId = null, transitCompanyId = null, declarationNumber = null) => {
+        setIsUpdating(true);
+        try {
+            // The service call now takes all potential extra data
+            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber);
+            
+            // Refresh local state
+            const freshData = await OrderService.getOrderById(id);
+            setOrder(freshData);
 
-        setShowCancelModal(false);
-    } catch (err) {
-        console.error("Update failed:", err);
-        alert("La mise à jour a échoué.");
-    } finally {
-        setIsUpdating(false);
-    }
-};
+            // Close any open modals
+            setShowCancelModal(false);
+            setShowTransitModal(false);
+        } catch (err) {
+            console.error("Update failed:", err);
+            // Show the actual backend error message if available
+            alert(err.response?.data?.message || "La mise à jour a échoué.");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
 
     const handleDelete = async () => {
         if (window.confirm("Êtes-vous sûr de vouloir supprimer cette commande ?")) {
@@ -115,7 +119,6 @@ function OrderDetailsPage() {
             </nav>
 
             <div className="details-grid">
-                {/* Visual Section */}
                 <ImageGallery 
                     images={order.images} 
                     selectedImgIndex={selectedImgIndex} 
@@ -123,7 +126,6 @@ function OrderDetailsPage() {
                     IMAGE_BASE_URL="http://192.168.1.242:8080"
                 />
 
-                {/* Info Section */}
                 <div className="details-info">
                     <div className={`info-card border-${order.status?.toLowerCase().replace(/\s+/g, '-')}`}>
                         <div className="info-header">
@@ -136,10 +138,20 @@ function OrderDetailsPage() {
                         <h1 className="company-title">{order.company.companyName}</h1>
 
                         <div className="specs-grid">
-                            <div className="spec-item"><label>Véhicule</label><p>{order.carModel.carBrand.brand} {order.carModel.model} ({order.year})</p></div>
+                            <div className="spec-item"><label>Véhicule</label><p> {order.carModel.carBrand.brand} {order.carModel.model} ({order.year})</p></div>
+                            <div className="spec-item"><label>Date de creation</label><p> {formatDate(order.createdAt)}</p></div>
+                            <div className="spec-item"><label>Dernier mise a jour</label><p> {formatDate(order.updatedAt)}</p></div>
                             <div className="spec-item"><label>Matricule</label><p className="plate-number">{order.registrationNumber}</p></div>
                             <div className="spec-item"><label>Type de vitre</label><p>{order.windowType}</p></div>
                             <div className="spec-item"><label>Destination</label><p>{order.city.cityName} — {order.destination}</p></div>
+                            
+                            {/* Display Transit Info if available */}
+                            {order.transitCompany && (
+                                <div className="spec-item"><label>Société de Transit</label><p>{order.transitCompany.name}</p></div>
+                            )}
+                            {order.declarationNumber && (
+                                <div className="spec-item"><label>N° Déclaration</label><p>{order.declarationNumber}</p></div>
+                            )}
                         </div>
 
                         <div className="comment-section">
@@ -165,12 +177,20 @@ function OrderDetailsPage() {
             </div>
 
             {/* Cancellation Reason Modal */}
-            <CancellationModal isOpen={showCancelModal}
+            <CancellationModal 
+                isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
-                onSubmit={(id) => handleSubmit(pendingStatus, id)}
-                         isUpdating={isUpdating}
-                reason={cancelReason}
-                updateReason={setCancelReason}/>
+                onSubmit={(reasonId) => handleSubmit(pendingStatus, reasonId)}
+                isUpdating={isUpdating}
+            />
+
+            {/* Transit Modal - Logic 4: Integration */}
+            <TransitModal 
+                isOpen={showTransitModal}
+                onClose={() => setShowTransitModal(false)}
+                onSubmit={(companyId, decNumber) => handleSubmit(pendingStatus, null, companyId, decNumber)}
+                isUpdating={isUpdating}
+            />
         </div>
     );
 }

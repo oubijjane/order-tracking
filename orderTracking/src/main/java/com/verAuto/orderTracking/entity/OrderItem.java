@@ -12,8 +12,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Setter
@@ -34,6 +40,13 @@ public class OrderItem {
     @NotNull
     private CarModel carModel;
 
+    @ManyToOne
+    @JoinColumn(name = "transitCompany_id", nullable = true)
+    private TransitCompany transitCompany;
+
+    @Column
+    private String declarationNumber;
+
     @Column
     @Min(value = 1990, message = "L'année doit être supérieure à 1990")
     private int year;
@@ -45,6 +58,14 @@ public class OrderItem {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Le statut est obligatoire")
     private OrderStatus status;
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at", columnDefinition = "DATETIME(0)")
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
+    private Date updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "city_id", nullable = false)
@@ -72,5 +93,11 @@ public class OrderItem {
     public boolean isYearValid() {
         // dynamic check: year must be less than or equal to current year
         return year <= Year.now().getValue();
+    }
+
+    public void setUpdatedAt() {
+        LocalDateTime now = LocalDateTime.now();
+        Date out = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
+        setUpdatedAt(out);
     }
 }

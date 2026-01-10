@@ -24,16 +24,12 @@ import EditBrand from "./components/EditBrand";
 import CreatBrandPage from "./pages/CreateNewBrand";
 import ModelsList from "./pages/ModelsListPage";
 import EditModelPage from "./pages/EditModelPage";
-
-
-
-
-
-
-
-
-
-
+import CreatModelPage from "./pages/CreateNewModel";
+import CommentsList from "./pages/CommentList";
+import EditCommentForm from "./components/EditComment";
+import CityList from "./pages/CityList";
+import EditCityForm from "./components/EditCity";
+import CreatCityPage from "./pages/CreateNewCity";
 
 
 
@@ -78,6 +74,14 @@ const routes = [
                     path: "brand/:id", 
                     element: <EditBrand /> 
                   },
+                  {
+                    path: "comment/:id", 
+                    element: <EditCommentForm /> 
+                  },
+                  {
+                    path: "city/:id", 
+                    element: <EditCityForm /> 
+                  },
                 ]
               },
               { path: "admin/Utilisateurs/create-user", element: <CreateNewUser /> },
@@ -87,6 +91,11 @@ const routes = [
               { path: "admin/Marques/create-brand", element: <CreatBrandPage /> },
               { path: "admin/Modèles", element: <ModelsList /> },
               { path: "admin/Modèles/edit/:id", element: <EditModelPage /> },
+              { path: "admin/Modèles/create-model", element: <CreatModelPage /> },
+              { path: "admin/commentaires", element: <CommentsList /> },
+              { path: "admin/Villes", element: <CityList /> },
+              { path: "admin/Villes/create-city", element: <CreatCityPage /> },
+          
             ]
           },
         ],

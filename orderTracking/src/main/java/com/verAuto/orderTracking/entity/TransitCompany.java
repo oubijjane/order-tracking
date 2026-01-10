@@ -1,19 +1,17 @@
 package com.verAuto.orderTracking.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-public class City {
+public class TransitCompany {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    @NotBlank
-    private String cityName;
+    private String name;
 }

@@ -19,6 +19,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -130,6 +133,9 @@ public class UserServiceImpl implements UserService{
                 userCompanyService.saveNewUserCompany(request);
             }));
         }
+        LocalDateTime now = LocalDateTime.now();
+        Date out = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
+        existingUser.setUpdatedAt(out);
 
         return userDAO.save(existingUser);
     }

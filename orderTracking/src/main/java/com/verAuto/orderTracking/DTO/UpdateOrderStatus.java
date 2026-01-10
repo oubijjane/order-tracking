@@ -9,4 +9,6 @@ import lombok.Setter;
 public class UpdateOrderStatus {
     private OrderStatus orderStatus;
     private Long comment;
+    private Long transitCompanyId;
+    private String declarationNumber;
 }

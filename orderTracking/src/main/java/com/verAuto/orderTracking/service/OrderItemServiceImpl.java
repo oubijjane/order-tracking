@@ -3,10 +3,7 @@ package com.verAuto.orderTracking.service;
 import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
-import com.verAuto.orderTracking.entity.City;
-import com.verAuto.orderTracking.entity.OrderItem;
-import com.verAuto.orderTracking.entity.User;
-import com.verAuto.orderTracking.entity.UserCompany;
+import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
@@ -17,10 +14,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,18 +36,20 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final CityDAO cityDAO ;
     private final CommentService commentService;
     private final UserRoleServiceImpl userRoleService;
+    private final TransitCompanyService transitCompanyService;
 
 
     @Autowired
     public OrderItemServiceImpl (EmailService emailService, OrderItemDAO orderItemDAO,
                                  CityDAO cityDAO,
-                                 OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService) {
+                                 OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService) {
         this.emailService = emailService;
         this.orderItemDAO = orderItemDAO;
         this.cityDAO = cityDAO;
         this.orderItemImagesService = orderItemImagesService;
         this.commentService = commentService;
         this.userRoleService = userRoleService;
+        this.transitCompanyService = transitCompanyService;
     }
 
     @Override
@@ -244,6 +247,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 throw new RuntimeException("Failed to store images, rolling back order creation", e);
             }
         }
+        // orderItem.setUpdatedAt();
        //3. send emails to the logistic team
         emailService.sendOrderNotification(savedOrder, getLogisticTeamEmails());
 
@@ -251,48 +255,58 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
+    @Transactional
     public OrderItem updateStatusAndComment(Long id, UpdateOrderStatus newStatus, User user) {
+        // 1. Normalize user roles
+        assert user.getRoles() != null;
         Set<String> roleNames = user.getRoles().stream()
                 .map(r -> r.getRole().getName().toUpperCase())
                 .collect(Collectors.toSet());
+
+        // 2. Fetch the existing order
         OrderItem existingOrder = findById(id);
         OrderStatus currentStatus = existingOrder.getStatus();
-        System.out.println("new Status " + newStatus + " " + "curreent status " + currentStatus);
-        if(newStatus.getOrderStatus() != null) {
+
+        // 3. Status and Role Logic
+        if (newStatus.getOrderStatus() != null) {
             validateStatusTransition(currentStatus, newStatus.getOrderStatus());
+            checkRolePermissions(roleNames, newStatus.getOrderStatus());
 
-            // --- RULE 1: Garagiste & Gestionnaire Restrictions ---
-            // These roles can ONLY move an order to specific statuses (e.g., 'CANCELLED' or 'PENDING')
-
-            if (roleNames.contains("ROLE_GARAGISTE") || roleNames.contains("ROLE_GESTIONNAIRE")) {
-                List<OrderStatus> forbiddenForThem = Arrays.asList(
-                        OrderStatus.AVAILABLE,
-                        OrderStatus.IN_PROGRESS,
-                        OrderStatus.NOT_AVAILABLE
-                );
-
-                if (forbiddenForThem.contains(newStatus)) {
-                    throw new RuntimeException("Role " + roleNames + " is not allowed to set status to " + newStatus);
+            // --- RULE: Transit Company Logic ---
+            if (newStatus.getOrderStatus() == OrderStatus.IN_TRANSIT) {
+                // 1. Validate Transit Company
+                if (newStatus.getTransitCompanyId() == null || newStatus.getTransitCompanyId() <= 0) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Une société de transit est obligatoire pour le passage en transit.");
                 }
+
+                // 2. Validate Declaration Number (Fixed the logic here)
+                if (newStatus.getDeclarationNumber() == null || newStatus.getDeclarationNumber().trim().isEmpty()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Un numéro de déclaration de transit est obligatoire pour le passage en transit.");
+                }
+
+                // 3. Process the update
+                TransitCompany company = transitCompanyService.findTransitCompanyById(newStatus.getTransitCompanyId());
+
+                existingOrder.setTransitCompany(company);
+                existingOrder.setDeclarationNumber(newStatus.getDeclarationNumber().trim());
             }
 
-            // --- RULE 2: Logisticien Restrictions ---
-            if (roleNames.contains("ROLE_LOGISTICIEN")) {
-                if (newStatus.getOrderStatus() == OrderStatus.SENT || newStatus.getOrderStatus() == OrderStatus.CANCELLED) {
-                    throw new RuntimeException("Logisticians cannot mark orders as Sent or Cancelled.");
-                }
-            }
             existingOrder.setStatus(newStatus.getOrderStatus());
         }
-        System.out.printf("comment id: " + newStatus.getComment() );
+
+        // 4. Comment Logic
         if (newStatus.getComment() != null) {
-            String comment = commentService.findCommentById(newStatus.getComment()).getLabel();
-            System.out.println("comment: " + comment);
-            existingOrder.setComment(comment);
+            // Use CommentService to get the label
+            String commentLabel = commentService.findCommentById(newStatus.getComment()).getLabel();
+            existingOrder.setComment(commentLabel);
         }
+
+        // 5. Finalize
+       // existingOrder.setUpdatedAt();
         return orderItemDAO.save(existingOrder);
     }
-
     @Override
     public void deleteById(Long id) {
         boolean exists = orderItemDAO.existsById(id);
@@ -308,7 +322,9 @@ public class OrderItemServiceImpl implements OrderItemService {
             case IN_PROGRESS -> next == OrderStatus.AVAILABLE || next == OrderStatus.NOT_AVAILABLE;
             case AVAILABLE -> next == OrderStatus.SENT || next == OrderStatus.CANCELLED;
             case NOT_AVAILABLE -> next == OrderStatus.AVAILABLE || next == OrderStatus.CANCELLED;
-            case SENT -> next == OrderStatus.REPAIRED;
+            case SENT -> next == OrderStatus.IN_TRANSIT;
+            case IN_TRANSIT -> next == OrderStatus.RECEIVED;
+            case RECEIVED -> next == OrderStatus.REPAIRED || next == OrderStatus.RETURN;
             default -> false;
         };
 
@@ -325,5 +341,30 @@ public class OrderItemServiceImpl implements OrderItemService {
 
 
         return emails;
+    }
+    private void checkRolePermissions(Set<String> roleNames, OrderStatus targetStatus) {
+        if (roleNames.contains("ROLE_ADMIN")) return;
+
+        // Garagiste & Gestionnaire Logic
+        if (roleNames.contains("ROLE_GARAGISTE") || roleNames.contains("ROLE_GESTIONNAIRE")) {
+            List<OrderStatus> forbidden = Arrays.asList(
+                    OrderStatus.AVAILABLE, OrderStatus.IN_PROGRESS, OrderStatus.NOT_AVAILABLE
+            );
+            if (forbidden.contains(targetStatus)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé pour ce changement de statut.");
+            }
+        }
+
+        // Specific Gestionnaire Logic
+        if (roleNames.contains("ROLE_GESTIONNAIRE") && targetStatus == OrderStatus.RETURN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Le gestionnaire ne peut pas initier de retour.");
+        }
+
+        // Logisticien Logic
+        if (roleNames.contains("ROLE_LOGISTICIEN")) {
+            if (targetStatus == OrderStatus.SENT || targetStatus == OrderStatus.CANCELLED) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Le logisticien ne peut pas envoyer ou annuler.");
+            }
+        }
     }
 }

@@ -2,51 +2,51 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useEffect, useState,useRef} from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {InputField} from "./Input";
-import companyService from '../services/companyService';
-import {company_name_validation} from '../validation/inputValidation';
+import cityService from '../services/cityService';
+import {city_validation_text} from '../validation/inputValidation';
 
 
-function EditCompanyForm() {
+function EditCityForm() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const {id} = useParams();
     
-    const [company, setCompany] = useState([]);
+    const [city, setCity] = useState([]);
 
    
-    const fetchCompany = async () => {
+    const fetchCity = async () => {
         setIsLoading(true);
         let apiCall;
-        apiCall = companyService.getCompanyById(id);
+        apiCall = cityService.getCityById(id);
         apiCall.then(data => {
-            setCompany(data);
+            setCity(data);
             setIsLoading(false);
         }
     )
         .catch(err => {
             console.error("Failed:", err);
-            setError("Could not load user. Is the backend running?");
+            setError("Could not load city. Is the backend running?");
         });
     }
     useEffect(() => {
     // Run both, then turn off loading
-    fetchCompany();
+    fetchCity();
     
 }, [id]);
     
     // 1. Setup Form
     const methods = useForm({
          defaultValues: {
-    companyName: ''
+    cityName: ''
   }
     });
     useEffect(() => {
-  if (!company || !company.id) return;
+  if (!city || !city.id) return;
 
   methods.reset({
-    companyName: company.companyName || ''
+    cityName: city.cityName || ''
   });
-}, [company, methods]);
+}, [city, methods]);
 
     // 2. Use Custom Hook for Dropdown Data
     // We pass the watched value so the hook knows when to refetch models
@@ -64,10 +64,20 @@ function EditCompanyForm() {
     try {
 
         // 3. Send to Service
-        await companyService.updateCompany(id,data);    
+        await cityService.updateCity(id,data);    
         navigate('/');
     } catch (error) {
-        console.error("Failed to create user:", error);
+        if (error.response && error.response.status === 400) {
+        // Option 1 & 2 both provide error.response.data.message
+        const errorMessage = error.response.data.message;
+
+        methods.setError(city_validation_text.name, { // Dynamically uses the correct name
+            type: "manual",
+            message: errorMessage || "ville est déjà utilisé"
+        });
+        console.error("Failed to :", error);
+    }
+    
         submitLock.current = false;
     } finally {
         setIsUpdating(false);
@@ -84,7 +94,9 @@ function EditCompanyForm() {
                             
                             {/* Text Inputs */}
                             
-                            <InputField {...company_name_validation} />
+                            <InputField {...city_validation_text} 
+                                m
+                            />
                             
                             <button className={isUpdating ? "disabled-button" : "enabled-button"} type="submit">Submit</button>
                         </form>
@@ -93,4 +105,4 @@ function EditCompanyForm() {
                 </>);
 }
 
-export default EditCompanyForm;
+export default EditCityForm;

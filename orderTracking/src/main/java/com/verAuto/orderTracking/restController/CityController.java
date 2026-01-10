@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.restController;
 
+import com.verAuto.orderTracking.DTO.CityDTO;
 import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.service.CityService;
@@ -34,21 +35,13 @@ public class CityController {
     }
 
     @PostMapping
-    public ResponseEntity<City> createCity(@RequestBody City city) {
-        city.setId(null);
-
-        City addedCity = cityService.saveCity(city);
-
-        return new ResponseEntity<>(addedCity, HttpStatus.CREATED);
+    public ResponseEntity<City> createCity(@RequestBody CityDTO city) {
+        return new ResponseEntity<>(cityService.saveNewCity(city), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<City> updateCity(@PathVariable Long id, @RequestBody City city) {
-        City updatedCity = cityService.findCityById(id);
-        updatedCity.setCityName(city.getCityName());
-        City savedCity = cityService.saveCity(updatedCity);
-
-        return new ResponseEntity<>(savedCity, HttpStatus.OK);
+    public ResponseEntity<City> updateCity(@PathVariable Long id, @RequestBody CityDTO city) {
+        return new ResponseEntity<>(cityService.UpdateCity(id,city), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

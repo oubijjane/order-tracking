@@ -91,12 +91,25 @@ const deleteOrder = async (id) => {
 };
 
 
-const handleDecision = async (id, decision, commentId = null) => {
+const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber) => {
+    let updateData;
     try {
-        const updateData = {
-            orderStatus: decision, // e.g., 'CANCELLED'
-            comment: commentId   // This will now be 3
-        };
+        if (decision == "CANCELLED") {
+             updateData = {
+                orderStatus: decision, // e.g., 'CANCELLED'
+                comment: commentId   // This will now be 3
+            };
+        } if(decision == "IN_TRANSIT") {
+             updateData = {
+                orderStatus: decision, // e.g., 'CANCELLED'
+                transitCompanyId: newTransitCompanyId,
+                declarationNumber: newDeclarationNumber
+            };
+        } else {
+             updateData = {
+                orderStatus: decision,// This will now be 3
+            };
+        }
 
         console.log("Final JSON being sent to Java:", updateData);
 

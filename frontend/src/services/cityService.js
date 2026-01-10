@@ -23,6 +23,7 @@ const getCityById = async (id) => {
 
 // 2. Create city      
 const createCity = async (cityData) => {
+    console.log("city service " + cityData.cityName);
     try {
         const response = await api.post('/cities', cityData);
         return response.data;

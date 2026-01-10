@@ -76,6 +76,20 @@ export const car_model_input = {
   },
 }
 
+export const comment_validation  = {
+  name: 'comment',
+  label: 'Commentaire',
+  type: 'text',
+  id: 'comment',
+  placeholder: 'commentaire ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+  },
+}
+
 export const brand_validation = {
   name: 'brandId',
   label: 'Marque',
@@ -303,11 +317,11 @@ export const role_validation = {
   },
 }
 export const status_validation = {
-  name: 'status',
+  name: 'active',
   label: 'statut',
   type: 'select',
-  id: 'status',
-  placeholder: 'statut ...',
+  id: 'active',
+  placeholder: 'active ...',
   validation: {
     required: {
       value: true,
@@ -436,6 +450,23 @@ export const city_validation = {
     },
   },
 }
+export const city_validation_text = {
+  name: 'cityName',
+  label: 'Ville',
+  type: 'text',
+  id: 'cityName',
+  placeholder: 'Ville ...',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 
 export const city_search = {
   name: 'cityId',
@@ -468,3 +499,29 @@ export const image_validation = {
     },
   },
 }
+// in your validation file
+export const transit_company_search = {
+    name: 'transitCompanyId',
+    label: 'Société de Transit',
+    id: 'transitCompanyId',
+    validation: {
+        required: {
+            value: true,
+            message: 'Requis',
+        },
+    },
+};
+
+export const declaration_number_input = {
+    name: 'declarationNumber',
+    label: 'Numéro de déclaration',
+    type: 'text',
+    id: 'declarationNumber',
+    placeholder: 'Ex: TR-2026-XYZ',
+    validation: {
+        required: {
+            value: true,
+            message: 'Requis',
+        },
+    },
+};

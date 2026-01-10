@@ -23,6 +23,7 @@ export function CancellationModal({ isOpen, onClose, onSubmit, isUpdating }) {
 
     // Send only the ID to the parent component
     onSubmit(selectedId); 
+    methods.reset(); 
     
     onClose();
 };

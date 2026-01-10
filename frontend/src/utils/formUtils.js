@@ -20,7 +20,10 @@ export const ORDER_STATUS = [
     { value: 'NOT_AVAILABLE', label: 'Non Disponible' },
     { value: 'SENT', label: 'Envoyer' },
     { value: 'CANCELLED', label: 'Annulé' }, 
-    { value: 'REPAIRED', label: 'Réparé' }
+    { value: 'REPAIRED', label: 'Réparé' },
+    { value: 'IN_TRANSIT', label: 'En transite' },
+    { value: 'RECEIVED', label: 'Reçu' },
+    { value: 'RETURN', label: 'Retour' }
   ];
 
   export const ORDER_STATUS_MAP = Object.fromEntries(
@@ -36,77 +39,55 @@ export const handleDecision = async (id, decision, action) => {
         }
 };
 
-export const statusLabel1 = (statusValue) => {
-    switch(statusValue) {
-        case 'PENDING':
-            return ['IN_PROGRESS'];
-        case 'IN_PROGRESS':
-            return ['AVAILABLE', 'NOT_AVAILABLE']; 
-        case 'AVAILABLE':
-            return ['SENT','CANCELLED'];
-        case 'NOT_AVAILABLE':  
-            return ['CANCELLED','AVAILABLE'];
-        case 'SENT':
-            return ['REPAIRED'];
-        default:
-            return [];
-    }
-}
-
 export const statusLabel = (statusValue, userRoles = []) => {
-    // 1. Define all possible logical transitions
     let possibleTransitions = [];
 
+    // 1. Define logical flow
     switch(statusValue) {
-        case 'PENDING':
-            possibleTransitions = ['IN_PROGRESS'];
-            break;
-        case 'IN_PROGRESS':
-            possibleTransitions = ['AVAILABLE', 'NOT_AVAILABLE'];
-            break;
-        case 'AVAILABLE':
-            possibleTransitions = ['SENT', 'CANCELLED'];
-            break;
-        case 'NOT_AVAILABLE':
-            possibleTransitions = ['CANCELLED', 'AVAILABLE'];
-            break;
-        case 'SENT':
-            possibleTransitions = ['REPAIRED'];
-            break;
-        
-        default:
-            possibleTransitions = [];
+        case 'PENDING':      possibleTransitions = ['IN_PROGRESS']; break;
+        case 'IN_PROGRESS':  possibleTransitions = ['AVAILABLE', 'NOT_AVAILABLE']; break;
+        case 'AVAILABLE':    possibleTransitions = ['SENT', 'CANCELLED']; break;
+        case 'NOT_AVAILABLE':possibleTransitions = ['AVAILABLE', 'CANCELLED']; break;
+        case 'SENT':         possibleTransitions = ['IN_TRANSIT']; break;
+        case 'IN_TRANSIT':   possibleTransitions = ['RECEIVED']; break;
+        case 'RECEIVED':     possibleTransitions = ['REPAIRED', 'RETURN']; break;
+        default:             possibleTransitions = [];
     }
 
-    // 2. Filter these transitions based on the user's Roles
+    // 2. Role validation helpers
+    const isAdmin = userRoles.includes('ROLE_ADMIN');
+    const isGestionnaire = userRoles.includes('ROLE_GESTIONNAIRE');
+    const isGaragiste = userRoles.includes('ROLE_GARAGISTE');
+    const isLogisticien = userRoles.includes('ROLE_LOGISTICIEN');
+
     return possibleTransitions.filter(nextStatus => {
-        // Logisticians can mark as SENT but cannot CANCEL
-        if (nextStatus === 'SENT') {
-            return userRoles.includes('ROLE_GESTIONNAIRE') || 
-                   userRoles.includes('ROLE_ADMIN') ||
-                   userRoles.includes('ROLE_GARAGISTE');
-        }
+        if (isAdmin) return true; // Admin can do everything
 
-        // Only Gestionnaires or Admins can CANCEL
-        if (nextStatus === 'CANCELLED') {
-            return userRoles.includes('ROLE_GESTIONNAIRE') || 
-                   userRoles.includes('ROLE_ADMIN') ||
-                   userRoles.includes('ROLE_GARAGISTE');
-        }
+        switch(nextStatus) {
+            case 'IN_PROGRESS':
+            case 'AVAILABLE':
+            case 'NOT_AVAILABLE':
+                return isLogisticien; // Logisticiens start the process
+            
+            case 'SENT':
+            case 'CANCELLED':
+                return isGestionnaire || isGaragiste;
 
-        // Garagistes & Gestionnaires usually handle the early stages
-        if (nextStatus === 'IN_PROGRESS' || nextStatus === 'AVAILABLE' || nextStatus === 'NOT_AVAILABLE') {
-            return userRoles.includes('ROLE_LOGISTICIEN') ||  
-                   userRoles.includes('ROLE_ADMIN');
-        }
-        // REPAIRED can only be set by Garagistes
-        if (nextStatus === 'REPAIRED') {
-            return userRoles.includes('ROLE_GARAGISTE') || 
-                   userRoles.includes('ROLE_ADMIN') ||
-                   userRoles.includes('ROLE_MANAGER');
-        }
+            case 'IN_TRANSIT':
+                return isLogisticien;
 
-        return false;
+            case 'RECEIVED':
+                return isLogisticien || isGaragiste;
+
+            case 'REPAIRED':
+                return isGaragiste;
+
+            case 'RETURN':
+                return isLogisticien || isGaragiste;
+
+            default:
+                return false;
+        }
     });
 };
 // Helper to format data for backend
@@ -158,3 +139,15 @@ export const formatEditUserPayload = (data) => {
         companies: companiesArray
     };
 };  
+export const formatDate = (dateString) => {
+    if (!dateString) return "Jamais";
+    
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(date);
+};

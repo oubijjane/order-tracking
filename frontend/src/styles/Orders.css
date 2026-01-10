@@ -131,4 +131,15 @@
 .info-card.border-sent,
 .info-card.border-envoyer { border-left-color: var(--verauto-orange); } /* Brand Orange */
 .info-card.border-not_available,
-.info-card.border-non-disponible { border-left-color: #6366f1; } /* Indigo */
+.info-card.border-non-disponible { border-left-color: #6366f1; }
+
+.stat-card.envoyer { border-bottom-color: var(--verauto-orange); }
+.stat-card.annulé { border-bottom-color: #ef4444; }
+.stat-card.réparé { border-bottom-color: #44bfef; }
+.info-card.border-return { border-left-color: #ef4444; }
+.info-card.border-in_transit{ border-left-color: #616161; }
+.info-card.border-repaired{ border-left-color: #44bfef; }
+.info-card.border-received{ border-left-color: #bf44ef; }
+.stat-card.action { border-bottom-color: #000000; }
+
+/* Indigo */

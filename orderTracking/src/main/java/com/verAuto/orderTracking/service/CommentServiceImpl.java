@@ -1,10 +1,13 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.DTO.CommentDTO;
 import com.verAuto.orderTracking.dao.CommentDAO;
 import com.verAuto.orderTracking.entity.Comment;
 import jakarta.persistence.Entity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -25,19 +28,38 @@ public class CommentServiceImpl implements CommentService{
     }
 
     @Override
+    public List<Comment> getAllComments() {
+        return commentDAO.findAll();
+    }
+
+    @Override
     public List<Comment> getAllActiveComments() {
         return commentDAO.getCommentByIsActive(true);
     }
 
     @Override
-    public Comment saveNewComment(Comment comment) {
-        comment.setId(null);
+    public Comment saveNewComment(CommentDTO commentDTO) {
+        String newComment = commentDTO.getLabel().trim();
+        if(commentDAO.existsByLabel(newComment)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le commentaire existe déjà");
+        }
+        Comment comment = new Comment();
+        comment.setLabel(newComment);
+        comment.setActive(commentDTO.isActive());
         return commentDAO.save(comment);
     }
 
     @Override
-    public Comment updateComment(Comment comment) {
-        return null;
+    public Comment updateComment(long id, CommentDTO commentDTO) {
+        Comment existingComment = findCommentById(id);
+        String newComment = commentDTO.getLabel().trim();
+        if(commentDAO.existsByLabel(newComment) && !existingComment.getLabel().equals(newComment)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le commentaire existe déjà");
+        }
+
+        existingComment.setLabel(newComment);
+        existingComment.setActive(commentDTO.isActive());
+        return commentDAO.save(existingComment);
     }
 
     @Override

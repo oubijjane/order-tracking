@@ -76,6 +76,9 @@
 .stat-card.envoyer { border-bottom-color: var(--verauto-orange); }
 .stat-card.annulé { border-bottom-color: #ef4444; }
 .stat-card.réparé { border-bottom-color: #44bfef; }
+.stat-card.reçu { border-bottom-color: #bf44ef; }
+.stat-card.en-transite { border-bottom-color: #616161; }
+.stat-card.retour{ border-bottom-color: #f10000; }
 .stat-card.action { border-bottom-color: #000000; }
 
 @media (max-width: 768px) {

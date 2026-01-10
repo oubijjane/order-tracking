@@ -8,7 +8,8 @@ function Order({ order }) {
             {order.company.companyName}
           </Link>
       </h3>
-      <p><strong>Details:</strong>{order.windowType} {order.carModel.carBrand.brand} {order.carModel.model} {order.year}</p>
+      <p><strong>Details:</strong> {order.windowType} {order.carModel.carBrand.brand} {order.carModel.model} {order.year}</p>
+      <p><strong>Date de creation:</strong> {order.createdAt}</p>
       <p><strong>Matricule n°:</strong> {order.registrationNumber}</p>
       <p><strong>Ville:</strong> {order.city.cityName}</p>
       <p><strong>Status:</strong> {ORDER_STATUS_MAP[order.status]}</p>

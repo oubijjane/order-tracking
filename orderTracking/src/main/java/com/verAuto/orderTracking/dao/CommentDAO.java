@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CommentDAO extends JpaRepository<Comment, Long> {
     List<Comment> getCommentByIsActive(boolean isActive);
+    boolean existsByLabel(String label);
 }

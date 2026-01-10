@@ -6,7 +6,10 @@ public enum OrderStatus {
     AVAILABLE("Disponible"),
     NOT_AVAILABLE("Non Disponible"),
     SENT("Envoyer"),
+    IN_TRANSIT("En transite"),
     CANCELLED("Annulé"),
+    RECEIVED("reçu"),
+    RETURN("retour"),
     REPAIRED("Réparé");
 
     private final String label;
