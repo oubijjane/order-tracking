@@ -98,7 +98,6 @@ export const formatOrderPayload = (data) => {
         cityId: data.cityId ? parseInt(data.cityId, 10) : null,
         orderItem: {
             registrationNumber: data.registrationNumber,
-            year: data.year ? parseInt(data.year, 10) : undefined,
             comment: data.comment || '',
             windowType: data.windowType || null
         }

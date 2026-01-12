@@ -1,5 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router';
 import {ORDER_STATUS_MAP} from '../utils/formUtils';
+import {formatDate} from '../utils/formUtils';
 
 function Order({ order }) {
   return (
@@ -8,11 +9,12 @@ function Order({ order }) {
             {order.company.companyName}
           </Link>
       </h3>
-      <p><strong>Details:</strong> {order.windowType} {order.carModel.carBrand.brand} {order.carModel.model} {order.year}</p>
-      <p><strong>Date de creation:</strong> {order.createdAt}</p>
+      <p><strong>Details:</strong> {order.windowType} {order.carModel.carBrand.brand} {order.carModel.model}</p>
+      <p><strong>Date de creation:</strong> {formatDate(order.createdAt)}</p>
       <p><strong>Matricule n°:</strong> {order.registrationNumber}</p>
       <p><strong>Ville:</strong> {order.city.cityName}</p>
       <p><strong>Status:</strong> {ORDER_STATUS_MAP[order.status]}</p>
+      <p><strong>Numer de dossier:</strong> {order.fileNumber ? order.fileNumber : 'Non renseigné'}</p>
     </div>
   );
 }

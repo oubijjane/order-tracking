@@ -39,6 +39,7 @@ public class TransitCompanyServiceImpl implements TransitCompanyService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le transport existe déjà");
         }
         TransitCompany transitCompany = new TransitCompany();
+        transitCompany.setId(null);
         transitCompany.setName(newTransitName);
         return transitCompanyDAO.save(transitCompany);
     }

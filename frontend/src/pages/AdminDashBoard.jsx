@@ -17,6 +17,7 @@ import "../styles/DashBoard.css";
                 <SectionCard action={"Modèles"}/>
                 <SectionCard action={"Commentaires"}/>
                 <SectionCard action={"Villes"}/>
+                <SectionCard action={"Transport"}/>
                 </div>
             </section>
         </div>

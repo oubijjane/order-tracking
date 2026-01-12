@@ -27,7 +27,6 @@ function Form() {
             comment: '',
             destination: '',
             registrationNumber: '',
-            year: '',
             status: 'En attente'
         }
     });
@@ -80,7 +79,6 @@ function Form() {
                 {/* Text Inputs */}
                 
                 <InputField {...registration_number_validation} />
-                <InputField {...year_validation} />
                 <InputField {...image_validation} />
                 
                 {/* Dropdowns */}

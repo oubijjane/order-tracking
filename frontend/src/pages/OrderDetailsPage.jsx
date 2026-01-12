@@ -4,6 +4,7 @@ import OrderService from '../services/orderService';
 import { ORDER_STATUS_MAP, statusLabel, formatDate } from '../utils/formUtils';
 import ButtonStatus from '../components/ButtonStatus';
 import { CancellationModal } from '../components/CancellationModal';
+import {FileNumberModal} from '../components/FileNumberModal';
 import { TransitModal } from '../components/TransitModal'; // Import the new modal
 import { ImageGallery } from '../components/ImageGallery';
 import { useAuth } from '../context/AuthContext';
@@ -25,7 +26,8 @@ function OrderDetailsPage() {
 
     // Modal States
     const [showCancelModal, setShowCancelModal] = useState(false);
-    const [showTransitModal, setShowTransitModal] = useState(false); // New State
+    const [showTransitModal, setShowTransitModal] = useState(false);
+    const [showFileNumberModal, setFileNumberModal] = useState(false); // New State
     const [cancelReason, setCancelReason] = useState("");
     const [pendingStatus, setPendingStatus] = useState(null);
 
@@ -56,19 +58,27 @@ function OrderDetailsPage() {
             // Logic 2: Intercept IN_TRANSIT to open TransitModal
             setPendingStatus(newStatus);
             setShowTransitModal(true);
-        } else {
+        } else if (order.status === 'REPAIRED') {
+            setFileNumberModal(true);
+        }
+        else {
             handleSubmit(newStatus);
+        }
+    };
+    const handleFileNumberClick = () => {
+         if (order.status === 'REPAIRED') {
+            setFileNumberModal(true);
         }
     };
 
     /**
      * Logic 3: Update handleSubmit to accept transit parameters
      */
-    const handleSubmit = async (updatedStatus, reasonId = null, transitCompanyId = null, declarationNumber = null) => {
+    const handleSubmit = async (updatedStatus, reasonId = null, transitCompanyId = null, declarationNumber = null, fileNumber = null) => {
         setIsUpdating(true);
         try {
             // The service call now takes all potential extra data
-            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber);
+            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber);
             
             // Refresh local state
             const freshData = await OrderService.getOrderById(id);
@@ -138,7 +148,7 @@ function OrderDetailsPage() {
                         <h1 className="company-title">{order.company.companyName}</h1>
 
                         <div className="specs-grid">
-                            <div className="spec-item"><label>Véhicule</label><p> {order.carModel.carBrand.brand} {order.carModel.model} ({order.year})</p></div>
+                            <div className="spec-item"><label>Véhicule</label><p> {order.carModel.carBrand.brand} {order.carModel.model}</p></div>
                             <div className="spec-item"><label>Date de creation</label><p> {formatDate(order.createdAt)}</p></div>
                             <div className="spec-item"><label>Dernier mise a jour</label><p> {formatDate(order.updatedAt)}</p></div>
                             <div className="spec-item"><label>Matricule</label><p className="plate-number">{order.registrationNumber}</p></div>
@@ -153,12 +163,13 @@ function OrderDetailsPage() {
                                 <div className="spec-item"><label>N° Déclaration</label><p>{order.declarationNumber}</p></div>
                             )}
                         </div>
-
+                        <div className="spec-item">
+                          <label>Numéro de dossier</label>
+                          <p className={!order.fileNumber ? "text-muted" : "plate-number"}> {order.fileNumber || "Non renseigné"}</p></div>
                         <div className="comment-section">
                             <label>Commentaire</label>
                             <p>{order.comment || "Aucun commentaire disponible."}</p>
                         </div>
-
                         <div className="action-footer">
                             <ButtonStatus 
                                 status={statusLabel(order.status, roles)} 
@@ -166,9 +177,13 @@ function OrderDetailsPage() {
                                 disabled={isUpdating}
                             />
                             
-                            {(roles.includes('ROLE_ADMIN') || roles.includes('ROLE_GESTIONNAIRE')) && (
+                            {roles.includes('ROLE_ADMIN')  && (
                                 <button className="btn-delete-simple" onClick={handleDelete} disabled={isUpdating}>
                                     Supprimer l'ordre
+                                </button>
+                            )} {order.status === 'REPAIRED'&& (
+                                <button className="btn-delete-simple" onClick={handleFileNumberClick} disabled={isUpdating}>
+                                    Numero de dossier
                                 </button>
                             )}
                         </div>
@@ -189,6 +204,15 @@ function OrderDetailsPage() {
                 isOpen={showTransitModal}
                 onClose={() => setShowTransitModal(false)}
                 onSubmit={(companyId, decNumber) => handleSubmit(pendingStatus, null, companyId, decNumber)}
+                isUpdating={isUpdating}
+            />
+
+            <FileNumberModal
+            isOpen={showFileNumberModal}
+                onClose={() => setFileNumberModal(false)}
+                onSubmit={(fileNumber) =>
+                     handleSubmit(null, null, null, null, fileNumber)
+                    }
                 isUpdating={isUpdating}
             />
         </div>

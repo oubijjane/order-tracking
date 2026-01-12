@@ -1,28 +1,21 @@
 import { useForm, FormProvider } from "react-hook-form";
-import {Dropdown} from "./Input";
-import {comment_search} from '../validation/inputValidation';
-import { useCommentsSelection} from '../hooks/useCommentsSelection'; // Import comment hook
+import {Dropdown, InputField} from "./Input";
+import {file_number_validation } from '../validation/inputValidation';
 
-
-
-export function CancellationModal({ isOpen, onClose, onSubmit, isUpdating }) {
+export function FileNumberModal({ isOpen, onClose, onSubmit, isUpdating }) {
     const methods = useForm({
         defaultValues: {
-            comment: '' // This will store the ID from the Dropdown
+            fileNumber: '' // This will store the ID from the Dropdown
         }
     });
 
-    const commentOptions = useCommentsSelection();
 
     if (!isOpen) return null;
 
    const onValidSubmit = (data) => {
     // data.comment (or data.company) is the ID from the dropdown
-    const selectedId = data[comment_search.name];; 
-    console.log("reason id in the Modala component " + selectedId)
-
-    // Send only the ID to the parent component
-    onSubmit(selectedId); 
+    onSubmit(data.fileNumber);
+    
     methods.reset(); 
     
     onClose();
@@ -31,13 +24,13 @@ export function CancellationModal({ isOpen, onClose, onSubmit, isUpdating }) {
     return (
         <div className="modal-backdrop">
             <div className="modal-container">
-                <h3>Motif de l'annulation</h3>
+                <h3>Numer de dossier</h3>
                 
                 <FormProvider {...methods}>
                     <form onSubmit={methods.handleSubmit(onValidSubmit)} className="search-form-layout">
                         <div className="form-row">
                             {/* Dropdown sends the ID as the value */}
-                            <Dropdown {...comment_search} options={commentOptions} />
+                            <InputField {...file_number_validation } />
                             
                             <div className="modal-footer">
                                 <button type="button" className="cancel-btn" onClick={onClose}>Annuler</button>

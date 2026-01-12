@@ -6,8 +6,7 @@ export const useTransitCompanySelection = () => {
     // 1. Fetch Cities on Mount
     useEffect(() => {
         transtiCompanyService.getTransitCompany()
-            .then(data => {setCompany(data) 
-            console.log(data)})
+            .then(data => setCompany(data) )
             .catch(err => console.error("Failed to load transit company:", err));
     }, []); 
     // 2. Format options for the Dropdown component

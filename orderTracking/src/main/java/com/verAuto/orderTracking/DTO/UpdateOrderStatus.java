@@ -11,4 +11,5 @@ public class UpdateOrderStatus {
     private Long comment;
     private Long transitCompanyId;
     private String declarationNumber;
+    private String fileNumber;
 }

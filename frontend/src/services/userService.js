@@ -42,6 +42,7 @@ const createNewUser = async (userData) => {
 const updateUser = async (id,userData) => {
     try {
        // console.log(userData);
+       console.log("user " + userData.isActive);
         const response = await api.put(`/users/${id}`, userData);
         console.log(response.data);
         return response.data;

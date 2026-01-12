@@ -31,6 +31,23 @@ export const company_name_search = {
     },
   },
 }
+
+export const transit_company_name_search = {
+  name: 'name',
+  label: 'Transport',
+  type: 'text',
+  id: 'name',
+  placeholder: 'Transport ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 export const car_brand_validation = {
   name: 'brand',
   label: 'Marque',
@@ -198,8 +215,7 @@ export const email_validation = {
   placeholder: 'email ...',
   validation: {
     required: {
-      value: true,
-      message: 'false',
+      value: false,
     },
     maxLength: {
       value: 50,
@@ -317,10 +333,10 @@ export const role_validation = {
   },
 }
 export const status_validation = {
-  name: 'active',
+  name: 'status',
   label: 'statut',
   type: 'select',
-  id: 'active',
+  id: 'status',
   placeholder: 'active ...',
   validation: {
     required: {
@@ -422,6 +438,26 @@ export const comment_search = {
   validation: {
     required: {
       value: false
+    },
+    maxLength: {
+      value: 30,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+export const file_number_validation = {
+  name: 'fileNumber',
+  label: 'numero de dossier',
+  type: 'text',
+  id: 'commentId',
+  placeholder: 'numero de dossier ...',
+  validation: {
+    required: {
+      message: 'required',
     },
     maxLength: {
       value: 30,

@@ -35,7 +35,7 @@ function BrandForm() {
 
         // 3. Send to Service
         await brandService.createBrand(data);    
-        navigate('/');
+        navigate('/admin/Marques');
     } catch (error) {
         if (error.response && error.response.status === 400) {
         // Option 1 & 2 both provide error.response.data.message

@@ -55,7 +55,7 @@ function ModelFom() {
 
             // 3. Send to Service
             await modelService.createModel(data);
-            navigate('/');
+            navigate('/admin/Modèles');
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 // Option 1 & 2 both provide error.response.data.message

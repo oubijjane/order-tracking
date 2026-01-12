@@ -2,51 +2,52 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useEffect, useState,useRef} from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {InputField} from "./Input";
-import companyService from '../services/companyService';
-import {company_name_validation} from '../validation/inputValidation';
+import transitCompanyService from '../services/transitCompanyService';
+import {transit_company_name_search} from '../validation/inputValidation';
 
 
-function EditCompanyForm() {
+function EditTransitForm() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const {id} = useParams();
     
-    const [company, setCompany] = useState([]);
+    const [transitCompany, setTransitCompany] = useState([]);
+
 
    
-    const fetchCompany = async () => {
+    const fetchTransitCompany = async () => {
         setIsLoading(true);
         let apiCall;
-        apiCall = companyService.getCompanyById(id);
+        apiCall = transitCompanyService.getTransitCompanyById(id);
         apiCall.then(data => {
-            setCompany(data);
+            setTransitCompany(data);
             setIsLoading(false);
         }
     )
         .catch(err => {
             console.error("Failed:", err);
-            setError("Could not load user. Is the backend running?");
+            setError("Could not load transit company. Is the backend running?");
         });
     }
     useEffect(() => {
     // Run both, then turn off loading
-    fetchCompany();
+    fetchTransitCompany();
     
 }, [id]);
     
     // 1. Setup Form
     const methods = useForm({
          defaultValues: {
-    companyName: ''
+    name: ''
   }
     });
     useEffect(() => {
-  if (!company || !company.id) return;
+  if (!transitCompany || !transitCompany.id) return;
 
   methods.reset({
-    companyName: company.companyName || ''
+    name: transitCompany.name || ''
   });
-}, [company, methods]);
+}, [transitCompany, methods]);
 
     // 2. Use Custom Hook for Dropdown Data
     // We pass the watched value so the hook knows when to refetch models
@@ -64,10 +65,21 @@ function EditCompanyForm() {
     try {
 
         // 3. Send to Service
-        await companyService.updateCompany(id,data);    
-        navigate('/admin/Companies');
+        await transitCompanyService.updateTransitCompany(id,data);   
+        console.log(data); 
+        navigate('/admin/Transport');
     } catch (error) {
-        console.error("Failed to create user:", error);
+        if (error.response && error.response.status === 400) {
+        // Option 1 & 2 both provide error.response.data.message
+        const errorMessage = error.response.data.message;
+
+        methods.setError(transit_company_name_search.name, { // Dynamically uses the correct name
+            type: "manual",
+            message: errorMessage || "transport est déjà utilisé"
+        });
+        console.error("Failed to :", error);
+    }
+    
         submitLock.current = false;
     } finally {
         setIsUpdating(false);
@@ -84,7 +96,9 @@ function EditCompanyForm() {
                             
                             {/* Text Inputs */}
                             
-                            <InputField {...company_name_validation} />
+                            <InputField {...transit_company_name_search} 
+                                m
+                            />
                             
                             <button className={isUpdating ? "disabled-button" : "enabled-button"} type="submit">Submit</button>
                         </form>
@@ -93,4 +107,4 @@ function EditCompanyForm() {
                 </>);
 }
 
-export default EditCompanyForm;
+export default EditTransitForm;

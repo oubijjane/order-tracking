@@ -65,17 +65,32 @@
 }
 
 /* Submit Button */
-.enabled-button {
+.enabled-button, .disabled-button {
     grid-column: span 2;
-    background-color: #e77700;
-    color: white;
     padding: 14px;
-    border: none;
+    border: 0; /* Ensures no hidden borders change the size */
     border-radius: 8px;
     font-weight: 700;
     font-size: 1.1rem;
-    cursor: pointer;
     margin-top: 10px;
+    width: 100%; /* Force the width to fill the grid span */
+    box-sizing: border-box; /* Includes padding in the width calculation */
+    height: 52px; /* Set a fixed height if the text change causes shifting */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.enabled-button {
+    background-color: #e77700;
+    color: white;
+    cursor: pointer;
+}
+
+.disabled-button {
+    background-color: #e2e8f0;
+    color: #000;
+    cursor: not-allowed;
 }
   .btn-logout-simple{
     background: transparent ;
@@ -103,6 +118,9 @@
         grid-column: span 1;
     }
     .enabled-button {
+        grid-column: span 1;
+    }
+    .disabled-button {
         grid-column: span 1;
     }
 }

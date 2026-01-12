@@ -77,7 +77,6 @@ function EditUserForm() {
     });
     useEffect(() => {
   if (!user || !user.id) return;
-
   methods.reset({
     username: user.username || '',
     password: '',
@@ -111,7 +110,7 @@ function EditUserForm() {
 
         // 3. Send to Service
         await userService.updateUser(id,payload);    
-        navigate('/');
+        navigate('/admin/Utilisateurs');
     } catch (error) {
          if (error.response && error.response.status === 400) {
         // Option 1 & 2 both provide error.response.data.message

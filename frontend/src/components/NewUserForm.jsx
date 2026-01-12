@@ -42,7 +42,7 @@ function UserForm() {
 
         // 3. Send to Service
         await userService.createNewUser(payload);    
-        navigate('/');
+        navigate('/admin/Utilisateurs');
     } catch (error) {
         if (error.response && error.response.status === 400) {
         // Option 1 & 2 both provide error.response.data.message

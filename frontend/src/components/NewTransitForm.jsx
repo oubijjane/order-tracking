@@ -2,19 +2,19 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useState,useRef } from 'react';
 import { useNavigate } from 'react-router';
 import {InputField} from "./Input";
-import companyService from '../services/companyService';
+import transitCompanyService from '../services/transitCompanyService';
 import {
-  company_name_validation
+  transit_company_name_search
 } from '../validation/inputValidation';
 
 
-function CompanyForm() {
+function TransitCpmpanyForm() {
     const navigate = useNavigate();
     
     // 1. Setup Form
     const methods = useForm({
         defaultValues: {
-            companyName: ''
+            name: ''
         }
     });
 
@@ -26,27 +26,29 @@ function CompanyForm() {
    
 
     // 3. Handle Submit
-    const onValidSubmit = async (data) => {
+   const onValidSubmit = async (data) => {
     if (submitLock.current) return;
     submitLock.current = true;
     setIsUpdating(true);
 
     try {
-
-        // 3. Send to Service
-        await companyService.createCompany(data);    
-        navigate('/admin/Companies');
+        // Ensure data matches what your API expects (e.g., { name: "..." })
+        await transitCompanyService.CreateNewTransitCompany(data);    
+        navigate('/admin/Transport');
     } catch (error) {
-        if (error.response && error.response.status === 400) {
-        // Option 1 & 2 both provide error.response.data.message
-        const errorMessage = error.response.data.message;
-
-        methods.setError("username", {
-            type: "manual",
-            message: errorMessage || "Ce nom d'utilisateur est déjà utilisé"
-        });
-    }
+        // Release the lock so they can fix and try again
         submitLock.current = false;
+
+        if (error.response && error.response.status === 400) {
+            const errorMessage = error.response.data.message;
+
+            // FIX: Reference the specific field name from your validation object
+            methods.setError(transit_company_name_search.name, { 
+                type: "manual",
+                message: errorMessage || "Cette société de transport est déjà enregistrée."
+            });
+        }
+        console.error("Creation failed:", error);
     } finally {
         setIsUpdating(false);
     }
@@ -58,7 +60,7 @@ function CompanyForm() {
                 
                 {/* Text Inputs */}
                 
-                <InputField {...company_name_validation} />
+                <InputField {...transit_company_name_search} />
                 
                 
                 <button className={isUpdating ? "disabled-button" : "enabled-button"} type="submit">Submit</button>
@@ -67,4 +69,4 @@ function CompanyForm() {
     );
 }
 
-export default CompanyForm;
+export default TransitCpmpanyForm;

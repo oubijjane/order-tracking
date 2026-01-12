@@ -47,7 +47,7 @@ function Navbar() {
           <NavLink to="/search" className="nav-item" onClick={closeMenu}>
             Recherche
           </NavLink>
-          {(roles.includes('ROLE_ADMIN') || roles.includes('ROLE_GESTIONNAIRE')) && (
+          {roles.includes('ROLE_ADMIN')  && (
             <NavLink to="/admin" className="nav-item" onClick={closeMenu}>
               Admin
             </NavLink>

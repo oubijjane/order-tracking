@@ -30,6 +30,12 @@ import EditCommentForm from "./components/EditComment";
 import CityList from "./pages/CityList";
 import EditCityForm from "./components/EditCity";
 import CreatCityPage from "./pages/CreateNewCity";
+import TransitList from "./pages/TransitList";
+import EditTransitForm from "./components/EditTransitCompany";
+import CreatTransitPage from "./pages/CreateNewTransitCompany";
+
+
+
 
 
 
@@ -82,6 +88,10 @@ const routes = [
                     path: "city/:id", 
                     element: <EditCityForm /> 
                   },
+                  {
+                    path: "transport/:id", 
+                    element: <EditTransitForm /> 
+                  },
                 ]
               },
               { path: "admin/Utilisateurs/create-user", element: <CreateNewUser /> },
@@ -94,7 +104,9 @@ const routes = [
               { path: "admin/Modèles/create-model", element: <CreatModelPage /> },
               { path: "admin/commentaires", element: <CommentsList /> },
               { path: "admin/Villes", element: <CityList /> },
+              { path: "admin/Transport", element: <TransitList /> },
               { path: "admin/Villes/create-city", element: <CreatCityPage /> },
+              { path: "admin/Transport/create-transit", element: <CreatTransitPage /> },
           
             ]
           },

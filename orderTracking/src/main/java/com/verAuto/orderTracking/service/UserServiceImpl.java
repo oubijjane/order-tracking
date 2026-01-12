@@ -90,8 +90,11 @@ public class UserServiceImpl implements UserService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le nom d'utilisateur existe déjà");
         }
         // 2. Update basic fields
-        existingUser.setUserName(userDto.getUsername());
-        existingUser.setEmail(userDto.getEmail());
+        if(userDto.getUsername() != null && !userDto.getUsername().isEmpty()) {
+            existingUser.setUserName(userDto.getUsername());
+        }
+            existingUser.setEmail(userDto.getEmail());
+        System.out.println("service impl: " + userDto.isStatus());
         existingUser.setIsActive(userDto.isStatus());
 
         // 3. Update Password ONLY if it was provided (not empty)
@@ -100,8 +103,10 @@ public class UserServiceImpl implements UserService{
         }
 
         // 4. Update City
+        if(userDto.getCityId() != 0 && cityService.findCityById( userDto.getCityId()) != null) {
         City city = cityService.findCityById( userDto.getCityId());
         existingUser.setCity(city);
+        }
 
         // 5. Update Relationships (Roles/Companies)
         // Note: This usually involves clearing the old set and adding new ones

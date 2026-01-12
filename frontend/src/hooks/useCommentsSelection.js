@@ -6,8 +6,7 @@ export const useCommentsSelection = () => {
     // 1. Fetch Cities on Mount
     useEffect(() => {
         commentService.getAllActiveComments()
-            .then(data => {setComment(data) 
-            console.log(data)})
+            .then(data => setComment(data))
             .catch(err => console.error("Failed to load comments:", err));
     }, []); 
     // 2. Format options for the Dropdown component

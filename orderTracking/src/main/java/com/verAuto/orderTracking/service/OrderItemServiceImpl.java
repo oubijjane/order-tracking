@@ -236,6 +236,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     public OrderItem save(OrderItem orderItem, User user, MultipartFile[] files) {
         // 1. Associate the user and save the Order first (to get the ID)
         orderItem.setUser(user);
+        orderItem.setFileNumber("");
         OrderItem savedOrder = orderItemDAO.save(orderItem);
 
         // 2. If there are images, delegate to ImageService
@@ -266,7 +267,17 @@ public class OrderItemServiceImpl implements OrderItemService {
         // 2. Fetch the existing order
         OrderItem existingOrder = findById(id);
         OrderStatus currentStatus = existingOrder.getStatus();
+        boolean isProvidingFileNumber = newStatus.getFileNumber() != null && !newStatus.getFileNumber().trim().isEmpty();
+        System.out.println("this is a test " + isProvidingFileNumber);
+        if (isProvidingFileNumber && !existingOrder.getStatus().equals(OrderStatus.REPAIRED)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Le numéro de dossier ne peut être renseigné que pour les commandes au statut 'RÉPARÉ'.");
+        }
 
+        // 3. If everything is fine, set it
+        if (isProvidingFileNumber) {
+            existingOrder.setFileNumber(newStatus.getFileNumber().trim());
+        }
         // 3. Status and Role Logic
         if (newStatus.getOrderStatus() != null) {
             validateStatusTransition(currentStatus, newStatus.getOrderStatus());
@@ -295,8 +306,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 
             existingOrder.setStatus(newStatus.getOrderStatus());
         }
-
         // 4. Comment Logic
+
         if (newStatus.getComment() != null) {
             // Use CommentService to get the label
             String commentLabel = commentService.findCommentById(newStatus.getComment()).getLabel();
@@ -313,6 +324,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         if(!exists) {
             throw new RuntimeException("Order with ID " + id + " does not exist");
         }
+        orderItemImagesService.deleteByOrderItemId(id);
         orderItemDAO.deleteById(id);
     }
 

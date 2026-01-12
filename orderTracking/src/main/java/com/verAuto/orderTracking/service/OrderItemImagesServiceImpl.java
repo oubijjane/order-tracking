@@ -7,6 +7,7 @@ import com.verAuto.orderTracking.entity.OrderImage;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.enums.OrderStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -80,10 +81,28 @@ public class OrderItemImagesServiceImpl implements OrderItemImagesService{
 
 
     @Override
+    @Transactional // Ensure the DB operation and file deletion are handled safely
     public void deleteByOrderItemId(Long id) {
-        OrderItem orderItem = orderItemDAO.findById(id)
-                .orElseThrow(() -> new RuntimeException("could not find order with the id - " + id));
-        orderImageDAO.deleteByOrderItemId(orderItem.getId());
+        // 1. Find the images associated with this OrderItem first
+        List<OrderImage> images = orderImageDAO.findByOrderItemId(id);
+
+        // 2. Delete the physical files from the disk
+        for (OrderImage image : images) {
+            try {
+                // Convert the URL back to a local file path
+                // We remove the leading slash and replace it with the actual system path
+                String fileName = image.getUrl().substring(image.getUrl().lastIndexOf("/") + 1);
+                Path filePath = Paths.get(uploadPath).resolve(fileName);
+
+                Files.deleteIfExists(filePath);
+            } catch (IOException e) {
+                // Log the error but continue so other files/DB records can be deleted
+                System.err.println("Could not delete file: " + image.getUrl() + " Error: " + e.getMessage());
+            }
+        }
+
+        // 3. Now delete the entries from the database
+        orderImageDAO.deleteByOrderItemId(id);
     }
 
     @Override

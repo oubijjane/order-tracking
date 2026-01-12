@@ -91,19 +91,25 @@ const deleteOrder = async (id) => {
 };
 
 
-const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber) => {
+const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber) => {
     let updateData;
+    console.log("file number: " + newFileNumber)
+    console.log("decision: " + decision)
     try {
         if (decision == "CANCELLED") {
              updateData = {
                 orderStatus: decision, // e.g., 'CANCELLED'
                 comment: commentId   // This will now be 3
             };
-        } if(decision == "IN_TRANSIT") {
+        }else if(decision == "IN_TRANSIT") {
              updateData = {
                 orderStatus: decision, // e.g., 'CANCELLED'
                 transitCompanyId: newTransitCompanyId,
                 declarationNumber: newDeclarationNumber
+            };
+        }else if (newFileNumber && !decision) {
+            updateData = {
+                fileNumber: newFileNumber
             };
         } else {
              updateData = {
@@ -111,7 +117,6 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
             };
         }
 
-        console.log("Final JSON being sent to Java:", updateData);
 
         // This sends the JSON body { "orderStatus": "CANCELLED", "commentId": 3 }
         return await api.patch(`/orders/${id}`, updateData);
@@ -133,7 +138,6 @@ const getFilteredOrders = async (company, status, registrationNumber, city, size
         page
     }
             });
-            console.log("API CALL URL:", response.request.responseURL);
             return response.data; // CRITICAL: This passes the data back to App.jsx
         } catch (error) {
             console.error("Error fetching orders:", error);

@@ -12,6 +12,7 @@ export function TransitModal({ isOpen, onClose, onSubmit, isUpdating }) {
 
     // Custom hook to fetch transit company options (id and name)
     const companyOptions = useTransitCompanySelection();
+   
 
     if (!isOpen) return null;
 
@@ -29,7 +30,7 @@ export function TransitModal({ isOpen, onClose, onSubmit, isUpdating }) {
                 
                 <FormProvider {...methods}>
                     <form onSubmit={methods.handleSubmit(onValidSubmit)} className="search-form-layout">
-                        <div className="form-row" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div className="form-row" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center'}}>
                             
                             {/* Dropdown for Transit Company */}
                             <Dropdown {...transit_company_search} options={companyOptions} />

@@ -31,8 +31,6 @@ function SearchForm({ onSearch }) { // Receive the prop
         reg: data.registrationNumber,
         status: data.status
     };
-
-    console.log("Sending to Backend:", searchCriteria);
     onSearch(searchCriteria);
 };
 

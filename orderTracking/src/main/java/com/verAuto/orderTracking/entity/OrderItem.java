@@ -48,8 +48,8 @@ public class OrderItem {
     private String declarationNumber;
 
     @Column
-    @Min(value = 1990, message = "L'année doit être supérieure à 1990")
-    private int year;
+    private String fileNumber;
+
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -89,15 +89,5 @@ public class OrderItem {
     @Column
     private String comment;
 
-    @AssertTrue(message = "L'année ne peut pas être dans le futur")
-    public boolean isYearValid() {
-        // dynamic check: year must be less than or equal to current year
-        return year <= Year.now().getValue();
-    }
 
-    public void setUpdatedAt() {
-        LocalDateTime now = LocalDateTime.now();
-        Date out = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
-        setUpdatedAt(out);
-    }
 }

@@ -14,8 +14,6 @@ const AdminRoute = () => {
     const isAdmin = user?.roles?.includes('ROLE_ADMIN');
 
     // 3. Debugging (Optional, but now it will work)
-    console.log("User found:", user);
-    console.log("Is Admin:", isAdmin);
 
     // 4. Return the logic
     return isAdmin ? <Outlet /> : <Navigate to="/" replace />;

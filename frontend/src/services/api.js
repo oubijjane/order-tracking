@@ -24,7 +24,6 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => {
         // If the request was successful, just return the data
-        console.log("API Response:", response);
         return response;
     },
     (error) => {

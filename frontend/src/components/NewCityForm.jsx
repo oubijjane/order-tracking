@@ -36,7 +36,7 @@ function CityForm() {
         // 3. Send to Service
         await cityService.createCity(data);    
         console.log("city data " + data.cityName);
-        navigate('/');
+        navigate('/admin/Villes');
     } catch (error) {
         if (error.response && error.response.status === 400) {
         // Option 1 & 2 both provide error.response.data.message

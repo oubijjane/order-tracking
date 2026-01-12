@@ -73,7 +73,7 @@ function EditCommentForm() {
         // 3. Send to Service
         console.log("comment data " + data);
         await commentService.updateComment(id,data);    
-        navigate('/');
+        navigate('/admin/Commentaires');
     } catch (error) {
         console.error("Failed to create user:", error);
         submitLock.current = false;
