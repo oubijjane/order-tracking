@@ -14,6 +14,8 @@ import java.util.Map;
 
 public interface OrderItemService {
     List<OrderItem> findAll(User user);
+    List<OrderItem> findAllForReport(User user, String companyName, String cityName,
+                                     String registrationNumber, String status);
     Page<OrderItem> findOrdersDynamic(User user, String companyName, String cityName, String registrationNumber,
                                       String status,int page, int size);
     List<OrderItem> findByRegistrationNumber(String registrationNumber);

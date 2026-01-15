@@ -4,14 +4,13 @@ import com.verAuto.orderTracking.DTO.CreateOrderRequest;
 import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
 import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
-import com.verAuto.orderTracking.service.CarModelService;
-import com.verAuto.orderTracking.service.CityService;
-import com.verAuto.orderTracking.service.CompanyService;
-import com.verAuto.orderTracking.service.OrderItemService;
+import com.verAuto.orderTracking.service.*;
 import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,19 +36,21 @@ public class OrderItemController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    private OrderItemService orderItemService;
-    private CarModelService carModelService;
-    private CompanyService companyService;
-    private CityService cityService;
+    private final OrderItemService orderItemService;
+    private final ExcelReportService excelReportService;
+    private final CarModelService carModelService;
+    private final CompanyService companyService;
+    private final CityService cityService;
 
     @Autowired
     public OrderItemController(
             OrderItemService orderItemService, CarModelService carModelService,
-            CompanyService companyService, CityService cityService) {
+            CompanyService companyService, CityService cityService, ExcelReportService excelReportService) {
         this.orderItemService = orderItemService;
         this.carModelService = carModelService;
         this.companyService = companyService;
         this.cityService = cityService;
+        this.excelReportService = excelReportService;
     }
 
 
@@ -82,7 +84,26 @@ public class OrderItemController {
         Page<OrderItem> ordersPage = orderItemService.findOrderByStatus(status, user, page, size);
         return new ResponseEntity<>(ordersPage, HttpStatus.OK);
     }
+    @GetMapping("/export")
+    public ResponseEntity<InputStreamResource> exportToExcel(  @AuthenticationPrincipal User user,
+                                                               @RequestParam(required = false) String company,
+                                                               @RequestParam(required = false) String city,
+                                                               @RequestParam(required = false) String reg,
+                                                               @RequestParam(required = false) String status) {
 
+        // Reuse your optimized logic but without Pageable (to get ALL matching results)
+        List<OrderItem> orders = orderItemService.findAllForReport(user, company,city, reg, status);
+
+        ByteArrayInputStream in = excelReportService.exportOrdersToExcel(orders);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=orders_report.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(in));
+    }
     @GetMapping("/filter")
     public ResponseEntity<Page<OrderItem>> filterOrders(
             @AuthenticationPrincipal User user,
@@ -100,6 +121,7 @@ public class OrderItemController {
     public ResponseEntity<OrderItem> getOrderById(@PathVariable Long id) {
         return new ResponseEntity<>(orderItemService.findById(id), HttpStatus.OK);
     }
+
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<OrderItem> createOrder(

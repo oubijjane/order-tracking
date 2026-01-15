@@ -1,4 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap');
 
+:root {
+  --font-main: 'Inter', sans-serif;
+  --font-data: 'JetBrains Mono', monospace;
+}
+body {
+  font-family: var(--font-main);
+}
+.plate-number, .order-id {
+  font-family: var(--font-data);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -136,4 +149,71 @@
     margin-left: auto;
     margin-right: auto;
     border: 1px solid #eee;
+}
+
+
+/* Container for the button and hint */
+.actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+/* The Download Button */
+.btn-download {
+    background-color: #1d6f42; /* Excel Green */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-download:hover:not(:disabled) {
+    background-color: #155a33;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-download:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Disabled/Loading State */
+.btn-download:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+    opacity: 0.8;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* The Hint Text */
+.hint {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+    background: #f0f7f2;
+    padding: 8px 12px;
+    border-left: 4px solid #1d6f42;
+    border-radius: 4px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }

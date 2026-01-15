@@ -147,6 +147,26 @@ const getFilteredOrders = async (company, status, registrationNumber, city, size
 
 
 
+// For the Excel Export (BLOB)
+const downloadExcelReport = async (company, status, registrationNumber, city) => {
+    try {
+        const response = await api.get('/orders//export', {
+            params: {
+                companyName: company,
+                status: status,
+                registrationNumber: registrationNumber,
+                cityName: city
+            },
+            responseType: 'blob' // CRITICAL for SXSSFWorkbook binary stream
+        });
+        return response; 
+    } catch (error) {
+        console.error("Excel download error:", error);
+        throw error;
+    }
+};
+
+
 
 // EXPORT DEFAULT: This bundles the functions into one object
 export default {
@@ -158,5 +178,6 @@ export default {
     createOrder,
     updateOrder,
     deleteOrder,
-    handleDecision
+    handleDecision,
+    downloadExcelReport
 };

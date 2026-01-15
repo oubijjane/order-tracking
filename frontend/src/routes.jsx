@@ -33,6 +33,7 @@ import CreatCityPage from "./pages/CreateNewCity";
 import TransitList from "./pages/TransitList";
 import EditTransitForm from "./components/EditTransitCompany";
 import CreatTransitPage from "./pages/CreateNewTransitCompany";
+import ReportPage from "./pages/ReportPages";
 
 
 
@@ -107,6 +108,7 @@ const routes = [
               { path: "admin/Transport", element: <TransitList /> },
               { path: "admin/Villes/create-city", element: <CreatCityPage /> },
               { path: "admin/Transport/create-transit", element: <CreatTransitPage /> },
+              { path: "report", element: <ReportPage /> },
           
             ]
           },

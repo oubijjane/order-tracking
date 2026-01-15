@@ -7,7 +7,7 @@ import { registration_number_search, status_search,
 } from '../validation/inputValidation';
 import { ORDER_STATUS } from '../utils/formUtils';
 
-function SearchForm({ onSearch }) { // Receive the prop
+function SearchForm({ onSearch, buttonName1 = 'Rechercher',  buttonName2 = 'Réinitialiser' }) { // Receive the prop
     const methods = useForm({
         defaultValues: {
             companyName: '', 
@@ -42,10 +42,10 @@ function SearchForm({ onSearch }) { // Receive the prop
                     <Dropdown {...company_search} options={companyOptions} />
                     <Dropdown {...city_search} options={cityOptions} />
                     <Dropdown {...status_search} options={ORDER_STATUS} />
-                    <button type="submit" className="search-btn">Rechercher</button>
+                    <button type="submit" className="search-btn">{buttonName1}</button>
                     
                     {/* Optional: Clear Filter button */}
-                    <button type="button" className="reset-btn" onClick={() => { methods.reset(); onSearch({}); }}>Réinitialiser</button>
+                    <button type="button" className="reset-btn" onClick={() => { methods.reset(); onSearch({}); }}>{buttonName2}</button>
                 </div>
             </form>
         </FormProvider>

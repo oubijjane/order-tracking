@@ -31,12 +31,21 @@ public interface OrderItemDAO extends JpaRepository<OrderItem, Long>, JpaSpecifi
     List<Object[]> countOrdersByStatusAndCompanies(@Param("companyIds") List<Long> companyIds);
     @Query("SELECT oi FROM OrderItem oi " +
             "WHERE oi.status = :status " +
-            "AND oi.company.id IN :companyIds")
+            "AND oi.company.id IN :companyIds " +
+            "ORDER BY oi.createdAt DESC")
     Page<OrderItem> findByStatusAndCompanies(
             @Param("status") OrderStatus status,
             @Param("companyIds") List<Long> companyIds,
             Pageable pageable // <--- Added this parameter
     );
+
+    @Query("SELECT o FROM OrderItem o " +
+            "JOIN FETCH o.company " +
+            "JOIN FETCH o.carModel m " +
+            "JOIN FETCH o.city " +
+            "LEFT JOIN FETCH o.transitCompany " +
+            "ORDER BY o.createdAt DESC")
+    List<OrderItem> findAllForReport();
 
 
 }

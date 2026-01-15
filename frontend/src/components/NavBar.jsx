@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/NavBar.css';
 import logo from '../assets/verauto-logo.png';
+import { useDownload } from '../context/DownloadContext';
 
 
 function Navbar() {
@@ -12,6 +13,7 @@ function Navbar() {
   const closeMenu = () => setIsOpen(false);
   const { user, loading: authLoading } = useAuth();
   const roles = user?.roles || [];
+  const { isDownloading } = useDownload();
 
   const logout = () => {
     // 1. Remove the token from storage
@@ -55,6 +57,15 @@ function Navbar() {
           <NavLink to="/login" className="nav-item" onClick={logout}>
             logout
           </NavLink>
+          <NavLink to="/report" className="nav-item" onClick={closeMenu}>
+            Rapport
+          </NavLink>
+          {isDownloading && (
+        <div className="nav-status">
+          <div className="spinner-small"></div>
+          <span>Génération du rapport...</span>
+        </div>
+      )}
         </div>
       </div>
     </nav>

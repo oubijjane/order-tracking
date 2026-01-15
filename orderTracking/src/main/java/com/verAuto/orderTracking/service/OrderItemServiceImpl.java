@@ -5,6 +5,9 @@ import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
 import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
+import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -14,8 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -76,63 +81,23 @@ public class OrderItemServiceImpl implements OrderItemService {
         return orderItemDAO.findAll();
     }
 
+    @Override
+    public List<OrderItem> findAllForReport(User user, String companyName, String cityName,
+                                            String registrationNumber, String status) {
+        // We use .findAll(Specification) which returns a List<T> instead of a Page<T>
+        // We also add a Sort to ensure the Excel file is ordered by ID descending
+        return orderItemDAO.findAll(
+                createSearchSpecification(user, companyName, cityName, registrationNumber, status),
+                Sort.by("id").descending()
+        );
+    }
+
+    @Override
     public Page<OrderItem> findOrdersDynamic(User user, String companyName, String cityName,
                                              String registrationNumber, String status,
                                              int page, int size) {
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-
-        return orderItemDAO.findAll((root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            // --- 1. ROLE-BASED SECURITY (The "Boundary") ---
-            Set<String> roleNames = user.getRoles().stream()
-                    .map(r -> r.getRole().getName().toUpperCase())
-                    .collect(Collectors.toSet());
-
-            if (roleNames.contains("ROLE_GARAGISTE")) {
-                // Must belong to the user's city
-                predicates.add(cb.equal(root.get("city"), user.getCity()));
-            }
-            else if (roleNames.contains("ROLE_GESTIONNAIRE")) {
-                // Get all IDs for the companies this user manages
-                List<Long> companyIds = user.getCompanies().stream()
-                        .map(uc -> uc.getCompany().getId())
-                        .toList();
-
-                if (!companyIds.isEmpty()) {
-                    // This acts as a hard filter: WHERE company_id IN (1, 2, 3...)
-                    predicates.add(root.get("company").get("id").in(companyIds));
-                } else {
-                    // If a gestionnaire has no companies assigned, they should see nothing
-                    predicates.add(cb.disjunction());
-                }
-            }
-
-            // --- 2. DYNAMIC SEARCH FILTERS (The "Refinement") ---
-
-            if (companyName != null && !companyName.trim().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("company").get("companyName")), "%" + companyName.toLowerCase() + "%"));
-            }
-
-            if (cityName != null && !cityName.trim().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("city").get("cityName")), "%" + cityName.toLowerCase() + "%"));
-            }
-
-            if (registrationNumber != null && !registrationNumber.trim().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("registrationNumber")), "%" + registrationNumber.toLowerCase() + "%"));
-            }
-
-            if (status != null && !status.trim().isEmpty()) {
-                try {
-                    OrderStatus statusEnum = OrderStatus.valueOf(status.toUpperCase());
-                    predicates.add(cb.equal(root.get("status"), statusEnum));
-                } catch (IllegalArgumentException ignored) {}
-            }
-
-            // Combine everything with AND
-            return cb.and(predicates.toArray(new Predicate[0]));
-        }, pageable);
+        return orderItemDAO.findAll(createSearchSpecification(user, companyName, cityName, registrationNumber, status), pageable);
     }
 
     @Override
@@ -379,4 +344,60 @@ public class OrderItemServiceImpl implements OrderItemService {
             }
         }
     }
+    private Specification<OrderItem> createSearchSpecification(User user, String companyName, String cityName,
+                                                               String registrationNumber, String status) {
+        return (root, query, cb) -> {
+            // --- 1. PERFORMANCE: Fetch Joins (Only for Data Query) ---
+            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                root.fetch("company", JoinType.LEFT);
+                root.fetch("city", JoinType.LEFT);
+                Fetch<Object, Object> carModelFetch = root.fetch("carModel", JoinType.LEFT);
+                carModelFetch.fetch("carBrand", JoinType.LEFT);
+                // Ensure you also fetch transitCompany if you use it in the report
+                root.fetch("transitCompany", JoinType.LEFT);
+            }
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            // --- 2. SECURITY BOUNDARIES (Same as before) ---
+            Set<String> roleNames = user.getRoles().stream()
+                    .map(r -> r.getRole().getName().toUpperCase())
+                    .collect(Collectors.toSet());
+
+            if (roleNames.contains("ROLE_GARAGISTE")) {
+                predicates.add(cb.equal(root.get("city"), user.getCity()));
+            }
+            else if (roleNames.contains("ROLE_GESTIONNAIRE")) {
+                List<Long> companyIds = user.getCompanies().stream()
+                        .map(uc -> uc.getCompany().getId())
+                        .toList();
+                if (!companyIds.isEmpty()) {
+                    predicates.add(root.get("company").get("id").in(companyIds));
+                } else {
+                    return cb.disjunction();
+                }
+            }
+
+            // --- 3. DYNAMIC SEARCH FILTERS ---
+            if (StringUtils.hasText(companyName)) {
+                Join<OrderItem, Company> companyJoin = root.join("company", JoinType.LEFT);
+                predicates.add(cb.like(cb.lower(companyJoin.get("companyName")), "%" + companyName.toLowerCase() + "%"));
+            }
+            if (StringUtils.hasText(cityName)) {
+                Join<OrderItem, City> cityJoin = root.join("city", JoinType.LEFT);
+                predicates.add(cb.like(cb.lower(cityJoin.get("cityName")), "%" + cityName.toLowerCase() + "%"));
+            }
+            if (StringUtils.hasText(registrationNumber)) {
+                predicates.add(cb.like(cb.lower(root.get("registrationNumber")), registrationNumber.toLowerCase() + "%"));
+            }
+            if (StringUtils.hasText(status)) {
+                try {
+                    predicates.add(cb.equal(root.get("status"), OrderStatus.valueOf(status.toUpperCase())));
+                } catch (IllegalArgumentException ignored) {}
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
 }
