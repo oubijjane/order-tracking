@@ -20,9 +20,9 @@ export const ORDER_STATUS = [
     { value: 'NOT_AVAILABLE', label: 'Non Disponible' },
     { value: 'SENT', label: 'Envoyer' },
     { value: 'CANCELLED', label: 'Annulé' }, 
-    { value: 'REPAIRED', label: 'Réparé' },
     { value: 'IN_TRANSIT', label: 'En transite' },
     { value: 'RECEIVED', label: 'Reçu' },
+    { value: 'REPAIRED', label: 'Réparé' },
     { value: 'RETURN', label: 'Retour' }
   ];
 

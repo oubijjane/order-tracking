@@ -46,6 +46,9 @@ function Navbar() {
           <NavLink to="/orders" className="nav-item" onClick={closeMenu}>
             Commandes
           </NavLink>
+          <NavLink to="/report" className="nav-item" onClick={closeMenu}>
+            Rapport
+          </NavLink>
           <NavLink to="/search" className="nav-item" onClick={closeMenu}>
             Recherche
           </NavLink>
@@ -56,9 +59,6 @@ function Navbar() {
           )}
           <NavLink to="/login" className="nav-item" onClick={logout}>
             logout
-          </NavLink>
-          <NavLink to="/report" className="nav-item" onClick={closeMenu}>
-            Rapport
           </NavLink>
           {isDownloading && (
         <div className="nav-status">

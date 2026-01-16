@@ -25,7 +25,7 @@ function HomePage() {
       status || null, // status from URL
       null,    // reg
       null,    // city
-      10,      // pageSize
+      9,      // pageSize
       currentPage
     )
     .then(data => {

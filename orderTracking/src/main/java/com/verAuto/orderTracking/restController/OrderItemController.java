@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.DTO.CreateOrderRequest;
+import com.verAuto.orderTracking.DTO.HistoryDTO;
 import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
 import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
@@ -37,6 +38,7 @@ public class OrderItemController {
     private String uploadDir;
 
     private final OrderItemService orderItemService;
+    private final HistoryService historyService;
     private final ExcelReportService excelReportService;
     private final CarModelService carModelService;
     private final CompanyService companyService;
@@ -44,9 +46,10 @@ public class OrderItemController {
 
     @Autowired
     public OrderItemController(
-            OrderItemService orderItemService, CarModelService carModelService,
+            OrderItemService orderItemService, HistoryService historyService, CarModelService carModelService,
             CompanyService companyService, CityService cityService, ExcelReportService excelReportService) {
         this.orderItemService = orderItemService;
+        this.historyService = historyService;
         this.carModelService = carModelService;
         this.companyService = companyService;
         this.cityService = cityService;
@@ -120,6 +123,11 @@ public class OrderItemController {
     @GetMapping("/{id}")
     public ResponseEntity<OrderItem> getOrderById(@PathVariable Long id) {
         return new ResponseEntity<>(orderItemService.findById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<HistoryDTO>> getOrderHistory(@PathVariable Long id) {
+        return new ResponseEntity<>(historyService.getOrderHistory(id), HttpStatus.OK);
     }
 
 

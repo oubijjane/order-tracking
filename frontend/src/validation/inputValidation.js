@@ -538,7 +538,7 @@ export const image_validation = {
 // in your validation file
 export const transit_company_search = {
     name: 'transitCompanyId',
-    label: 'Société de Transit',
+    label: 'Transporteur',
     id: 'transitCompanyId',
     validation: {
         required: {

@@ -61,6 +61,7 @@ const routes = [
           { path: "edit/:id", element: <EditOrderPage /> },
           { path: "status/:status", element: <OrdersByStatus /> },
           { path: "search", element: <SearchPage /> },
+          { path: "report", element: <ReportPage /> },
           {
             element: <AdminRoute />, // Nested guard for admin only
             children: [
@@ -107,8 +108,7 @@ const routes = [
               { path: "admin/Villes", element: <CityList /> },
               { path: "admin/Transport", element: <TransitList /> },
               { path: "admin/Villes/create-city", element: <CreatCityPage /> },
-              { path: "admin/Transport/create-transit", element: <CreatTransitPage /> },
-              { path: "report", element: <ReportPage /> },
+              { path: "admin/Transport/create-transit", element: <CreatTransitPage /> }
           
             ]
           },

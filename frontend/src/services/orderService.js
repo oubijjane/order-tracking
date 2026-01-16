@@ -1,3 +1,4 @@
+import { get } from 'react-hook-form';
 import api from './api';
 
 // 1. Get All Orders
@@ -126,6 +127,16 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
         throw error;
     }
 };
+const getOrderHistory = async (id) => {
+    try {
+        const response = await api.get(`/orders/${id}/history`);
+        return response.data; // CRITICAL: This passes the data back to App.jsx
+    } catch (error) {
+        console.error("Error fetching order history:", error);
+        throw error;
+    }
+};
+
 const getFilteredOrders = async (company, status, registrationNumber, city, size=9, page=0) => {
         try {
             const response = await api.get('/orders/filter', {
@@ -174,6 +185,7 @@ export default {
     getOrderCountByStatus,
     getOrderByStatus,
     getFilteredOrders,
+    getOrderHistory,
     getOrderById,
     createOrder,
     updateOrder,

@@ -18,8 +18,19 @@
 /* Main Grid */
 .details-grid {
     display: grid;
-    grid-template-columns: 1fr 450px; /* Large image, fixed sidebar */
-    gap: 30px;
+    grid-template-columns: 1fr 450px; /* Left column expands, Right is fixed */
+    gap: 40px;
+    align-items: start;
+}
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Space between gallery and history */
+}
+
+.right-column {
+    position: sticky;
+    top: 100px;
 }
 
 /* Image Column */
@@ -370,6 +381,64 @@
 .confirm-btn:disabled {
     background-color: #eea29a;
     cursor: not-allowed;
+}
+
+.history-scroll-box {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* The vertical line */
+.history-timeline {
+    position: relative;
+    border-left: 2px solid #e9ecef;
+    margin-left: 10px;
+    padding-left: 20px;
+}
+
+.history-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* The dot on the line */
+.history-wrapper {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.history-marker {
+    position: absolute;
+    left: -27px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #007bff;
+    border: 2px solid white;
+}
+
+.history-card {
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.action-tag {
+    font-weight: bold;
+    color: #495057;
+    margin-right: 8px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.new-value {
+    color: #212529;
 }
 .info-card.border-available,
 .info-card.border-disponible { border-top-color: #10b981; } /* Success Green */

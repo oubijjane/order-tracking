@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.service;
 
+import com.verAuto.orderTracking.DTO.HistoryDTO;
 import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
@@ -36,6 +37,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private static final Logger logger = LoggerFactory.getLogger(OrderItemService.class);
 
     private final EmailService emailService;
+    private final HistoryService historyService;
     private final OrderItemImagesService orderItemImagesService;
     private final OrderItemDAO orderItemDAO;
     private final CityDAO cityDAO ;
@@ -45,10 +47,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
 
     @Autowired
-    public OrderItemServiceImpl (EmailService emailService, OrderItemDAO orderItemDAO,
+    public OrderItemServiceImpl (EmailService emailService, HistoryService historyService, OrderItemDAO orderItemDAO,
                                  CityDAO cityDAO,
                                  OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService) {
         this.emailService = emailService;
+        this.historyService = historyService;
         this.orderItemDAO = orderItemDAO;
         this.cityDAO = cityDAO;
         this.orderItemImagesService = orderItemImagesService;
@@ -231,7 +234,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         // 2. Fetch the existing order
         OrderItem existingOrder = findById(id);
+        String action;
         OrderStatus currentStatus = existingOrder.getStatus();
+        String userName = user.getUsername();
+        // check if the order is repaired before adding a file number
         boolean isProvidingFileNumber = newStatus.getFileNumber() != null && !newStatus.getFileNumber().trim().isEmpty();
         System.out.println("this is a test " + isProvidingFileNumber);
         if (isProvidingFileNumber && !existingOrder.getStatus().equals(OrderStatus.REPAIRED)) {
@@ -241,11 +247,19 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         // 3. If everything is fine, set it
         if (isProvidingFileNumber) {
+            action = "Changement du numéro de dossier vers";
+            addHistory(existingOrder,userName, action,
+                    existingOrder.getFileNumber(),
+                    newStatus.getFileNumber().trim());
             existingOrder.setFileNumber(newStatus.getFileNumber().trim());
         }
         // 3. Status and Role Logic
         if (newStatus.getOrderStatus() != null) {
             validateStatusTransition(currentStatus, newStatus.getOrderStatus());
+            action = "Changement du statut de la commande vers";
+            addHistory(existingOrder,userName, action,
+                    existingOrder.getStatus().getLabel(),
+                    newStatus.getOrderStatus().getLabel());
             checkRolePermissions(roleNames, newStatus.getOrderStatus());
 
             // --- RULE: Transit Company Logic ---
@@ -275,7 +289,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         if (newStatus.getComment() != null) {
             // Use CommentService to get the label
+            action = "Ajout d’un commentaire";
             String commentLabel = commentService.findCommentById(newStatus.getComment()).getLabel();
+            addHistory(existingOrder,userName, action,
+                    existingOrder.getComment(),
+                    commentLabel);
             existingOrder.setComment(commentLabel);
         }
 
@@ -398,6 +416,18 @@ public class OrderItemServiceImpl implements OrderItemService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
+    private History addHistory(OrderItem order, String userName,String action, String oldValue, String newValue) {
+
+        HistoryDTO historyDTO = new HistoryDTO();
+        historyDTO.setChangedBy(userName);
+        historyDTO.setAction(action);
+        historyDTO.setOldValue(oldValue);
+        historyDTO.setNewValue(newValue);
+        historyDTO.setOrder(order);
+
+        return historyService.addNewHistory(historyDTO);
+
     }
 
 }

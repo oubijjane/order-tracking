@@ -161,6 +161,14 @@ body {
 }
 
 /* The Download Button */
+.report-container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
 .btn-download {
     background-color: #1d6f42; /* Excel Green */
     color: white;
@@ -217,3 +225,4 @@ body {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+

@@ -14,7 +14,8 @@ function Order({ order }) {
       <p><strong>Matricule n°:</strong> <span className='plate-number'>{order.registrationNumber}</span></p>
       <p><strong>Ville:</strong> {order.city.cityName}</p>
       <p><strong>Status:</strong> {ORDER_STATUS_MAP[order.status]}</p>
-      <p className='order-id'><strong>Numer de dossier:</strong> {order.fileNumber ? order.fileNumber : 'Non renseigné'}</p>
+      {order.status === 'REPAIRED' && (
+        <p className='order-id'><strong>Numer de dossier:</strong> {order.fileNumber ? order.fileNumber : 'Non renseigné'}</p>)}
     </div>
   );
 }
