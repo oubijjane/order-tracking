@@ -31,6 +31,22 @@ export const company_name_search = {
     },
   },
 }
+export const window_price_input = {
+  name: 'price',
+  label: 'Prix',
+  type: 'number',
+  id: 'price',
+  placeholder: 'Prix ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 
 export const transit_company_name_search = {
   name: 'name',
@@ -54,6 +70,41 @@ export const car_brand_validation = {
   type: 'text',
   id: 'brand',
   placeholder: 'Marque',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+
+export const window_brand_selection = {
+  name: 'windowBrandId',
+  label: 'Marque de vitre',
+  type: 'select',
+  id: 'windowBrandId',
+  placeholder: 'Marque de vitre',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
+export const window_detail_selection = {
+  name: 'windowDetailId',
+  label: 'offre de vitre',
+  type: 'select',
+  id: 'windowDetailId',
+  placeholder: 'offre de vitre',
   validation: {
     required: {
       value: true,

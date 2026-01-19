@@ -37,23 +37,6 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-  /* @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // <--- 1. ENABLE CORS
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        // 1. ✅ ALLOW PUBLIC ACCESS TO IMAGES
-                        // This must come BEFORE .anyRequest().authenticated()
-                        .requestMatchers("/uploads/**").permitAll()
-
-                        // 2. Lock everything else
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(Customizer.withDefaults());
-
-        return httpSecurity.build();
-    }*/
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -77,6 +60,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/companies/**").hasAnyRole("ADMIN",
                                 "GARAGISTE", "MANAGER",
                                 "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.GET, "/api/window-details/**").hasAnyRole("ADMIN",
+                                "GARAGISTE", "MANAGER",
+                                "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/window-details/**").hasAnyRole("ADMIN",
+                                "GARAGISTE", "MANAGER",
+                                "LOGISTICIEN", "GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.PUT, "/api/window-details/**").hasAnyRole("ADMIN",
+                                "LOGISTICIEN")
+                        .requestMatchers(HttpMethod.POST, "/api/window-details/**").hasAnyRole("ADMIN",
+                                "LOGISTICIEN")
                         .requestMatchers("/api/brands/**").hasAnyRole("ADMIN",
                                 "GARAGISTE", "MANAGER",
                                 "LOGISTICIEN", "GESTIONNAIRE")

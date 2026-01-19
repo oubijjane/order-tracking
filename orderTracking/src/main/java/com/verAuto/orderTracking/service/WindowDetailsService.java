@@ -6,8 +6,9 @@ import com.verAuto.orderTracking.entity.WindowDetails;
 import java.util.List;
 
 public interface WindowDetailsService {
-    List<WindowDetailsDTO> getAllWinodwDetails();
-    List<WindowDetails> getWindowDetailsByOrderId(long orderId);
+    List<WindowDetailsDTO> getAllWindowDetails();
+    WindowDetails findById(Long id);
+    List<WindowDetailsDTO> getWindowDetailsByOrderId(long orderId);
     List<WindowDetailsDTO> saveWindowsDetails(List<WindowDetailsDTO> windowDetails);
     void deleteWindowDetails(WindowDetailsDTO windowDetailsDTO);
 }

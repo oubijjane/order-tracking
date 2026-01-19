@@ -2,11 +2,10 @@ package com.verAuto.orderTracking.restController;
 
 import com.verAuto.orderTracking.DTO.CreateOrderRequest;
 import com.verAuto.orderTracking.DTO.HistoryDTO;
-import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
+import com.verAuto.orderTracking.DTO.OrderItemDTO;
 import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import com.verAuto.orderTracking.service.*;
-import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -15,8 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -160,7 +157,7 @@ public class OrderItemController {
     @PatchMapping("/{id}")
     public ResponseEntity<OrderItem> updateStatusAndComment(
             @PathVariable Long id,
-            @RequestBody UpdateOrderStatus dto, // Change this from @RequestParam to @RequestBody
+            @RequestBody OrderItemDTO dto, // Change this from @RequestParam to @RequestBody
             @AuthenticationPrincipal User user) {
 
         System.out.println("comment id" + dto.getComment());

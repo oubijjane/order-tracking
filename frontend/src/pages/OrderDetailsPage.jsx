@@ -4,12 +4,15 @@ import OrderService from '../services/orderService';
 import { ORDER_STATUS_MAP, statusLabel, formatDate } from '../utils/formUtils';
 import ButtonStatus from '../components/ButtonStatus';
 import { CancellationModal } from '../components/CancellationModal';
+import {OfferSelectionModal} from '../components/OfferSelectionModal';
 import { FileNumberModal } from '../components/FileNumberModal';
 import { TransitModal } from '../components/TransitModal'; // Import the new modal
+import { WindowDetailsModal } from '../components/WindowDetailsModal';
 import { ImageGallery } from '../components/ImageGallery';
 import  OrderHistory  from '../components/OrderHistory';
 import { useAuth } from '../context/AuthContext';
 import '../styles/OrderDetails.css';
+import { set } from 'react-hook-form';
 
 function OrderDetailsPage() {
     const { user, loading: authLoading } = useAuth();
@@ -30,6 +33,8 @@ function OrderDetailsPage() {
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showTransitModal, setShowTransitModal] = useState(false);
     const [showFileNumberModal, setFileNumberModal] = useState(false);
+    const [showWindowDetailsModal, setShowWindowDetailsModal] = useState(false);
+    const [showWindowOfferModal, setShowWindowOfferModal] = useState(false);
     const [pendingStatus, setPendingStatus] = useState(null);
 
     const roles = user?.roles || [];
@@ -62,6 +67,14 @@ function OrderDetailsPage() {
             // Logic 2: Intercept IN_TRANSIT to open TransitModal
             setPendingStatus(newStatus);
             setShowTransitModal(true);
+        } else if (newStatus === 'AVAILABLE') {
+            // Logic: Intercept AVAILABLE to open WindowDetailsModal
+            setPendingStatus(newStatus);
+            setShowWindowDetailsModal(true);
+        } else if (newStatus === 'SENT') {
+            // Logic: Intercept AVAILABLE to open WindowDetailsModal
+            setPendingStatus(newStatus);
+            setShowWindowOfferModal(true);
         } else if (order.status === 'REPAIRED') {
             setFileNumberModal(true);
         }
@@ -76,14 +89,13 @@ function OrderDetailsPage() {
     };
 
     /**
-     * Logic 3: Update handleSubmit to accept transit parameters
+     * Logic 3: Update handleSubmit to accept transit parameters and window details
      */
-    const handleSubmit = async (updatedStatus, reasonId = null, transitCompanyId = null, declarationNumber = null, fileNumber = null) => {
+    const handleSubmit = async (updatedStatus, reasonId = null, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null) => {
         setIsUpdating(true);
         try {
             // The service call now takes all potential extra data
-            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber);
-
+            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId);
             // Refresh local state
             const [freshOrder, freshHistory] = await Promise.all([
                 OrderService.getOrderById(id),
@@ -96,6 +108,7 @@ function OrderDetailsPage() {
             // Close any open modals
             setShowCancelModal(false);
             setShowTransitModal(false);
+            setShowWindowDetailsModal(false);
         } catch (err) {
             console.error("Update failed:", err);
             // Show the actual backend error message if available
@@ -235,13 +248,27 @@ function OrderDetailsPage() {
                 isUpdating={isUpdating}
             />
 
+            <WindowDetailsModal 
+                isOpen={showWindowDetailsModal}
+                onClose={() => setShowWindowDetailsModal(false)}
+                onSubmit={(windowsList) => handleSubmit(pendingStatus, null, null, null, null, windowsList)}
+                isUpdating={isUpdating}
+            />
+
             <FileNumberModal
                 isOpen={showFileNumberModal}
                 onClose={() => setFileNumberModal(false)}
                 onSubmit={(fileNumber) => handleSubmit(null, null, null, null, fileNumber)}
                 isUpdating={isUpdating}
             />
+             <OfferSelectionModal
+                isOpen={showWindowOfferModal}
+                onClose={() => setShowWindowOfferModal(false)}
+                onSubmit={(windowDetailId) => handleSubmit(pendingStatus, null, null, null, null, null, windowDetailId)}
+                isUpdating={isUpdating}
+            />
         </div>
+        
     );
 }
 

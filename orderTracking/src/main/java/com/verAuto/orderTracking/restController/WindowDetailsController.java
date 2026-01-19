@@ -23,7 +23,13 @@ public class WindowDetailsController {
     @GetMapping
     public ResponseEntity<List<WindowDetailsDTO>> getAllWindowDetails() {
 
-        return new ResponseEntity<>(windowDetailsService.getAllWinodwDetails(), HttpStatus.OK);
+        return new ResponseEntity<>(windowDetailsService.getAllWindowDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<WindowDetailsDTO>> getAllWindowDetailsByOrderId(@PathVariable long id) {
+
+        return new ResponseEntity<>(windowDetailsService.getWindowDetailsByOrderId(id), HttpStatus.OK);
     }
 
     @PostMapping

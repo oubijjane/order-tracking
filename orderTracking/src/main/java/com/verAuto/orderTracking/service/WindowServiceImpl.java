@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.service;
 
 import com.verAuto.orderTracking.DTO.WindowDetailsDTO;
+import com.verAuto.orderTracking.dao.OrderItemDAO;
 import com.verAuto.orderTracking.dao.WindowDetailsDAO;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.entity.WindowDetails;
@@ -17,17 +18,17 @@ public class WindowServiceImpl implements WindowDetailsService{
 
     private final WindowDetailsDAO windowDetailsDAO;
     private final WindowBrandService windowBrandService;
-    private final OrderItemService orderItemService;
+    private final OrderItemDAO orderItemDAO;
 
     @Autowired
-    public WindowServiceImpl(WindowDetailsDAO windowDetailsDAO, WindowBrandService windowBrandService, OrderItemService orderItemService) {
+    public WindowServiceImpl(WindowDetailsDAO windowDetailsDAO, WindowBrandService windowBrandService, OrderItemDAO orderItemDAO) {
         this.windowDetailsDAO = windowDetailsDAO;
         this.windowBrandService = windowBrandService;
-        this.orderItemService = orderItemService;
+        this.orderItemDAO = orderItemDAO;
     }
 
     @Override
-    public List<WindowDetailsDTO> getAllWinodwDetails() {
+    public List<WindowDetailsDTO> getAllWindowDetails() {
         return windowDetailsDAO.findAll()
                 .stream()
                 .map(windowDetails ->{
@@ -44,10 +45,26 @@ public class WindowServiceImpl implements WindowDetailsService{
     }
 
     @Override
-    public List<WindowDetails> getWindowDetailsByOrderId(long orderId) {
-        return windowDetailsDAO.getWindowDetailsByOrderId(orderId);
+    public List<WindowDetailsDTO> getWindowDetailsByOrderId(long orderId) {
+        return windowDetailsDAO.getWindowDetailsByOrderId(orderId).stream()
+                .map(windowDetails ->{
+                            WindowDetailsDTO dto = new WindowDetailsDTO();
+                            dto.setId(windowDetails.getId());
+                            dto.setWindowBrand(windowDetails.getWindowBrand().getWindowBrand());
+                            dto.setOrderId(windowDetails.getOrder().getId());
+                            dto.setPrice(windowDetails.getPrice());
+                            dto.setWindowBrandId(windowDetails.getWindowBrand().getId());
+
+                            return dto;
+                        }
+                ).collect(Collectors.toList());
     }
 
+    @Override
+    public WindowDetails findById(Long id) {
+        return windowDetailsDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("could not find window detail by id: " + id));
+    }
     @Override
     @Transactional
     public List<WindowDetailsDTO> saveWindowsDetails(List<WindowDetailsDTO> windowDetailsDTOs) {
@@ -55,8 +72,9 @@ public class WindowServiceImpl implements WindowDetailsService{
         List<WindowDetails> entitiesToSave = windowDetailsDTOs.stream().map(dto -> {
             WindowDetails entity = new WindowDetails();
             entity.setWindowBrand(windowBrandService.findWindowBrandById(dto.getWindowBrandId()));
-            entity.setPrice(dto.getPrice()); // Don't forget the price!
-            entity.setOrder(orderItemService.findById(dto.getOrderId()));
+            entity.setPrice(dto.getPrice()); // Don't forget the price
+            OrderItem orderItem = orderItemDAO.findById(dto.getOrderId()).orElseThrow(() -> new RuntimeException("could not find and order with the id - " + dto.getOrderId()));// !
+            entity.setOrder(orderItem);
             return entity;
         }).collect(Collectors.toList());
 
@@ -89,4 +107,5 @@ public class WindowServiceImpl implements WindowDetailsService{
                 windowDetailsDTO.getId()
         );
     }
+
 }

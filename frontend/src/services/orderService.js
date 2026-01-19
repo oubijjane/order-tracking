@@ -92,7 +92,7 @@ const deleteOrder = async (id) => {
 };
 
 
-const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber) => {
+const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber, windowsList = null, windowDetailId = null) => {
     let updateData;
     console.log("file number: " + newFileNumber)
     console.log("decision: " + decision)
@@ -108,6 +108,18 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
                 transitCompanyId: newTransitCompanyId,
                 declarationNumber: newDeclarationNumber
             };
+        }else if(decision == "AVAILABLE") {
+             updateData = {
+                orderStatus: decision,
+                windowDetailsList: windowsList
+            };
+    
+        }else if(decision == "SENT") {
+             updateData = {
+                orderStatus: decision,
+                selectedWindowDetail: windowDetailId
+            };
+        
         }else if (newFileNumber && !decision) {
             updateData = {
                 fileNumber: newFileNumber
@@ -117,7 +129,7 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
                 orderStatus: decision,// This will now be 3
             };
         }
-
+        console.log("Update Data Sent to Backend:", updateData);
 
         // This sends the JSON body { "orderStatus": "CANCELLED", "commentId": 3 }
         return await api.patch(`/orders/${id}`, updateData);

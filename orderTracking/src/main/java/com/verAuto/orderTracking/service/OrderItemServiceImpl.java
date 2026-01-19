@@ -1,9 +1,11 @@
 package com.verAuto.orderTracking.service;
 
 import com.verAuto.orderTracking.DTO.HistoryDTO;
-import com.verAuto.orderTracking.DTO.UpdateOrderStatus;
+import com.verAuto.orderTracking.DTO.OrderItemDTO;
+import com.verAuto.orderTracking.DTO.WindowDetailsDTO;
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
+import com.verAuto.orderTracking.dao.WindowDetailsDAO;
 import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import jakarta.persistence.criteria.Fetch;
@@ -26,8 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +37,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private static final Logger logger = LoggerFactory.getLogger(OrderItemService.class);
 
     private final EmailService emailService;
+    private final WindowDetailsService windowDetailsService;
     private final HistoryService historyService;
     private final OrderItemImagesService orderItemImagesService;
     private final OrderItemDAO orderItemDAO;
@@ -47,10 +48,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
 
     @Autowired
-    public OrderItemServiceImpl (EmailService emailService, HistoryService historyService, OrderItemDAO orderItemDAO,
+    public OrderItemServiceImpl (EmailService emailService, WindowDetailsService windowDetailsService, HistoryService historyService, OrderItemDAO orderItemDAO,
                                  CityDAO cityDAO,
                                  OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService) {
         this.emailService = emailService;
+        this.windowDetailsService = windowDetailsService;
         this.historyService = historyService;
         this.orderItemDAO = orderItemDAO;
         this.cityDAO = cityDAO;
@@ -225,7 +227,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     @Transactional
-    public OrderItem updateStatusAndComment(Long id, UpdateOrderStatus newStatus, User user) {
+    public OrderItem updateStatusAndComment(Long id, OrderItemDTO newStatus, User user) {
         // 1. Normalize user roles
         assert user.getRoles() != null;
         Set<String> roleNames = user.getRoles().stream()
@@ -261,7 +263,8 @@ public class OrderItemServiceImpl implements OrderItemService {
                     existingOrder.getStatus().getLabel(),
                     newStatus.getOrderStatus().getLabel());
             checkRolePermissions(roleNames, newStatus.getOrderStatus());
-
+            addOffersToOrder(newStatus.getWindowDetailsList(), newStatus.getOrderStatus());
+            selectOffer(id, newStatus.getSelectedWindowDetail(), newStatus.getOrderStatus());
             // --- RULE: Transit Company Logic ---
             if (newStatus.getOrderStatus() == OrderStatus.IN_TRANSIT) {
                 // 1. Validate Transit Company
@@ -430,4 +433,61 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     }
 
+    private List<WindowDetailsDTO> addOffersToOrder(List<WindowDetailsDTO> windowDetailsDTOList, OrderStatus newStatus) {
+
+        // 1. Check if we are entering the 'AVAILABLE' phase
+        if (OrderStatus.AVAILABLE.equals(newStatus)) {
+
+            // Validation: If we ARE becoming available, we MUST have offers
+            if (windowDetailsDTOList == null || windowDetailsDTOList.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "La liste des offres est obligatoire pour passer à l'état AVAILABLE.");
+            }
+
+            // Integrity: Ensure they all belong to the same order
+            Long firstOrderId = windowDetailsDTOList.get(0).getOrderId();
+            boolean allMatch = windowDetailsDTOList.stream()
+                    .allMatch(dto -> dto.getOrderId() != null && dto.getOrderId().equals(firstOrderId));
+
+            if (!allMatch) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Toutes les offres doivent appartenir à la même commande.");
+            }
+
+            // Save and return the saved list
+            return windowDetailsService.saveWindowsDetails(windowDetailsDTOList);
+        }
+
+        // 2. If the status is NOT 'AVAILABLE', we skip the saving logic entirely
+        // We return an empty list (or null) because no windows were processed in this step
+        return new ArrayList<>();
+    }
+    private void selectOffer(Long orderId, Long selectedWindowId, OrderStatus newStatus) {
+
+        // 1. Check if we are entering the 'AVAILABLE' phase
+        if (OrderStatus.SENT.equals(newStatus)) {
+
+            // Validation: If we ARE becoming available, we MUST have offers
+            if (orderId == null ||selectedWindowId == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        " L'ID de la vitre sélectionnée est obligatoire pour confirmer l'envoi.");
+            }
+            WindowDetails window = windowDetailsService.findById(selectedWindowId);
+
+            if (window == null || !window.getOrder().getId().equals(orderId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Sécurité : L'offre sélectionnée n'appartient pas à cette commande.");
+            }
+            // Integrity: Ensure they all belong to the same order
+            WindowDetailsDTO dto = new WindowDetailsDTO();
+
+            dto.setId(selectedWindowId);
+            dto.setOrderId(orderId);
+
+            // Save and return the saved list
+            windowDetailsService.deleteWindowDetails(dto);
+        }
+
+
+    }
 }
