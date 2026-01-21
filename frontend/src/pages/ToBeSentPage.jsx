@@ -169,7 +169,7 @@ function Orders() {
 
 function OrdersList({ orders, error, selectedIds, onSelectAll, onSelectRow, handelClick, cityLabel}) {
     if (error) return <div className="error-message">{error}</div>;
-    if (orders.length === 0) return <div className="no-data">Aucune commande trouvée.</div>;
+    if (orders.length === 0) return <div style={{ textAlign: "center" }} className="no-data">Aucune commande trouvée.</div>;
 
     const isAllSelected = orders.length > 0 && selectedIds.length === orders.length;
     const { isDownloading, downloadTransitOrders } = useDownload();
