@@ -87,9 +87,9 @@ src/
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v14+)
+- Node.js (v22+)
 - npm or yarn
-- Java (v11+)
+- Java (v21+)
 - Maven
 
 ### Installation
