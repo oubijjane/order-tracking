@@ -26,12 +26,12 @@ public class ExcelReportServiceImpl implements ExcelReportService{
             // 1. Create Styles (Header and Date)
             CellStyle headerStyle = createHeaderStyle(workbook);
             CellStyle dateStyle = workbook.createCellStyle();
-            dateStyle.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd-mm-yyyy"));
+            dateStyle.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd-mm-yyyy hh:mm:ss"));
 
             // 2. Create Header Row
             String[] columns = {"Date de creation", "Libelle","Matricule", "Companie",
                     "Destination", "Transport", "Status", "Commentaire",
-                     "dernière mise à jour", "Num Dossier"};
+                     "dernière mise à jour","Numéro de commande", "Num Dossier"};
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < columns.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -51,7 +51,7 @@ public class ExcelReportServiceImpl implements ExcelReportService{
                 row.createCell(1).setCellValue(vehicle);
                 row.createCell(2).setCellValue(item.getRegistrationNumber());
                 row.createCell(3).setCellValue(item.getCompany().getCompanyName());
-                row.createCell(4).setCellValue(item.getCity().getCityName());
+                row.createCell(4).setCellValue(item.getCity() != null ? item.getCity().getCityName() : "");
 
                 setSafeStringValue(row,5, (item.getTransitCompany() != null ? item.getTransitCompany().getName() : ""));
                 row.createCell(6).setCellValue(item.getStatus().getLabel());
@@ -59,7 +59,8 @@ public class ExcelReportServiceImpl implements ExcelReportService{
                 Cell dataCell2 = row.createCell(8);
                 dataCell2.setCellValue(item.getUpdatedAt());
                 dataCell2.setCellStyle(dateStyle);
-                row.createCell(9).setCellValue(item.getFileNumber());
+                row.createCell(9).setCellValue(item.getId());
+                row.createCell(10).setCellValue(item.getFileNumber());
             }
 
             // 4. Set Fixed Column Widths (Mandatory for SXSSF as autoSize is slow/restricted)

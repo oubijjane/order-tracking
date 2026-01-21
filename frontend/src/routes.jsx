@@ -34,6 +34,7 @@ import TransitList from "./pages/TransitList";
 import EditTransitForm from "./components/EditTransitCompany";
 import CreatTransitPage from "./pages/CreateNewTransitCompany";
 import ReportPage from "./pages/ReportPages";
+import ToBeSentPage from "./pages/ToBeSentPage";
 
 
 
@@ -62,6 +63,7 @@ const routes = [
           { path: "status/:status", element: <OrdersByStatus /> },
           { path: "search", element: <SearchPage /> },
           { path: "report", element: <ReportPage /> },
+          { path: "envois", element: <ToBeSentPage /> },
           {
             element: <AdminRoute />, // Nested guard for admin only
             children: [

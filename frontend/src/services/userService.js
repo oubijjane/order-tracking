@@ -44,7 +44,7 @@ const updateUser = async (id,userData) => {
        // console.log(userData);
        console.log("user " + userData.isActive);
         const response = await api.put(`/users/${id}`, userData);
-        console.log(response.data);
+        console.log(response);
         return response.data;
     } catch (error) {
         console.error("Error creating new user:", error);

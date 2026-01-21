@@ -1,6 +1,8 @@
 package com.verAuto.orderTracking.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.verAuto.orderTracking.enums.CompanyAssignmentType;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -62,6 +64,24 @@ public class User implements UserDetails {
     @JoinColumn(name = "city_id")
     @Nullable
     private City city;
+
+    @Transient
+    @JsonProperty("primaryCompanies")
+    public List<UserCompany> getPrimaryCompanies() {
+        if (this.companies == null) return Collections.emptyList();
+        return this.companies.stream()
+                .filter(c -> c.getType() == CompanyAssignmentType.PRIMARY)
+                .collect(Collectors.toList());
+    }
+
+    @Transient
+    @JsonProperty("auxiliaryCompanies")
+    public List<UserCompany> getAuxiliaryCompanies() {
+        if (this.companies == null) return Collections.emptyList();
+        return this.companies.stream()
+                .filter(c -> c.getType() == CompanyAssignmentType.AUXILIARY)
+                .collect(Collectors.toList());
+    }
 
 
     @Override

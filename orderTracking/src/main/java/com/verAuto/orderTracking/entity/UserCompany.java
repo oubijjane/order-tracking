@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.verAuto.orderTracking.enums.CompanyAssignmentType;
 import com.verAuto.orderTracking.service.CompanyService;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.*;
@@ -26,6 +27,10 @@ public class UserCompany {
     @JoinColumn(name = "company_id", nullable = false)
     @JsonBackReference(value = "company-usercompany")
     private Company company;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CompanyAssignmentType type;
 
 
 

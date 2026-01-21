@@ -35,7 +35,7 @@ function EditUserForm() {
         apiCall = userService.getUserById(id);
         apiCall.then(data => {
             setUser(data);
-            data.companies.map(c => console.log("companie name " + c.id.companyId ));
+            console.log("user companies " + data.auxiliaryCompanies);
             data.roles.map(r => console.log("role name " + r.id.roleId ));
             setIsLoading(false);
         }
@@ -71,6 +71,7 @@ function EditUserForm() {
     email: '',
     status: true,
     companies: [],
+    secondaryCompanies: [],
     roles: [],
     cityId: ''
   }
@@ -83,7 +84,10 @@ function EditUserForm() {
     email: user.email || '',
     status: user.isActive,
     companies: user.companies
-      ? user.companies.map(c => String(c.id.companyId))
+      ? user.primaryCompanies.map(c => String(c.id.companyId))
+      : [],
+    secondaryCompanies: user.auxiliaryCompanies
+      ? user.auxiliaryCompanies.map(c => String(c.id.companyId))
       : [],
     roles: user.roles
       ? user.roles.map(r => String(r.id.roleId))
@@ -91,6 +95,7 @@ function EditUserForm() {
     cityId: user.city?.id ? String(user.city.id) : ''
   });
 }, [user, methods]);
+
 
     // 2. Use Custom Hook for Dropdown Data
     // We pass the watched value so the hook knows when to refetch models
@@ -112,14 +117,26 @@ function EditUserForm() {
         await userService.updateUser(id,payload);    
         navigate('/admin/Utilisateurs');
     } catch (error) {
-         if (error.response && error.response.status === 400) {
-        // Option 1 & 2 both provide error.response.data.message
+    if (error.response && error.response.status === 400) {
         const errorMessage = error.response.data.message;
 
-        methods.setError("username", {
-            type: "manual",
-            message: errorMessage || "Ce nom d'utilisateur est déjà utilisé"
-        });
+        // Logic to decide WHICH field gets the error
+        if (errorMessage.includes("assurance") || errorMessage.includes("column")) {
+            // Only set error on the companies field
+            methods.setError("secondaryCompanies", {
+                type: "manual",
+                message: errorMessage
+            });
+        } else if (errorMessage.includes("username") || errorMessage.includes("nom d'utilisateur")) {
+            // Only set error on the username field
+            methods.setError("username", {
+                type: "manual",
+                message: errorMessage
+            });
+        } else {
+            // Fallback: show alert or generic error if it matches neither
+            alert(errorMessage);
+        }
     }
         console.error("Failed to create user:", error);
         submitLock.current = false;
@@ -148,6 +165,7 @@ function EditUserForm() {
                             <Dropdown {...status_validation} options={userStatusOptions} />
                             <Dropdown {...role_one_select} options={roleOptions} />
                             <Dropdown {...company_multi_select} options={companyOptions} multiple={true} />
+                            <Dropdown {...company_multi_select} options={companyOptions} multiple={true} name="secondaryCompanies" label={"Assurance secandaire"}/>
                             
                             <button className={isUpdating ? "disabled-button" : "enabled-button"} type="submit">Submit</button>
                         </form>

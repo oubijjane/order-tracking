@@ -127,6 +127,10 @@ export const formatEditUserPayload = (data) => {
         ? data.companies.map(id => parseInt(id, 10)) 
         : [];
 
+    const secondaryCompaniesArray = Array.isArray(data.secondaryCompanies) 
+        ? data.secondaryCompanies.map(id => parseInt(id, 10)) 
+        : [];
+
     return {
         username: data.username,
         email: data.email,
@@ -135,6 +139,7 @@ export const formatEditUserPayload = (data) => {
         cityId: data.cityId ? parseInt(data.cityId, 10) : null,
         status: data.status === true || data.status === 'true',
         roles: rolesArray,
+        secondaryCompanies: secondaryCompaniesArray,
         companies: companiesArray
     };
 };  

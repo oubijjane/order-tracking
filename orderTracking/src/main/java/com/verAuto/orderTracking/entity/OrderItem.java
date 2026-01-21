@@ -68,8 +68,7 @@ public class OrderItem {
     private Date updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "city_id", nullable = false)
-    @NotNull
+    @JoinColumn(name = "city_id", nullable = true)
     private City city;
 
     @ManyToOne

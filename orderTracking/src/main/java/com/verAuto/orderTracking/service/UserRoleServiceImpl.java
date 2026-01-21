@@ -1,6 +1,6 @@
 package com.verAuto.orderTracking.service;
 
-import com.verAuto.orderTracking.DTO.CreatUserRole;
+import com.verAuto.orderTracking.DTO.CreateUserRole;
 import com.verAuto.orderTracking.dao.RoleDAO;
 import com.verAuto.orderTracking.dao.UserDAO;
 import com.verAuto.orderTracking.dao.UserRoleDOA;
@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -46,7 +45,7 @@ public class UserRoleServiceImpl implements UserRoleService{
     }
 
     @Override
-    public UserRole saveUserRole(CreatUserRole userRole) {
+    public UserRole saveUserRole(CreateUserRole userRole) {
         Role role = roleDAO.findById(userRole.getRoleId())
                 .orElseThrow(() -> new RuntimeException("could not find role with the id - " + userRole.getRoleId()));
         User user = userDAO.findById(userRole.getUserId())

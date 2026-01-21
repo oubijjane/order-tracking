@@ -5,14 +5,15 @@ import com.verAuto.orderTracking.DTO.OrderItemDTO;
 import com.verAuto.orderTracking.DTO.WindowDetailsDTO;
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
-import com.verAuto.orderTracking.dao.WindowDetailsDAO;
 import com.verAuto.orderTracking.entity.*;
+import com.verAuto.orderTracking.enums.CompanyAssignmentType;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import jakarta.persistence.criteria.Fetch;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
+import org.hibernate.type.descriptor.jdbc.JsonArrayJdbcType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,21 +69,29 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .map(r -> r.getRole().getName().toUpperCase())
                 .collect(Collectors.toSet());
 
-       if (roleNames.contains("ROLE_GARAGISTE")) {
-            // Assuming User entity has a 'city' field
-            Long id = user.getCity().getId();
-            City city = cityDAO.findById(id)
-                    .orElseThrow(() -> new RuntimeException("could not find a city with the id - " + id));
-            return orderItemDAO.findByCity(city);
+        // 1. Logic for Garagiste
+        if (roleNames.contains("ROLE_GARAGISTE")) {
+            // Validation: Ensure the user actually has a city assigned
+            if (user.getCity() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "L' n'est associé à aucune ville.");
+            }
+            // No need for cityDAO.findById(id) if user.getCity() is already populated.
+            // We pass the user and the city directly to the DAutilisateurO.
+            return orderItemDAO.findByCityOrUser(user.getCity(), user);
         }
+
+        // 2. Logic for Gestionnaire
         if (roleNames.contains("ROLE_GESTIONNAIRE")) {
-            // Assuming User entity has a 'city' field
-            Set<UserCompany> userCompanies = user.getCompanies();
-            List<Long> companyIds = userCompanies.stream()
-                    .map(uc -> uc.getCompany().getId()) // Get the ID from the Company inside UserCompany
-                    .toList();      // Turn it into a List
+            List<Long> companyIds = user.getCompanies().stream()
+                    .map(uc -> uc.getCompany().getId())
+                    .toList();
+
+            if (companyIds.isEmpty()) return new ArrayList<>();
+
             return orderItemDAO.findAllByCompanyIds(companyIds);
         }
+
+        // 3. Default (Admin/Logistics)
         return orderItemDAO.findAll();
     }
 
@@ -103,6 +112,12 @@ public class OrderItemServiceImpl implements OrderItemService {
                                              int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return orderItemDAO.findAll(createSearchSpecification(user, companyName, cityName, registrationNumber, status), pageable);
+    }
+
+    @Override
+    public Page<OrderItem> findOrderItemByUserId(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return orderItemDAO.findOrderItemByUserId(user.getId(), pageable);
     }
 
     @Override
@@ -133,15 +148,25 @@ public class OrderItemServiceImpl implements OrderItemService {
         Set<String> roleNames = user.getRoles().stream()
                 .map(r -> r.getRole().getName().toUpperCase())
                 .collect(Collectors.toSet());
+        Integer userId = user.getId();
+
+
         List<Object[]> results;
         if (roleNames.contains("ROLE_GARAGISTE")) {
-            results = orderItemDAO.countOrdersByStatusAndCity(user.getCity());
+            results = orderItemDAO.countOrdersByStatusAndCityOrUser(user.getCity(), user);
         } else if (roleNames.contains("ROLE_GESTIONNAIRE")) {
-            // Filter by the companies assigned to this user
-            List<Long> companyIds = user.getCompanies().stream()
+
+            // 1. Get ONLY Primary Company IDs
+            List<Long> primaryIds = user.getPrimaryCompanies().stream()
                     .map(uc -> uc.getCompany().getId())
                     .collect(Collectors.toList());
-            results = orderItemDAO.countOrdersByStatusAndCompanies(companyIds);
+
+            // 2. SAFETY: If list is empty, add a "dummy" ID (like -1)
+            // This prevents SQL errors while still allowing the "OR user.id" part to work.
+            if (primaryIds.isEmpty()) {
+                primaryIds.add(-1L);
+            }
+            results = orderItemDAO.countOrdersByStatusAndCompanies(primaryIds, userId);
 
         }else {
 
@@ -169,18 +194,29 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         // 1. Create the pageable object once
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Integer userId = user.getId();
+
+        // 1. Get ONLY Primary Company IDs
+
 
         // 2. Branch logic for different roles
         if (roleNames.contains("ROLE_GARAGISTE")) {
-            return orderItemDAO.findByStatusAndCity(status, user.getCity(), pageable);
+            return orderItemDAO.findByStatusAndCity(status, user.getCity(), user, pageable);
         }
 
         if (roleNames.contains("ROLE_GESTIONNAIRE")) {
-            List<Long> companyIds = user.getCompanies().stream()
+
+            List<Long> primaryIds = user.getPrimaryCompanies().stream()
                     .map(uc -> uc.getCompany().getId())
-                    .toList();
+                    .collect(Collectors.toList());
+
+            // 2. SAFETY: If list is empty, add a "dummy" ID (like -1)
+            // This prevents SQL errors while still allowing the "OR user.id" part to work.
+            if (primaryIds.isEmpty()) {
+                primaryIds.add(-1L);
+            }
             // Now passing pageable here
-            return orderItemDAO.findByStatusAndCompanies(status, companyIds, pageable);
+            return orderItemDAO.findByStatusAndCompanies(status, primaryIds, userId, pageable);
         }
 
         // Default case (e.g. ROLE_ADMIN): Now passing pageable here
@@ -189,8 +225,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public OrderItem findById(Long id) {
-        return orderItemDAO.findById(id) // This already returns Optional<OrderItem>
+        OrderItem orderItem = orderItemDAO.findById(id) // This already returns Optional<OrderItem>
                 .orElseThrow(() -> new RuntimeException("Did not find order number - " + id));
+        return orderItem;
     }
 
     @Override
@@ -259,12 +296,29 @@ public class OrderItemServiceImpl implements OrderItemService {
         if (newStatus.getOrderStatus() != null) {
             validateStatusTransition(currentStatus, newStatus.getOrderStatus());
             action = "Changement du statut de la commande vers";
+            checkRolePermissions(roleNames, newStatus.getOrderStatus());
             addHistory(existingOrder,userName, action,
                     existingOrder.getStatus().getLabel(),
                     newStatus.getOrderStatus().getLabel());
-            checkRolePermissions(roleNames, newStatus.getOrderStatus());
             addOffersToOrder(newStatus.getWindowDetailsList(), newStatus.getOrderStatus());
             selectOffer(id, newStatus.getSelectedWindowDetail(), newStatus.getOrderStatus());
+
+            if (newStatus.getOrderStatus() == OrderStatus.SENT) {
+                // 1. Validate Transit Company
+                if (newStatus.getCityId() == null || newStatus.getCityId() <= 0) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "la ville est obligatoire");
+                }
+
+
+
+                // 3. Process the update
+                City city = cityDAO.findById(newStatus.getCityId())
+                        .orElseThrow(()->
+                                new RuntimeException("could not find a city with the id: " + newStatus.getCityId()));
+
+                existingOrder.setCity(city);
+            }
             // --- RULE: Transit Company Logic ---
             if (newStatus.getOrderStatus() == OrderStatus.IN_TRANSIT) {
                 // 1. Validate Transit Company
@@ -274,10 +328,6 @@ public class OrderItemServiceImpl implements OrderItemService {
                 }
 
                 // 2. Validate Declaration Number (Fixed the logic here)
-                if (newStatus.getDeclarationNumber() == null || newStatus.getDeclarationNumber().trim().isEmpty()) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Un numéro de déclaration de transit est obligatoire pour le passage en transit.");
-                }
 
                 // 3. Process the update
                 TransitCompany company = transitCompanyService.findTransitCompanyById(newStatus.getTransitCompanyId());
@@ -289,7 +339,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             existingOrder.setStatus(newStatus.getOrderStatus());
         }
         // 4. Comment Logic
-
+        System.out.println("tesqt; " + newStatus.getComment());
         if (newStatus.getComment() != null) {
             // Use CommentService to get the label
             action = "Ajout d’un commentaire";
@@ -297,6 +347,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             addHistory(existingOrder,userName, action,
                     existingOrder.getComment(),
                     commentLabel);
+
             existingOrder.setComment(commentLabel);
         }
 
@@ -386,16 +437,33 @@ public class OrderItemServiceImpl implements OrderItemService {
                     .collect(Collectors.toSet());
 
             if (roleNames.contains("ROLE_GARAGISTE")) {
-                predicates.add(cb.equal(root.get("city"), user.getCity()));
+                // This creates: (order.city = user.city OR order.user = user)
+                Predicate sameCity = cb.equal(root.get("city"), user.getCity());
+                Predicate sameUser = cb.equal(root.get("user"), user); // Assumes 'user' field exists in OrderItem
+
+                predicates.add(cb.or(sameCity, sameUser));
             }
             else if (roleNames.contains("ROLE_GESTIONNAIRE")) {
-                List<Long> companyIds = user.getCompanies().stream()
+                // 1. Filter to get ONLY Primary Company IDs
+                List<Long> primaryCompanyIds = user.getCompanies().stream()
+                        .filter(uc -> uc.getType() == CompanyAssignmentType.PRIMARY) // <--- CRITICAL CHANGE
                         .map(uc -> uc.getCompany().getId())
                         .toList();
-                if (!companyIds.isEmpty()) {
-                    predicates.add(root.get("company").get("id").in(companyIds));
+
+                // 2. Condition A: "Created by him"
+                // This covers orders created by the user for ANY company (Primary or Auxiliary)
+                Predicate isMyOrder = cb.equal(root.get("user"), user);
+
+                if (!primaryCompanyIds.isEmpty()) {
+                    // 3. Condition B: "Orders of its primary companies"
+                    // This covers orders created by ANYONE for the user's Primary companies
+                    Predicate isPrimaryCompanyOrder = root.get("company").get("id").in(primaryCompanyIds);
+
+                    // 4. Combine with OR
+                    predicates.add(cb.or(isMyOrder, isPrimaryCompanyOrder));
                 } else {
-                    return cb.disjunction();
+                    // Fallback: If no primary companies, they only see their own creations
+                    predicates.add(isMyOrder);
                 }
             }
 
@@ -420,7 +488,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
-    private History addHistory(OrderItem order, String userName,String action, String oldValue, String newValue) {
+    private void addHistory(OrderItem order, String userName, String action, String oldValue, String newValue) {
 
         HistoryDTO historyDTO = new HistoryDTO();
         historyDTO.setChangedBy(userName);
@@ -429,11 +497,11 @@ public class OrderItemServiceImpl implements OrderItemService {
         historyDTO.setNewValue(newValue);
         historyDTO.setOrder(order);
 
-        return historyService.addNewHistory(historyDTO);
+        historyService.addNewHistory(historyDTO);
 
     }
 
-    private List<WindowDetailsDTO> addOffersToOrder(List<WindowDetailsDTO> windowDetailsDTOList, OrderStatus newStatus) {
+    private void addOffersToOrder(List<WindowDetailsDTO> windowDetailsDTOList, OrderStatus newStatus) {
 
         // 1. Check if we are entering the 'AVAILABLE' phase
         if (OrderStatus.AVAILABLE.equals(newStatus)) {
@@ -455,12 +523,11 @@ public class OrderItemServiceImpl implements OrderItemService {
             }
 
             // Save and return the saved list
-            return windowDetailsService.saveWindowsDetails(windowDetailsDTOList);
+            windowDetailsService.saveWindowsDetails(windowDetailsDTOList);
         }
 
         // 2. If the status is NOT 'AVAILABLE', we skip the saving logic entirely
         // We return an empty list (or null) because no windows were processed in this step
-        return new ArrayList<>();
     }
     private void selectOffer(Long orderId, Long selectedWindowId, OrderStatus newStatus) {
 
@@ -487,7 +554,5 @@ public class OrderItemServiceImpl implements OrderItemService {
             // Save and return the saved list
             windowDetailsService.deleteWindowDetails(dto);
         }
-
-
     }
 }

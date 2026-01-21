@@ -10,6 +10,6 @@ export const useWindowDetailsSelection = (id) => {
             .catch(err => console.error("Failed to load window details:", err));
     }, []); 
     // 2. Format options for the Dropdown component
-    const windowDetailsOptions = windowDetails.map(w => ({ value: w.id, label: w.windowBrand + " - " + w.price + " Dhs" }));
+    const windowDetailsOptions = windowDetails.map(w => ({ value: w.id, label: w.windowBrand + " - " + w.price }));
     return windowDetailsOptions;
 }

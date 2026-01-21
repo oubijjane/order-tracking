@@ -87,10 +87,7 @@ function Form() {
                     {...company_validation} 
                     options={companyOptions} 
                 />
-                <Dropdown
-                    {...city_validation}
-                    options={cityOptions}
-                />
+                
                 <Dropdown 
                     {...window_type_validation} 
                     options={WINDOW_TYPES} 

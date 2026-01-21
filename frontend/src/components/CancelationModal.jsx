@@ -5,7 +5,7 @@ import { useCommentsSelection} from '../hooks/useCommentsSelection'; // Import c
 
 
 
-export function CancellationModal({ isOpen, onClose, onSubmit, isUpdating }) {
+export function CancelationModal({ isOpen, onClose, onSubmit, isUpdating }) {
     const methods = useForm({
         defaultValues: {
             comment: '' // This will store the ID from the Dropdown
@@ -31,7 +31,7 @@ export function CancellationModal({ isOpen, onClose, onSubmit, isUpdating }) {
     return (
         <div className="modal-backdrop">
             <div className="modal-container">
-                <h3>Motif de l'annulation</h3>
+                <h3>Motife de l'annulation</h3>
                 
                 <FormProvider {...methods}>
                     <form onSubmit={methods.handleSubmit(onValidSubmit)} className="search-form-layout">

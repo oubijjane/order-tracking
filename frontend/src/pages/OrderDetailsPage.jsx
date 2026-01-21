@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
-import { ORDER_STATUS_MAP, statusLabel, formatDate } from '../utils/formUtils';
+import { ORDER_STATUS_MAP, statusLabel, formatDate,WINDOW_TYPES } from '../utils/formUtils';
 import ButtonStatus from '../components/ButtonStatus';
-import { CancellationModal } from '../components/CancellationModal';
+import { CancelationModal } from '../components/CancelationModal';
+import {CommentModal} from '../components/CommentModal';
 import {OfferSelectionModal} from '../components/OfferSelectionModal';
 import { FileNumberModal } from '../components/FileNumberModal';
 import { TransitModal } from '../components/TransitModal'; // Import the new modal
@@ -11,8 +12,10 @@ import { WindowDetailsModal } from '../components/WindowDetailsModal';
 import { ImageGallery } from '../components/ImageGallery';
 import  OrderHistory  from '../components/OrderHistory';
 import { useAuth } from '../context/AuthContext';
+import {useWindowDetailsSelection} from '../hooks/useWindowDetailsSelection';
 import '../styles/OrderDetails.css';
 import { set } from 'react-hook-form';
+
 
 function OrderDetailsPage() {
     const { user, loading: authLoading } = useAuth();
@@ -22,8 +25,11 @@ function OrderDetailsPage() {
     // UI States
     const [selectedImgIndex, setSelectedImgIndex] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [commentId, setCommentId] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const selectedOffer = useWindowDetailsSelection(id)[0]?.label;
+    console.log("selected offer in the order details page " + selectedOffer);
 
     // Data State
     const [order, setOrder] = useState(null);
@@ -31,6 +37,7 @@ function OrderDetailsPage() {
 
     // Modal States
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
     const [showTransitModal, setShowTransitModal] = useState(false);
     const [showFileNumberModal, setFileNumberModal] = useState(false);
     const [showWindowDetailsModal, setShowWindowDetailsModal] = useState(false);
@@ -91,12 +98,13 @@ function OrderDetailsPage() {
     /**
      * Logic 3: Update handleSubmit to accept transit parameters and window details
      */
-    const handleSubmit = async (updatedStatus, reasonId = null, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null) => {
+    const handleSubmit = async (updatedStatus, reasonId = commentId, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null, cityId = null) => {
         setIsUpdating(true);
         try {
             // The service call now takes all potential extra data
-            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId);
+            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId, cityId);
             // Refresh local state
+            console.log("resonId after submit " + reasonId);
             const [freshOrder, freshHistory] = await Promise.all([
                 OrderService.getOrderById(id),
                 OrderService.getOrderHistory(id)
@@ -181,12 +189,13 @@ function OrderDetailsPage() {
                         <h1 className="company-title">{order.company.companyName}</h1>
 
                         <div className="specs-grid">
+                            <div className="spec-item"><label>Crée par: </label><p>{}</p></div>
                             <div className="spec-item"><label>Véhicule</label><p>{order.carModel.carBrand.brand} {order.carModel.model}</p></div>
                             <div className="spec-item"><label>Date de creation</label><p>{formatDate(order.createdAt)}</p></div>
                             <div className="spec-item"><label>Dernier mise a jour</label><p>{formatDate(order.updatedAt)}</p></div>
                             <div className="spec-item"><label>Matricule</label><p className="plate-number">{order.registrationNumber}</p></div>
-                            <div className="spec-item"><label>Type de vitre</label><p>{order.windowType}</p></div>
-                            <div className="spec-item"><label>Destination</label><p>{order.city.cityName} — {order.destination}</p></div>
+                            <div className="spec-item"><label>Type de vitre</label><p>{WINDOW_TYPES.find(type => type.value === order.windowType)?.label || order.windowType}</p></div>
+                            <div className="spec-item"><label>Destination</label><p>{order.city ? order.city.cityName : 'Non renseigné'}</p></div>
                             
                             {order.transitCompany && (
                                 <div className="spec-item"><label>Transporteur</label><p>{order.transitCompany.name}</p></div>
@@ -204,12 +213,19 @@ function OrderDetailsPage() {
                                 </p>
                             </div>
                         )}
+                        {checkStatus(order.status) && (
+                            <div className="spec-item">
+                                <label>Maque/ prix</label>
+                                <p className="plate-number">
+                                    { selectedOffer|| "Non renseigné"}
+                                </p>
+                            </div>
+                        )}
 
                         <div className="comment-section">
                             <label>Commentaire actuel</label>
                             <p>{order.comment || "Aucun commentaire disponible."}</p>
                         </div>
-
                         <div className="action-footer">
                             <ButtonStatus 
                                 status={statusLabel(order.status, roles)} 
@@ -222,6 +238,10 @@ function OrderDetailsPage() {
                                     Modifier numéro de dossier
                                 </button>
                             )}
+                            
+                                <button className="btn-action-outline" onClick={() => setIsCommentModalOpen(true)} disabled={isUpdating}>
+                                    Ajouter un commentaire
+                                </button>
 
                             {roles.includes('ROLE_ADMIN') && (
                                 <button className="btn-delete-simple" onClick={handleDelete} disabled={isUpdating}>
@@ -234,13 +254,18 @@ function OrderDetailsPage() {
             </div>
 
             {/* Modals */}
-            <CancellationModal 
+            <CancelationModal 
                 isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
                 onSubmit={(reasonId) => handleSubmit(pendingStatus, reasonId)}
                 isUpdating={isUpdating}
             />
-
+            <CommentModal 
+                isOpen={isCommentModalOpen}
+                onClose={() => setIsCommentModalOpen(false)}
+                onSubmit={(reasonId) => setCommentId(reasonId)}
+                isUpdating={isUpdating}
+            />
             <TransitModal 
                 isOpen={showTransitModal}
                 onClose={() => setShowTransitModal(false)}
@@ -251,25 +276,42 @@ function OrderDetailsPage() {
             <WindowDetailsModal 
                 isOpen={showWindowDetailsModal}
                 onClose={() => setShowWindowDetailsModal(false)}
-                onSubmit={(windowsList) => handleSubmit(pendingStatus, null, null, null, null, windowsList)}
+                onSubmit={(windowsList) => handleSubmit(pendingStatus, commentId, null, null, null, windowsList)}
                 isUpdating={isUpdating}
             />
 
             <FileNumberModal
                 isOpen={showFileNumberModal}
                 onClose={() => setFileNumberModal(false)}
-                onSubmit={(fileNumber) => handleSubmit(null, null, null, null, fileNumber)}
+                onSubmit={(fileNumber) => handleSubmit(null, commentId, null, null, fileNumber)}
                 isUpdating={isUpdating}
             />
              <OfferSelectionModal
                 isOpen={showWindowOfferModal}
                 onClose={() => setShowWindowOfferModal(false)}
-                onSubmit={(windowDetailId) => handleSubmit(pendingStatus, null, null, null, null, null, windowDetailId)}
+                onSubmit={(windowDetailId, cityId) => handleSubmit(pendingStatus, commentId, null, null, null, null, windowDetailId, cityId)}
                 isUpdating={isUpdating}
             />
         </div>
         
     );
+}
+
+function checkStatus(status) {
+
+    if(status === 'REPAIRED') {
+        return true;
+    } else if (status === 'SENT') {
+        return true;
+    } else if (status === 'RECEIVED') {
+        return true;
+    } else if (status === 'RETURN') {
+        return true;
+    } else if( status === 'IN_TRANSIT') {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 export default OrderDetailsPage;

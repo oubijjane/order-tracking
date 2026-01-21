@@ -52,6 +52,11 @@ function Navbar() {
           <NavLink to="/search" className="nav-item" onClick={closeMenu}>
             Recherche
           </NavLink>
+          {(roles.includes('ROLE_LOGISTICIEN') || roles.includes('ROLE_ADMIN'))  && (
+            <NavLink to="/envois" className="nav-item" onClick={closeMenu}>
+              Envois
+            </NavLink>
+          )}
           {roles.includes('ROLE_ADMIN')  && (
             <NavLink to="/admin" className="nav-item" onClick={closeMenu}>
               Admin

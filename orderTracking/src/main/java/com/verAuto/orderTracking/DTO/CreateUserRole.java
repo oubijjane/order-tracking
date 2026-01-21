@@ -4,10 +4,9 @@ import com.verAuto.orderTracking.enums.CompanyAssignmentType;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class CreateUserCompany {
+@Setter
+public class CreateUserRole {
+    private int roleId;
     private int userId;
-    private Long companyId;
-    private CompanyAssignmentType type;
 }

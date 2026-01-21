@@ -16,6 +16,7 @@ public interface OrderItemService {
                                      String registrationNumber, String status);
     Page<OrderItem> findOrdersDynamic(User user, String companyName, String cityName, String registrationNumber,
                                       String status,int page, int size);
+    Page<OrderItem> findOrderItemByUserId(User user, int page, int size);
     List<OrderItem> findByRegistrationNumber(String registrationNumber);
     OrderItem updateOrderStatus(Long id, OrderStatus orderStatus);
     Map<OrderStatus, Long> getStatusCounts(User user);

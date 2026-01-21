@@ -46,6 +46,7 @@ public class UserCompanyServiceImpl implements UserCompanyService{
         savedUserCompany.setCompany(company);
         savedUserCompany.setUser(user);
         savedUserCompany.setId(new UserCompanyId(userCompany.getUserId(), userCompany.getCompanyId()));
+        savedUserCompany.setType(userCompany.getType());
         return userCompanyDAO.save(savedUserCompany);
     }
 

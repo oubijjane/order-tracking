@@ -23,6 +23,16 @@ import api from './api';
         }
     };
 
+    const getUserOrders = async (size, page) => {
+        try {
+            const response = await api.get(`/orders/user?size=${size}&page=${page}`);
+            return response.data; // CRITICAL: This passes the data back to App.jsx
+        } catch (error) {
+            console.error("Error fetching order counts:", error);
+            throw error;
+        }
+    };
+
     const getOrderByStatus = async (status, size=9, page=0) => {
         try {
             const response = await api.get(`/orders/status?status=${status}&size=${size}&page=${page}`);
@@ -92,7 +102,7 @@ const deleteOrder = async (id) => {
 };
 
 
-const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber, windowsList = null, windowDetailId = null) => {
+const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber, windowsList = null, windowDetailId = null, selectedCityId = null) => {
     let updateData;
     console.log("file number: " + newFileNumber)
     console.log("decision: " + decision)
@@ -106,18 +116,23 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
              updateData = {
                 orderStatus: decision, // e.g., 'CANCELLED'
                 transitCompanyId: newTransitCompanyId,
-                declarationNumber: newDeclarationNumber
+                declarationNumber: newDeclarationNumber,
+                comment: commentId 
             };
         }else if(decision == "AVAILABLE") {
              updateData = {
                 orderStatus: decision,
-                windowDetailsList: windowsList
+                windowDetailsList: windowsList,
+                comment: commentId,
+                
             };
     
         }else if(decision == "SENT") {
              updateData = {
                 orderStatus: decision,
-                selectedWindowDetail: windowDetailId
+                selectedWindowDetail: windowDetailId,
+                cityId: selectedCityId,
+                comment: commentId 
             };
         
         }else if (newFileNumber && !decision) {
@@ -126,7 +141,8 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
             };
         } else {
              updateData = {
-                orderStatus: decision,// This will now be 3
+                orderStatus: decision,
+                comment: commentId 
             };
         }
         console.log("Update Data Sent to Backend:", updateData);
@@ -195,6 +211,7 @@ const downloadExcelReport = async (company, status, registrationNumber, city) =>
 export default {
     getAllOrders,
     getOrderCountByStatus,
+    getUserOrders,
     getOrderByStatus,
     getFilteredOrders,
     getOrderHistory,

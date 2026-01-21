@@ -119,7 +119,7 @@ export function WindowDetailsModal({ isOpen, onClose, onSubmit, isUpdating }) {
                     <div className="modal-item-info">
                         <span className="modal-item-brand">{win.brandName}</span>
                         <span className="modal-item-price">
-                            {win.price.toLocaleString()} Dhs
+                            {win.price.toLocaleString()} 
                         </span>
                     </div>
                     <button 

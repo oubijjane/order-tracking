@@ -134,6 +134,18 @@
     font-size: 0.9rem;
     transition: 0.2s;
 }
+
+.btn-action-outline {
+    background: transparent;
+    border: 2px solid var(--verauto-orange);
+    color: var(--verauto-orange);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 10px;
+    border-radius: 6px;
+    transition: var(--transition);
+}
 .btn-back-simple{
     background: transparent ;
     border: none ;

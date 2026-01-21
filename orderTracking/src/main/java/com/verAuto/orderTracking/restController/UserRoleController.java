@@ -1,10 +1,9 @@
 package com.verAuto.orderTracking.restController;
 
 
-import com.verAuto.orderTracking.DTO.CreatUserRole;
+import com.verAuto.orderTracking.DTO.CreateUserRole;
 import com.verAuto.orderTracking.entity.UserRole;
 import com.verAuto.orderTracking.service.UserRoleService;
-import com.verAuto.orderTracking.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,7 @@ public class UserRoleController {
         return new ResponseEntity<>(userRoleService.findAll(), HttpStatus.OK);
     }
     @PostMapping
-    public ResponseEntity<UserRole> createUserRole(@RequestBody CreatUserRole userRole) {
+    public ResponseEntity<UserRole> createUserRole(@RequestBody CreateUserRole userRole) {
         return new ResponseEntity<>(userRoleService.saveUserRole(userRole), HttpStatus.CREATED);
     }
 }

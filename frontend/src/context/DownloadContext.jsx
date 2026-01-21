@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import  { createContext, useContext, useState } from 'react';
 import api from '../services/api'; // Your axios instance
 
 const DownloadContext = createContext();
@@ -41,8 +41,41 @@ export const DownloadProvider = ({ children }) => {
         }
     };
 
+    const downloadTransitOrders = async (city) => {
+        setIsDownloading(true);
+        try {
+            // 1. Call the endpoint for IN_TRANSIT orders filtered by city
+            const response = await api.get('/orders/export', {
+                params: {
+                    status: 'SENT',
+                    city: city || ''
+                },
+                responseType: 'blob' // Essential for binary files
+            });
+
+            // 2. Create the download link in memory
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Commandes_En_Transit_${city || 'Toutes'}_${new Date().toISOString().split('T')[0]}.xlsx`);
+            
+            // 3. Trigger download
+            document.body.appendChild(link);
+            link.click();
+            
+            // 4. Cleanup memory
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Export Error:", error);
+            alert("Une erreur est survenue lors du téléchargement des commandes en transit.");
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     return (
-        <DownloadContext.Provider value={{ isDownloading, downloadReport }}>
+        <DownloadContext.Provider value={{ isDownloading, downloadReport, downloadTransitOrders }}>
             {children}
         </DownloadContext.Provider>
     );

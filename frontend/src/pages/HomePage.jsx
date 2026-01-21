@@ -10,13 +10,18 @@ function HomePage() {
   const { status } = useParams(); // Captured from URL if you use /orders/:status
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isUserOrders, setIsUserOrders] = useState(false); // New state to toggle user orders
 
-  // 1. Fetch data whenever status OR currentPage changes
+  // 1. Fetch data whenever status, currentPage, or isUserOrders changes
   useEffect(() => {
-    fetchOrders();
+    if (isUserOrders) {
+      fetchUserOrders();
+    } else {
+      fetchOrders();
+    }
     // Scroll to top when page changes for better UX
     window.scrollTo(0, 0);
-  }, [status, currentPage]);
+  }, [status, currentPage, isUserOrders]);
 
   const fetchOrders = () => {
     // Note: status from useParams is used here if available
@@ -33,6 +38,34 @@ function HomePage() {
       setTotalPages(data.totalPages);
     })
     .catch(err => setError("Could not load orders."));
+  };
+
+  const fetchUserOrders = () => {
+    // Note: status from useParams is used here if available
+    OrderService.getUserOrders(
+      9,      // pageSize
+      currentPage
+    )
+    .then(data => {
+      setOrders(data.content);
+      setTotalPages(data.totalPages);
+    })
+    .catch(err => setError("Could not load orders."));
+  };
+
+  const toggleUserOrders = () => {
+    if (isUserOrders) {
+      // Switch back to all orders
+      setIsUserOrders(false);
+      fetchOrders();
+      setCurrentPage(0);
+    } else {
+      // Switch to user orders
+      setIsUserOrders(true);
+      fetchUserOrders();
+      setCurrentPage(0);
+      
+    }
   };
 
   // 2. Helper to determine which page numbers to show
@@ -58,8 +91,10 @@ function HomePage() {
       <header className="orders-container">
         <h1>Suivi des Commandes Verauto</h1>
         <div className="header-line"></div>
+        <button className="btn-action-outline" onClick={toggleUserOrders}>
+        {isUserOrders ? "Voir toutes les commandes" : "Voir mes commandes"}
+      </button>
       </header>
-
       <OrdersList orders={orders} error={error} />
 
       {/* 3. Pagination UI */}

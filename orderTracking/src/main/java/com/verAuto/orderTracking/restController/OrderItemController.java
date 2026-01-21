@@ -113,8 +113,15 @@ public class OrderItemController {
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        System.out.println("company: " + company + " city : " + city);
         return ResponseEntity.ok(orderItemService.findOrdersDynamic(user, company, city, reg, status, page, size));
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<Page<OrderItem>> getUserOrder(@AuthenticationPrincipal User user,
+                                                        @RequestParam(required = false) String company,
+                                                        @RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(orderItemService.findOrderItemByUserId(user, page, size));
     }
 
     @GetMapping("/{id}")
@@ -137,12 +144,11 @@ public class OrderItemController {
         // 1. Fetch dependencies
         CarModel model = carModelService.findById(request.getCarModelId());
         Company company = companyService.findById(request.getCompanyId());
-        City city = cityService.findCityById(request.getCityId());
+
 
         // 2. Map DTO to Entity
         OrderItem orderItem = request.getOrderItem();
         orderItem.setId(null); // Ensure new record
-        orderItem.setCity(city);
         orderItem.setCarModel(model);
         orderItem.setCompany(company);
         orderItem.setStatus(OrderStatus.PENDING);

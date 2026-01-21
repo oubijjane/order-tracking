@@ -9,10 +9,19 @@
 
 .user-table {
     width: 100%;
+    margin: 0 auto;
+    padding: 30px 20px;
+    border-radius: 12px;
     border-collapse: separate;
     border-spacing: 0;
     font-family: 'Inter', sans-serif;
 }
+.table-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
 
 /* Header Styling */
 .user-table thead th {
@@ -67,4 +76,8 @@
         display: block;
         overflow-x: auto;
     }
+    .table-container {
+    display: block;
+    overflow-x: auto;
+}
 }

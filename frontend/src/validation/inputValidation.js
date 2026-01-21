@@ -604,11 +604,5 @@ export const declaration_number_input = {
     label: 'Numéro de déclaration',
     type: 'text',
     id: 'declarationNumber',
-    placeholder: 'Ex: TR-2026-XYZ',
-    validation: {
-        required: {
-            value: true,
-            message: 'Requis',
-        },
-    },
+    placeholder: 'Ex: TR-2026-XYZ',    
 };

@@ -1,14 +1,15 @@
 package com.verAuto.orderTracking.service;
 
-import com.verAuto.orderTracking.DTO.CreatUserRole;
+import com.verAuto.orderTracking.DTO.CreateUserRole;
 import com.verAuto.orderTracking.DTO.CreateUserCompany;
 import com.verAuto.orderTracking.DTO.UserDTO;
 import com.verAuto.orderTracking.dao.CompanyDAO;
+import com.verAuto.orderTracking.dao.UserCompanyDAO;
 import com.verAuto.orderTracking.dao.UserDAO;
 import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
-import com.verAuto.orderTracking.entity.UserRoleId;
+import com.verAuto.orderTracking.enums.CompanyAssignmentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,13 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -34,7 +31,7 @@ public class UserServiceImpl implements UserService{
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, UserRoleService userRoleService, CompanyDAO companyDAO, UserCompanyService userCompanyService, CityService cityService, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserDAO userDAO, UserRoleService userRoleService, CompanyDAO companyDAO, UserCompanyService userCompanyService, UserCompanyDAO userCompanyDAO, CityService cityService, BCryptPasswordEncoder passwordEncoder) {
         this.userRoleService = userRoleService;
         this.companyDAO = companyDAO;
         this.userDAO = userDAO;
@@ -75,7 +72,7 @@ public class UserServiceImpl implements UserService{
         newUser.setCity(cityService.findCityById(user.getCityId()));
         newUser.setEmail(user.getEmail());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-
+        System.out.println("helllo");
         return userDAO.save(newUser);
     }
 
@@ -94,7 +91,6 @@ public class UserServiceImpl implements UserService{
             existingUser.setUserName(userDto.getUsername());
         }
             existingUser.setEmail(userDto.getEmail());
-        System.out.println("service impl: " + userDto.isStatus());
         existingUser.setIsActive(userDto.isStatus());
 
         // 3. Update Password ONLY if it was provided (not empty)
@@ -119,7 +115,7 @@ public class UserServiceImpl implements UserService{
 // 2. Only add new ones if the list actually has items
         if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
             userDto.getRoles().forEach((role) -> {
-                CreatUserRole request = new CreatUserRole(); // New instance per loop is safer
+                CreateUserRole request = new CreateUserRole(); // New instance per loop is safer
                 request.setUserId(id);
                 request.setRoleId(role);
                 userRoleService.saveUserRole(request);
@@ -130,14 +126,31 @@ public class UserServiceImpl implements UserService{
         assert existingUser.getCompanies() != null;
         existingUser.getCompanies().clear();
         userDAO.saveAndFlush(existingUser);
+        Set<Long> primaryIds = new HashSet<>();
+        List<CreateUserCompany> requests = new ArrayList<>();
         if(userDto.getCompanies() != null && !userDto.getCompanies().isEmpty()) {
             userDto.getCompanies().forEach((company -> {
+                primaryIds.add(company);
                 CreateUserCompany request = new CreateUserCompany();
                 request.setCompanyId(company);
                 request.setUserId(id);
-                userCompanyService.saveNewUserCompany(request);
+                request.setType(CompanyAssignmentType.PRIMARY);
+                requests.add(request);
             }));
         }
+        if(userDto.getSecondaryCompanies() != null && !userDto.getSecondaryCompanies().isEmpty()) {
+            userDto.getSecondaryCompanies().forEach((company -> {
+                CreateUserCompany request = new CreateUserCompany();
+                if (primaryIds.contains(company)) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "companie est déjà utilisée comme assurance principale.");
+                }
+                request.setCompanyId(company);
+                request.setUserId(id);
+                request.setType(CompanyAssignmentType.AUXILIARY);
+                requests.add(request);
+            }));
+        }
+        requests.forEach(userCompanyService::saveNewUserCompany);
         LocalDateTime now = LocalDateTime.now();
         Date out = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
         existingUser.setUpdatedAt(out);
