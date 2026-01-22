@@ -2,6 +2,8 @@ package com.verAuto.orderTracking.security;
 
 
 import com.verAuto.orderTracking.Config.JwtAuthenticationFilter;
+import jakarta.servlet.DispatcherType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,6 +31,9 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Value("${app.cors.origin}")
+    private String allowedOrigin;
+
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             AuthenticationProvider authenticationProvider
@@ -44,9 +49,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for JWT-based APIs
                 .authorizeHttpRequests(auth -> auth// Allow public access to auth endpoints
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                        .requestMatchers("/{path:[^\\.]*}", "/**/{path:[^\\.]*}").permitAll()
                         .requestMatchers("/api/auth/**", "/uploads/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/verauto-logo.png", "/*.js", "/*.css").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
+                        .requestMatchers("/api/**").authenticated()
                        // All other requests need a token
                         .requestMatchers("/api/orders/**").hasAnyRole("ADMIN",
                                  "GARAGISTE", "MANAGER",
@@ -92,7 +101,7 @@ public class SecurityConfig {
         CorsConfiguration source = new CorsConfiguration();
 
         // Allow your React Frontend
-        source.setAllowedOriginPatterns(Arrays.asList("*"));
+        source.setAllowedOriginPatterns(Arrays.asList(allowedOrigin));
 
         // Allow these methods
         source.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
@@ -104,6 +113,4 @@ public class SecurityConfig {
         urlBasedSource.registerCorsConfiguration("/**", source);
         return urlBasedSource;
     }
-
-
 }

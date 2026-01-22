@@ -44,10 +44,7 @@ public class CompanyController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Company> updateCompany(@PathVariable Long id, @RequestBody Company company){
-        Company updatedCompany = companyService.findById(id);
-
-        updatedCompany.setCompanyName(company.getCompanyName());
-        Company savedCompany = companyService.save(updatedCompany);
+        Company savedCompany = companyService.updateCompany(id, company);
 
         return new ResponseEntity<>(savedCompany, HttpStatus.OK);
     }

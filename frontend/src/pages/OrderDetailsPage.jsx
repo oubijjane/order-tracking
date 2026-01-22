@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
-import { ORDER_STATUS_MAP, statusLabel, formatDate,WINDOW_TYPES } from '../utils/formUtils';
+import { ORDER_STATUS_MAP, statusLabel, formatDate, WINDOW_TYPES } from '../utils/formUtils';
 import ButtonStatus from '../components/ButtonStatus';
 import { CancelationModal } from '../components/CancelationModal';
-import {CommentModal} from '../components/CommentModal';
-import {OfferSelectionModal} from '../components/OfferSelectionModal';
+import { CommentModal } from '../components/CommentModal';
+import { OfferSelectionModal } from '../components/OfferSelectionModal';
 import { FileNumberModal } from '../components/FileNumberModal';
 import { TransitModal } from '../components/TransitModal'; // Import the new modal
 import { WindowDetailsModal } from '../components/WindowDetailsModal';
 import { ImageGallery } from '../components/ImageGallery';
-import  OrderHistory  from '../components/OrderHistory';
+import OrderHistory from '../components/OrderHistory';
 import { useAuth } from '../context/AuthContext';
-import {useWindowDetailsSelection} from '../hooks/useWindowDetailsSelection';
+import { useWindowDetailsSelection } from '../hooks/useWindowDetailsSelection';
 import '../styles/OrderDetails.css';
 import { set } from 'react-hook-form';
 
@@ -26,6 +26,8 @@ function OrderDetailsPage() {
     const [selectedImgIndex, setSelectedImgIndex] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
     const [commentId, setCommentId] = useState("");
+    const [comment, setComment] = useState("");
+    const [additionalCommentState, setAdditionalCommentState] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const selectedOffer = useWindowDetailsSelection(id)[0]?.label;
@@ -98,11 +100,14 @@ function OrderDetailsPage() {
     /**
      * Logic 3: Update handleSubmit to accept transit parameters and window details
      */
-    const handleSubmit = async (updatedStatus, reasonId = commentId, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null, cityId = null, phoneNumber = null) => {
+    const handleSubmit = async (updatedStatus, reasonId = commentId, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null, cityId = null, phoneNumber = null, additionalComment = null) => {
         setIsUpdating(true);
         try {
+            // If caller didn't provide an additionalComment, fall back to the modal-stored value
+            const finalAdditional = additionalComment !== null && additionalComment !== undefined ? additionalComment : additionalCommentState;
+
             // The service call now takes all potential extra data
-            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId, cityId, phoneNumber);
+            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId, cityId, phoneNumber, finalAdditional);
             // Refresh local state
             console.log("resonId after submit " + reasonId);
             const [freshOrder, freshHistory] = await Promise.all([
@@ -159,18 +164,18 @@ function OrderDetailsPage() {
             </nav>
 
             <div className="details-grid">
-                
+
                 {/* LEFT COLUMN: Image + History */}
                 <div className="left-column">
                     <div className="image-card">
-                        <ImageGallery 
-                            images={order.images} 
-                            selectedImgIndex={selectedImgIndex} 
+                        <ImageGallery
+                            images={order.images}
+                            selectedImgIndex={selectedImgIndex}
                             setSelectedImgIndex={setSelectedImgIndex}
                             IMAGE_BASE_URL="http://192.168.1.242:8080"
                         />
                     </div>
-                    
+
                     <div className="history-wrapper">
                         <OrderHistory history={orderHistory} />
                     </div>
@@ -196,7 +201,7 @@ function OrderDetailsPage() {
                             <div className="spec-item"><label>Matricule</label><p className="plate-number">{order.registrationNumber}</p></div>
                             <div className="spec-item"><label>Type de vitre</label><p>{WINDOW_TYPES.find(type => type.value === order.windowType)?.label || order.windowType}</p></div>
                             <div className="spec-item"><label>Destination</label><p>{order.city ? order.city.cityName : 'Non renseigné'}</p></div>
-                            
+
                             {order.transitCompany && (
                                 <div className="spec-item"><label>Transporteur</label><p>{order.transitCompany.name}</p></div>
                             )}
@@ -220,7 +225,7 @@ function OrderDetailsPage() {
                             <div className="spec-item">
                                 <label>Maque/ prix</label>
                                 <p className="plate-number">
-                                    { selectedOffer|| "Non renseigné"}
+                                    {selectedOffer || "Non renseigné"}
                                 </p>
                             </div>
                         )}
@@ -230,22 +235,22 @@ function OrderDetailsPage() {
                             <p>{order.comment || "Aucun commentaire disponible."}</p>
                         </div>
                         <div className="action-footer">
-                            <ButtonStatus 
-                                status={statusLabel(order.status, roles)} 
-                                handleClick={handleStatusClick} 
+                            <ButtonStatus
+                                status={statusLabel(order.status, roles)}
+                                handleClick={handleStatusClick}
                                 disabled={isUpdating}
                             />
-                            
+
                             {order.status === 'REPAIRED' && (
                                 <button className="btn-action-outline" onClick={handleFileNumberClick} disabled={isUpdating}>
                                     Modifier numéro de dossier
                                 </button>
                             )}
-                            
-                                <button className="btn-action-outline" onClick={() => setIsCommentModalOpen(true)} disabled={isUpdating}>
-                                    Ajouter un commentaire
-                                </button>
 
+                            {order.status !== 'CANCELLED' && (<button className="btn-action-outline" onClick={() => setIsCommentModalOpen(true)} disabled={isUpdating}>
+                                Ajouter un commentaire
+                            </button>
+                            )}
                             {roles.includes('ROLE_ADMIN') && (
                                 <button className="btn-delete-simple" onClick={handleDelete} disabled={isUpdating}>
                                     Supprimer l'ordre
@@ -257,26 +262,26 @@ function OrderDetailsPage() {
             </div>
 
             {/* Modals */}
-            <CancelationModal 
+            <CancelationModal
                 isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
                 onSubmit={(reasonId) => handleSubmit(pendingStatus, reasonId)}
                 isUpdating={isUpdating}
             />
-            <CommentModal 
+            <CommentModal
                 isOpen={isCommentModalOpen}
                 onClose={() => setIsCommentModalOpen(false)}
-                onSubmit={(reasonId) => setCommentId(reasonId)}
+                onSubmit={(additionalComment) => handleSubmit(null, null, null, null, null, null, null, null, null, additionalComment)}
                 isUpdating={isUpdating}
             />
-            <TransitModal 
+            <TransitModal
                 isOpen={showTransitModal}
                 onClose={() => setShowTransitModal(false)}
                 onSubmit={(companyId, decNumber) => handleSubmit(pendingStatus, null, companyId, decNumber)}
                 isUpdating={isUpdating}
             />
 
-            <WindowDetailsModal 
+            <WindowDetailsModal
                 isOpen={showWindowDetailsModal}
                 onClose={() => setShowWindowDetailsModal(false)}
                 onSubmit={(windowsList) => handleSubmit(pendingStatus, commentId, null, null, null, windowsList)}
@@ -289,20 +294,20 @@ function OrderDetailsPage() {
                 onSubmit={(fileNumber) => handleSubmit(null, commentId, null, null, fileNumber)}
                 isUpdating={isUpdating}
             />
-             <OfferSelectionModal
+            <OfferSelectionModal
                 isOpen={showWindowOfferModal}
                 onClose={() => setShowWindowOfferModal(false)}
-                onSubmit={(windowDetailId, cityId,  phoneNumber) => handleSubmit(pendingStatus, commentId, null, null, null, null, windowDetailId, cityId, phoneNumber)}
+                onSubmit={(windowDetailId, cityId, phoneNumber) => handleSubmit(pendingStatus, commentId, null, null, null, null, windowDetailId, cityId, phoneNumber)}
                 isUpdating={isUpdating}
             />
         </div>
-        
+
     );
 }
 
 function checkStatus(status) {
 
-    if(status === 'REPAIRED') {
+    if (status === 'REPAIRED') {
         return true;
     } else if (status === 'SENT') {
         return true;
@@ -310,7 +315,7 @@ function checkStatus(status) {
         return true;
     } else if (status === 'RETURN') {
         return true;
-    } else if( status === 'IN_TRANSIT') {
+    } else if (status === 'IN_TRANSIT') {
         return true;
     } else {
         return false;

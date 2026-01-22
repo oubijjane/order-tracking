@@ -4,7 +4,9 @@ import com.verAuto.orderTracking.dao.CompanyDAO;
 import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
@@ -40,7 +42,33 @@ public class CompanyServiceImpl implements CompanyService{
 
     @Override
     public Company save(Company company) {
+        String name = company.getCompanyName();
+        if (companyDAO.existsByCompanyName(name)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "companie existe déjà");
+        }
         return companyDAO.save(company);
+    }
+
+    @Override
+    public Company updateCompany(Long id, Company company) {
+        Company existingCompany = findById(id);
+        String newName = company.getCompanyName();
+
+        // ONLY validate if the name has actually changed
+        if (!existingCompany.getCompanyName().equals(newName)) {
+
+            // Check if the NEW name is already used by a DIFFERENT company
+            if (companyDAO.existsByCompanyName(newName)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ce nom de compagnie est déjà utilisé par un autre client.");
+            }
+
+            existingCompany.setCompanyName(newName);
+        }
+
+        // Update other fields here (e.g., address, phone)
+        // existingCompany.setPhone(company.getPhone());
+
+        return companyDAO.save(existingCompany);
     }
 
     @Override

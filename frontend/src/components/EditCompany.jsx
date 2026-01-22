@@ -67,6 +67,15 @@ function EditCompanyForm() {
         await companyService.updateCompany(id,data);    
         navigate('/admin/Companies');
     } catch (error) {
+        if (error.response && error.response.status === 400) {
+                // Option 1 & 2 both provide error.response.data.message
+                const errorMessage = error.response.data.message;
+        
+                methods.setError(company_name_validation.name, { // Dynamically uses the correct name
+                    type: "manual",
+                    message: errorMessage || "companie est déjà utilisé"
+                });
+            }
         console.error("Failed to create user:", error);
         submitLock.current = false;
     } finally {

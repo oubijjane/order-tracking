@@ -11,5 +11,6 @@ public interface CompanyService {
     List<Company> findAll(User user);
     Company findById(Long id);
     Company save(Company company);
+    Company updateCompany(Long id, Company company);
     void deleteById(Long id);
 }

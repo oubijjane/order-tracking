@@ -102,7 +102,7 @@ const deleteOrder = async (id) => {
 };
 
 
-const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber, windowsList = null, windowDetailId = null, selectedCityId = null, phoneNumber = null) => {
+const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber, windowsList = null, windowDetailId = null, selectedCityId = null, phoneNumber = null, additionalComment = null) => {
     let updateData;
     console.log("file number: " + newFileNumber)
     console.log("decision: " + decision)
@@ -110,20 +110,23 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
         if (decision == "CANCELLED") {
              updateData = {
                 orderStatus: decision, // e.g., 'CANCELLED'
-                comment: commentId   // This will now be 3
-            };
+                comment: commentId,
+                additionalComment: additionalComment
+            }; 
         }else if(decision == "IN_TRANSIT") {
              updateData = {
                 orderStatus: decision, // e.g., 'CANCELLED'
                 transitCompanyId: newTransitCompanyId,
                 declarationNumber: newDeclarationNumber,
-                comment: commentId 
+                comment: commentId,
+                additionalComment: additionalComment
             };
         }else if(decision == "AVAILABLE") {
              updateData = {
                 orderStatus: decision,
                 windowDetailsList: windowsList,
                 comment: commentId,
+                additionalComment: additionalComment
                 
             };
     
@@ -133,17 +136,20 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
                 selectedWindowDetail: windowDetailId,
                 cityId: selectedCityId,
                 comment: commentId ,
-                phoneNumber: phoneNumber
+                phoneNumber: phoneNumber,
+                additionalComment: additionalComment
             };
         
         }else if (newFileNumber && !decision) {
             updateData = {
-                fileNumber: newFileNumber
+                fileNumber: newFileNumber,
+                additionalComment: additionalComment
             };
         } else {
              updateData = {
                 orderStatus: decision,
-                comment: commentId 
+                comment: commentId ,
+                additionalComment: additionalComment
             };
         }
         console.log("Update Data Sent to Backend:", updateData);

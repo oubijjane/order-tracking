@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.verAuto.orderTracking.CarDataImport;
 import com.verAuto.orderTracking.dao.CarBrandDAO;
 import com.verAuto.orderTracking.dao.CarModelDAO;
+import com.verAuto.orderTracking.dao.UserDAO;
 import com.verAuto.orderTracking.entity.CarBrand;
 import com.verAuto.orderTracking.entity.CarModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,10 +21,17 @@ import java.util.List;
 @Component
 public class DatabaseLoader implements CommandLineRunner {
 
+
+    private final CarBrandDAO brandRepository;
+    private final CarModelDAO modelRepository;
+
+
     @Autowired
-    private CarBrandDAO brandRepository;
-    @Autowired
-    private CarModelDAO modelRepository;
+    public DatabaseLoader(CarBrandDAO brandRepository, CarModelDAO modelRepository) {
+        this.brandRepository = brandRepository;
+        this.modelRepository = modelRepository;
+
+    }
 
     @Override
     public void run(String... args) {

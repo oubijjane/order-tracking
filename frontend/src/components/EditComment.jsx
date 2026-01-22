@@ -75,6 +75,15 @@ function EditCommentForm() {
         await commentService.updateComment(id,data);    
         navigate('/admin/Commentaires');
     } catch (error) {
+        if (error.response && error.response.status === 400) {
+                        // Option 1 & 2 both provide error.response.data.message
+                        const errorMessage = error.response.data.message;
+                
+                        methods.setError(comment_validation.name, { // Dynamically uses the correct name
+                            type: "manual",
+                            message: errorMessage || "commentaire est déjà utilisé"
+                        });
+                    }
         console.error("Failed to create user:", error);
         submitLock.current = false;
     } finally {

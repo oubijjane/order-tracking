@@ -291,6 +291,15 @@ public class OrderItemServiceImpl implements OrderItemService {
                     newStatus.getFileNumber().trim());
             existingOrder.setFileNumber(newStatus.getFileNumber().trim());
         }
+        if(newStatus.getAdditionalComment() != null && !existingOrder.getStatus().equals(OrderStatus.CANCELLED)) {
+            action = "Ajout d’un commentaire";
+            String commentLabel = newStatus.getAdditionalComment();
+            addHistory(existingOrder,userName, action,
+                    existingOrder.getComment(),
+                    commentLabel);
+
+            existingOrder.setComment(commentLabel);
+        }
         // 3. Status and Role Logic
         if (newStatus.getOrderStatus() != null) {
             validateStatusTransition(currentStatus, newStatus.getOrderStatus());
@@ -339,6 +348,9 @@ public class OrderItemServiceImpl implements OrderItemService {
             existingOrder.setStatus(newStatus.getOrderStatus());
         }
         // 4. Comment Logic
+        if(newStatus.getOrderStatus() != null && newStatus.getOrderStatus().equals(OrderStatus.CANCELLED) && newStatus.getComment() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "commentaire obligatoire");
+        }
         if (newStatus.getComment() != null) {
             // Use CommentService to get the label
             action = "Ajout d’un commentaire";
@@ -348,7 +360,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                     commentLabel);
 
             existingOrder.setComment(commentLabel);
-        }
+        } else
         if(newStatus.getPhoneNumber() != null) {
             action = "Ajout numero de telephone";
             String phoneNumber = newStatus.getPhoneNumber();

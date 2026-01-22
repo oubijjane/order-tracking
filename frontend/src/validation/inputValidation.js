@@ -505,7 +505,8 @@ export const comment_search = {
   placeholder: 'commentaire ...',
   validation: {
     required: {
-      value: false
+      value: true,
+      message: 'commentaire obligatoire',
     },
     maxLength: {
       value: 30,

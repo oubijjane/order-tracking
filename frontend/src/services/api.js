@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // Create a configured instance of Axios
 const api = axios.create({
-    baseURL: 'http://192.168.1.242:8080/api', 
+    baseURL: '/api', 
 });
 
 // 1. Request Interceptor (You already have this)

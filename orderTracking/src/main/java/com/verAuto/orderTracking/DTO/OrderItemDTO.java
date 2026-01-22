@@ -18,6 +18,7 @@ public class OrderItemDTO {
     private OrderStatus orderStatus;
     private List<WindowDetailsDTO> windowDetailsList = new ArrayList<>();
     private Long comment;
+    private String additionalComment;
     private Long transitCompanyId;
     private String declarationNumber;
     private Long selectedWindowDetail;

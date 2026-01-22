@@ -11,5 +11,6 @@ import java.util.List;
 public interface CompanyDAO extends JpaRepository<Company, Long> {
     @Query("SELECT uc.company FROM UserCompany uc WHERE uc.id.userId = :userId")
     List<Company> findAllByUserId(@Param("userId") Integer userId);
+    boolean existsByCompanyName(String name);
 
 }
