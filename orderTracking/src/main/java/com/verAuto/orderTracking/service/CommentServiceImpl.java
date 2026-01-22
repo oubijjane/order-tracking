@@ -45,7 +45,7 @@ public class CommentServiceImpl implements CommentService{
         }
         Comment comment = new Comment();
         comment.setLabel(newComment);
-        comment.setActive(commentDTO.isActive());
+        comment.setActive(true);
         return commentDAO.save(comment);
     }
 

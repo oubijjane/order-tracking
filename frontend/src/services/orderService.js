@@ -102,7 +102,7 @@ const deleteOrder = async (id) => {
 };
 
 
-const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber, windowsList = null, windowDetailId = null, selectedCityId = null) => {
+const handleDecision = async (id, decision, commentId = null, newTransitCompanyId = null, newDeclarationNumber, newFileNumber, windowsList = null, windowDetailId = null, selectedCityId = null, phoneNumber = null) => {
     let updateData;
     console.log("file number: " + newFileNumber)
     console.log("decision: " + decision)
@@ -132,7 +132,8 @@ const handleDecision = async (id, decision, commentId = null, newTransitCompanyI
                 orderStatus: decision,
                 selectedWindowDetail: windowDetailId,
                 cityId: selectedCityId,
-                comment: commentId 
+                comment: commentId ,
+                phoneNumber: phoneNumber
             };
         
         }else if (newFileNumber && !decision) {

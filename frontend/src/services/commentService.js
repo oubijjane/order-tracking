@@ -33,7 +33,7 @@ import api from './api';
     const updateComment = async (id, commentData) => {
         const request = {
             label: commentData.comment,
-            active: commentData.active
+            active: commentData.status
         }
         try {
             const response = await api.put(`/comments/${id}`, request);
@@ -43,11 +43,24 @@ import api from './api';
             throw error;
         }
     };
+    const addNewComment = async (commentData) => {
+        const request = {
+            label: commentData.comment
+        }
+        try {
+            const response = await api.post(`/comments`, request);
+            return response.data; // CRITICAL: This passes the data back to App.jsx
+        } catch (error) {
+            console.error("Error adding new comment:", error);
+            throw error;
+        }
+    };
 
 
 export default {
     getAllActiveComments,
     getAllComments,
     getCommentById,
-    updateComment
+    updateComment,
+    addNewComment
 }

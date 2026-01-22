@@ -278,7 +278,6 @@ public class OrderItemServiceImpl implements OrderItemService {
         String userName = user.getUsername();
         // check if the order is repaired before adding a file number
         boolean isProvidingFileNumber = newStatus.getFileNumber() != null && !newStatus.getFileNumber().trim().isEmpty();
-        System.out.println("this is a test " + isProvidingFileNumber);
         if (isProvidingFileNumber && !existingOrder.getStatus().equals(OrderStatus.REPAIRED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Le numéro de dossier ne peut être renseigné que pour les commandes au statut 'RÉPARÉ'.");
@@ -312,6 +311,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
 
 
+
                 // 3. Process the update
                 City city = cityDAO.findById(newStatus.getCityId())
                         .orElseThrow(()->
@@ -339,7 +339,6 @@ public class OrderItemServiceImpl implements OrderItemService {
             existingOrder.setStatus(newStatus.getOrderStatus());
         }
         // 4. Comment Logic
-        System.out.println("tesqt; " + newStatus.getComment());
         if (newStatus.getComment() != null) {
             // Use CommentService to get the label
             action = "Ajout d’un commentaire";
@@ -350,11 +349,19 @@ public class OrderItemServiceImpl implements OrderItemService {
 
             existingOrder.setComment(commentLabel);
         }
+        if(newStatus.getPhoneNumber() != null) {
+            action = "Ajout numero de telephone";
+            String phoneNumber = newStatus.getPhoneNumber();
+            addHistory(existingOrder, userName, action, "", phoneNumber);
 
+            existingOrder.setPhoneNumber(phoneNumber);
+        }
         // 5. Finalize
        // existingOrder.setUpdatedAt();
         return orderItemDAO.save(existingOrder);
     }
+
+    @Transactional
     @Override
     public void deleteById(Long id) {
         boolean exists = orderItemDAO.existsById(id);
@@ -362,6 +369,8 @@ public class OrderItemServiceImpl implements OrderItemService {
             throw new RuntimeException("Order with ID " + id + " does not exist");
         }
         orderItemImagesService.deleteByOrderItemId(id);
+        historyService.deleteHistoryByOrderId(id);
+        windowDetailsService.deleteByOrderId(id);
         orderItemDAO.deleteById(id);
     }
 

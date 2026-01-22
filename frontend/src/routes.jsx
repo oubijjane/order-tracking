@@ -35,6 +35,7 @@ import EditTransitForm from "./components/EditTransitCompany";
 import CreatTransitPage from "./pages/CreateNewTransitCompany";
 import ReportPage from "./pages/ReportPages";
 import ToBeSentPage from "./pages/ToBeSentPage";
+import CreateCommentPage from "./pages/CreateNewComment";
 
 
 
@@ -107,6 +108,7 @@ const routes = [
               { path: "admin/Modèles/edit/:id", element: <EditModelPage /> },
               { path: "admin/Modèles/create-model", element: <CreatModelPage /> },
               { path: "admin/commentaires", element: <CommentsList /> },
+              {path: "admin/commentaires/create-comment", element: <CreateCommentPage /> },
               { path: "admin/Villes", element: <CityList /> },
               { path: "admin/Transport", element: <TransitList /> },
               { path: "admin/Villes/create-city", element: <CreatCityPage /> },

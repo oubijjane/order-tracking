@@ -11,4 +11,5 @@ public interface WindowDetailsService {
     List<WindowDetailsDTO> getWindowDetailsByOrderId(long orderId);
     List<WindowDetailsDTO> saveWindowsDetails(List<WindowDetailsDTO> windowDetails);
     void deleteWindowDetails(WindowDetailsDTO windowDetailsDTO);
+    void deleteByOrderId(Long orderId);
 }

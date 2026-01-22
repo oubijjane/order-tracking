@@ -308,6 +308,23 @@ export const registration_number_search = {
   },
 }
 
+export const Phone_number_input = {
+  name: 'phoneNumber',
+  label: 'Numéro de téléphone',
+  type: 'text',
+  id: 'phoneNumber',
+  placeholder: 'Numéro de téléphone ...',
+  validation: {
+    required: {
+      value: false
+    },
+    maxLength: {
+      value: 30,
+      message: '10 characters max',
+    },
+  },
+}
+
 export const year_validation = {
   name: 'year',
   label: 'Année',
@@ -604,5 +621,6 @@ export const declaration_number_input = {
     label: 'Numéro de déclaration',
     type: 'text',
     id: 'declarationNumber',
-    placeholder: 'Ex: TR-2026-XYZ',    
+    placeholder: 'Ex: TR-2026-XYZ',
+    
 };

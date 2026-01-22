@@ -1,7 +1,7 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { useParams} from 'react-router';
-import {Dropdown} from "./Input";
-import {window_detail_selection} from '../validation/inputValidation';
+import {Dropdown, InputField} from "./Input";
+import {window_detail_selection, Phone_number_input} from '../validation/inputValidation';
 import { useWindowDetailsSelection} from '../hooks/useWindowDetailsSelection'; // Import comment hook
 import { city_validation } from '../validation/inputValidation';
 import { useCitySelection } from '../hooks/useCitySelection'; // Import city hook
@@ -12,7 +12,9 @@ import { useCitySelection } from '../hooks/useCitySelection'; // Import city hoo
 export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating }) {
     const methods = useForm({
         defaultValues: {
-            windowDetailId: '' // This will store the ID from the Dropdown
+            windowDetailId: '',
+            phoneNumber: '',
+            cityId: ''// This will store the ID from the Dropdown
         }
     });
      const { id } = useParams();
@@ -26,10 +28,11 @@ export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating }) {
     // data.windowDetailId is the ID from the dropdown
     const selectedId = methods.getValues("windowDetailId");
     const cityId = methods.getValues("cityId");
+    const phoneNumber = methods.getValues("phoneNumber");
     console.log("window detail id in the Modala component " + selectedId)
 
-    // Send only the ID to the parent component
-    onSubmit(selectedId, cityId); 
+    // Send the ID, cityId, and phoneNumber to the parent component
+    onSubmit(selectedId, cityId, phoneNumber); 
     methods.reset(); 
     
     onClose();
@@ -46,6 +49,7 @@ export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating }) {
                             {/* Dropdown sends the ID as the value */}
                             <Dropdown {...window_detail_selection} options={windowDetailsOptions} />
                             <Dropdown {...city_validation} options={cityOptions} />
+                            <InputField {...Phone_number_input} />
                             
                             <div className="modal-footer">
                                 <button type="button" className="cancel-btn" onClick={onClose}>Annuler</button>

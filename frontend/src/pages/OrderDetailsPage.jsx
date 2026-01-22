@@ -98,11 +98,11 @@ function OrderDetailsPage() {
     /**
      * Logic 3: Update handleSubmit to accept transit parameters and window details
      */
-    const handleSubmit = async (updatedStatus, reasonId = commentId, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null, cityId = null) => {
+    const handleSubmit = async (updatedStatus, reasonId = commentId, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null, cityId = null, phoneNumber = null) => {
         setIsUpdating(true);
         try {
             // The service call now takes all potential extra data
-            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId, cityId);
+            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId, cityId, phoneNumber);
             // Refresh local state
             console.log("resonId after submit " + reasonId);
             const [freshOrder, freshHistory] = await Promise.all([
@@ -189,7 +189,7 @@ function OrderDetailsPage() {
                         <h1 className="company-title">{order.company.companyName}</h1>
 
                         <div className="specs-grid">
-                            <div className="spec-item"><label>Crée par: </label><p>{}</p></div>
+                            <div className="spec-item"><label>Crée par: </label><p>{order.user.username}</p></div>
                             <div className="spec-item"><label>Véhicule</label><p>{order.carModel.carBrand.brand} {order.carModel.model}</p></div>
                             <div className="spec-item"><label>Date de creation</label><p>{formatDate(order.createdAt)}</p></div>
                             <div className="spec-item"><label>Dernier mise a jour</label><p>{formatDate(order.updatedAt)}</p></div>
@@ -202,6 +202,9 @@ function OrderDetailsPage() {
                             )}
                             {order.declarationNumber && (
                                 <div className="spec-item"><label>N° Déclaration</label><p>{order.declarationNumber}</p></div>
+                            )}
+                            {order.phoneNumber && (
+                                <div className="spec-item"><label>Numéro de téléphone</label><p>{order.phoneNumber}</p></div>
                             )}
                         </div>
 
@@ -289,7 +292,7 @@ function OrderDetailsPage() {
              <OfferSelectionModal
                 isOpen={showWindowOfferModal}
                 onClose={() => setShowWindowOfferModal(false)}
-                onSubmit={(windowDetailId, cityId) => handleSubmit(pendingStatus, commentId, null, null, null, null, windowDetailId, cityId)}
+                onSubmit={(windowDetailId, cityId,  phoneNumber) => handleSubmit(pendingStatus, commentId, null, null, null, null, windowDetailId, cityId, phoneNumber)}
                 isUpdating={isUpdating}
             />
         </div>

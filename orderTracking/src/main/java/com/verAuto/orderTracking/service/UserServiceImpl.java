@@ -72,7 +72,6 @@ public class UserServiceImpl implements UserService{
         newUser.setCity(cityService.findCityById(user.getCityId()));
         newUser.setEmail(user.getEmail());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        System.out.println("helllo");
         return userDAO.save(newUser);
     }
 

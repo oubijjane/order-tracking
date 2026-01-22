@@ -15,11 +15,10 @@ public class EmailServiceImpl implements EmailService{
 
     private final JavaMailSender mailSender;
 
-    //@Value("${spring.mail.username}")
-    private String fromEmail = "oubijjane48@gmail.com";
+    @Value("${spring.mail.username}")
+    private String fromEmail ;
 
-   // @Value("${app.notification.receiver}")
-    //private String adminEmail = "z.oubijjane@verauto.ma";
+
 
     @Autowired
     public EmailServiceImpl(JavaMailSender mailSender) {

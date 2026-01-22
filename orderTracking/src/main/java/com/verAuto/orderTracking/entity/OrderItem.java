@@ -88,5 +88,8 @@ public class OrderItem {
     @Column
     private String comment;
 
+    @Column
+    private String phoneNumber;
+
 
 }

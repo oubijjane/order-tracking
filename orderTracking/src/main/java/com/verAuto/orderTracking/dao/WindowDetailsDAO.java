@@ -16,4 +16,9 @@ public interface WindowDetailsDAO extends JpaRepository<WindowDetails, Long> {
     @Transactional
     @Query("DELETE FROM WindowDetails w WHERE w.order.id = :orderId AND w.id <> :selectedId")
     void deleteByOrderIdAndIdNot(@Param("orderId") Long orderId, @Param("selectedId") Long selectedId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM WindowDetails w WHERE w.order.id = :orderId")
+    void deleteByOrderItemId(@Param("orderId") Long orderId);
 }

@@ -28,11 +28,10 @@ public class OrderItemImagesServiceImpl implements OrderItemImagesService{
     @Value("${file.upload-dir}")
     private String uploadPath;
     private final OrderImageDAO orderImageDAO;
-    private final OrderItemDAO orderItemDAO;
+
     @Autowired
-    public  OrderItemImagesServiceImpl(OrderImageDAO orderImageDAO, OrderItemDAO orderItemDAO) {
+    public  OrderItemImagesServiceImpl(OrderImageDAO orderImageDAO) {
         this.orderImageDAO = orderImageDAO;
-        this.orderItemDAO = orderItemDAO;
     }
 
     @Override

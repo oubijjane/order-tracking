@@ -1,12 +1,13 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { Dropdown, InputField } from "./Input"; // Assuming you have a standard Input component
-import { transit_company_search, declaration_number_input } from '../validation/inputValidation';
+import { transit_company_search, declaration_number_input,Phone_number_input } from '../validation/inputValidation';
 import { useTransitCompanySelection } from '../hooks/useTransitSelection'; // You'll need to create this hook
 
 export function TransitModal({ isOpen, onClose, onSubmit, isUpdating }) {
     const methods = useForm({
         defaultValues: {
             transitCompanyId: '',
+            declarationNumber: ''
         }
     });
 
@@ -37,6 +38,7 @@ export function TransitModal({ isOpen, onClose, onSubmit, isUpdating }) {
                             
                             {/* Standard Input for Declaration Number */}
                             <InputField {...declaration_number_input} />
+                            
                             
                             <div className="modal-footer">
                                 <button type="button" className="cancel-btn" onClick={onClose}>Annuler</button>

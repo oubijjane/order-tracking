@@ -36,6 +36,23 @@
     border-bottom: 2px solid #e2e8f0;
 }
 
+.form-input, select {
+    width: 100%;
+    padding: 12px 15px;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+}
+
+.form-input:focus, select:focus {
+    outline: none;
+    border-color: #2563eb;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
 /* Row & Cell Styling */
 .user-table tbody tr {
     transition: background-color 0.2s ease;

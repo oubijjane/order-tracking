@@ -70,7 +70,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
                     // Success Debug - This won't crash because we know userName isn't null here
-                    System.out.println("User Successfully Authenticated: " + userName);
                 }
             }
 
@@ -78,7 +77,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (Exception exception) {
-            System.out.println("Filter caught an error: " + exception.getMessage());
 
             // Show the full error in console to debug
             exception.printStackTrace();

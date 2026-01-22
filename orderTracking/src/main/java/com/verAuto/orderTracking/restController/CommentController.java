@@ -39,7 +39,10 @@ public class CommentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Comment> getCommentById(@PathVariable long id, @RequestBody CommentDTO request) {
-        System.out.println(request.isActive());
         return new ResponseEntity<>(commentService.updateComment(id, request), HttpStatus.OK);
+    }
+    @PostMapping()
+    public ResponseEntity<Comment> newComment(@RequestBody CommentDTO request) {
+        return new ResponseEntity<>(commentService.saveNewComment(request), HttpStatus.OK);
     }
 }

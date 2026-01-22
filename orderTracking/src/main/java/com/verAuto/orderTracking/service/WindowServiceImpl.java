@@ -108,4 +108,9 @@ public class WindowServiceImpl implements WindowDetailsService{
         );
     }
 
+    @Override
+    public void deleteByOrderId(Long orderId) {
+        windowDetailsDAO.deleteByOrderItemId(orderId);
+    }
+
 }
