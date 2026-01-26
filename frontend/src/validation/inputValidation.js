@@ -283,11 +283,20 @@ export const registration_number_validation = {
   validation: {
     required: {
       value: true,
-      message: 'required',
+      message: 'Ce champ est obligatoire',
+    },
+    // Adding the Moroccan Plate Regex here
+    pattern: {
+      value: /^(?:\d{5}[A-Za-z\u0600-\u06FF]\d{2}|[A-Za-z]{2}\d{6})$/,
+      message: 'Format invalide (Ex: 12345A06, WW123456, FA123456)',
     },
     maxLength: {
-      value: 30,
-      message: '30 characters max',
+      value: 8, // Changed to 8 since you want strict format
+      message: '8 caractères exactement',
+    },
+    minLength: {
+      value: 8,
+      message: '8 caractères exactement',
     },
   },
 }

@@ -26,12 +26,10 @@ function OrderDetailsPage() {
     const [selectedImgIndex, setSelectedImgIndex] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
     const [commentId, setCommentId] = useState("");
-    const [comment, setComment] = useState("");
     const [additionalCommentState, setAdditionalCommentState] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const selectedOffer = useWindowDetailsSelection(id)[0]?.label;
-    console.log("selected offer in the order details page " + selectedOffer);
 
     // Data State
     const [order, setOrder] = useState(null);
@@ -172,7 +170,7 @@ function OrderDetailsPage() {
                             images={order.images}
                             selectedImgIndex={selectedImgIndex}
                             setSelectedImgIndex={setSelectedImgIndex}
-                            IMAGE_BASE_URL="http://192.168.1.242:8080"
+                            IMAGE_BASE_URL=""
                         />
                     </div>
 

@@ -30,6 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -47,6 +48,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final UserRoleServiceImpl userRoleService;
     private final TransitCompanyService transitCompanyService;
 
+    private static final String MOROCCAN_PLATE_REGEX = "^(?:\\d{5}[A-Za-z\\u0600-\\u06FF]\\d{2}|[A-Za-z]{2}\\d{6})$";
+    private static final Pattern PLATE_PATTERN = Pattern.compile(MOROCCAN_PLATE_REGEX);
 
     @Autowired
     public OrderItemServiceImpl (EmailService emailService, WindowDetailsService windowDetailsService, HistoryService historyService, OrderItemDAO orderItemDAO,
@@ -241,7 +244,18 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     @Transactional // Ensures both Order and Images save or both fail
     public OrderItem save(OrderItem orderItem, User user, MultipartFile[] files) {
+
+        if (orderItem.getWindowType() == null || orderItem.getCarModel() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le type de vitre et le modèle sont obligatoires.");
+        }
         // 1. Associate the user and save the Order first (to get the ID)
+        String regNum = orderItem.getRegistrationNumber();
+        checkRegFormat(regNum);
+        String item = orderItem.getWindowType().toString() + " " + orderItem.getCarModel().getModel();
+        doubleOrderCheckByRegNumber(regNum, item);
+        String normalizedReg = regNum.trim().toUpperCase();
+        orderItem.setRegistrationNumber(normalizedReg);
+
         orderItem.setUser(user);
         orderItem.setFileNumber("");
         OrderItem savedOrder = orderItemDAO.save(orderItem);
@@ -313,6 +327,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
             if (newStatus.getOrderStatus() == OrderStatus.SENT) {
                 // 1. Validate Transit Company
+
                 if (newStatus.getCityId() == null || newStatus.getCityId() <= 0) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "la ville est obligatoire");
@@ -574,6 +589,35 @@ public class OrderItemServiceImpl implements OrderItemService {
 
             // Save and return the saved list
             windowDetailsService.deleteWindowDetails(dto);
+        }
+    }
+
+    private void checkRegFormat(String regNum) {
+        String cleanedReg = (regNum != null) ? regNum.trim() : null;
+        if (regNum == null || !PLATE_PATTERN.matcher(regNum).matches()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Format du matricule invalide. Formats acceptés: 12345A67, WW123456, FA123456.");
+        }
+    }
+
+    private void doubleOrderCheckByRegNumber(String regNum, String item1) {
+        String cleanedReg = (regNum != null) ? regNum.trim() : null;
+        OrderItem orderItem;
+        List<OrderItem> orderItems = orderItemDAO.findByRegistrationNumber(cleanedReg);
+        for (OrderItem item : orderItems) {
+            OrderStatus status = item.getStatus();
+            String order = item.getWindowType().toString() + " " + item.getCarModel().getModel();
+
+            // If the order is NOT in a 'Terminal' state, block the new order
+            if (!(status == OrderStatus.RETURN ||
+                    status == OrderStatus.REPAIRED ||
+                    status == OrderStatus.CANCELLED) && order.equalsIgnoreCase(item1)) {
+
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Une commande active existe déjà pour le matricule n° " + cleanedReg +
+                                " (Statut: " + status.getLabel() + "). " +
+                                "Pour créer une nouvelle commande, merci d'annuler la commande précédente.");
+            }
         }
     }
 }

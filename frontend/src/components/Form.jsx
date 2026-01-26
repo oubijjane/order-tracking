@@ -65,6 +65,21 @@ function Form() {
         await OrderService.createOrder(payload, processedImages);    
         navigate('/');
     } catch (error) {
+         if (error.response && error.response.status === 400) {
+        const errorMessage = error.response.data.message;
+
+        // Logic to decide WHICH field gets the error
+        if (errorMessage.includes("matricule") || errorMessage.includes("column")) {
+            // Only set error on the companies field
+            methods.setError("registrationNumber", {
+                type: "manual",
+                message: errorMessage
+            });
+        } else {
+            // Fallback: show alert or generic error if it matches neither
+            alert(errorMessage);
+        }
+    }
         console.error("Failed to create order:", error);
         submitLock.current = false;
     } finally {
