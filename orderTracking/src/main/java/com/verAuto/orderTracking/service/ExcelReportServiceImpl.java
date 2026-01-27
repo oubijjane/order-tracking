@@ -14,6 +14,7 @@ import java.util.List;
 public class ExcelReportServiceImpl implements ExcelReportService{
 
     public ByteArrayInputStream exportOrdersToExcel(List<OrderItem> orders) {
+        System.setProperty("java.awt.headless", "true");
         // SXSSFWorkbook(100) -> keeps only 100 rows in RAM
         try (SXSSFWorkbook workbook = new SXSSFWorkbook(100);
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -82,11 +83,12 @@ public class ExcelReportServiceImpl implements ExcelReportService{
 
     private CellStyle createHeaderStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
+        /*Font font = workbook.createFont();
         font.setBold(true);
-        style.setFont(font);
+        style.setFont(font);*/
         style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderBottom(BorderStyle.THIN); // Add borders to make it look like a header instead
         return style;
     }
     private void setSafeStringValue(Row row, int cellIndex, String value) {

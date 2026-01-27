@@ -18,22 +18,29 @@ function ModelsList() {
   useEffect(() => {
     fetchModels();
   }, [currentPage]);
-
-  const fetchModels = () => {
-    setLoading(true);
-    // Adjust your service call to match your Models endpoint
-    modelService.getAllModels(currentPage, 10) 
-      .then(data => {
-        setModels(data.content || []);
-        setTotalPages(data.totalPages || 0);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed:", err);
-        setError("Impossible de charger les modèles.");
-        setLoading(false);
-      });
-  };
+  
+const fetchModels = () => {
+  setLoading(true);
+  modelService.getAllModels(currentPage, 10) 
+    .then(data => {
+      // If models are in data.content, this part is correct
+      setModels(data.content || []); 
+      
+      // Target the nested 'page' object for pagination metadata
+      if (data.page) {
+        setTotalPages(data.page.totalPages);
+        // It's also safer to sync the currentPage from the server's perspective
+        setCurrentPage(data.page.number); 
+      }
+      
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error("Failed:", err);
+      setError("Impossible de charger les modèles.");
+      setLoading(false);
+    });
+};
 
   /**
    * SLIDING WINDOW LOGIC
