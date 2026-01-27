@@ -11,6 +11,8 @@ export const WINDOW_TYPES = [
     { value: 'DEFLECTEUR_AVANT_DROITE', label: 'Déflecteur avant droite' },
     { value: 'CUSTAUDE_ARRIERE_GAUCHE', label: 'Custaude arrière gauche' },
     { value: 'CUSTAUDE_ARRIERE_DROITE', label: 'Custaude arrière droite' },
+    { value: 'LUNETTE_ARRIERE_GAUCHE', label: 'Lunette arrière gauche' },
+    { value: 'LUNETTE_ARRIERE_DROITE', label: 'Lunette arrière droite' },
     { value: 'LUNETTE_ARRIERE', label: 'Lunette arrière' }
 ];
 export const ORDER_STATUS = [
