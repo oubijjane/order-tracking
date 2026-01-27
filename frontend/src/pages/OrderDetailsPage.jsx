@@ -68,8 +68,25 @@ function OrderDetailsPage() {
      */
     const handleStatusClick = (newStatus) => {
         if (newStatus === 'CANCELLED' || newStatus === 'NOT_AVAILABLE') {
-            setPendingStatus(newStatus);
-            setShowCancelModal(true);
+            // Add confirmation before opening the cancellation modal
+            const confirmMessage = newStatus === 'CANCELLED' 
+                ? "Êtes-vous sûr de vouloir annuler cette commande ?" 
+                : "Êtes-vous sûr de vouloir marquer cette commande comme non disponible ?";
+            
+            if (window.confirm(confirmMessage)) {
+                setPendingStatus(newStatus);
+                setShowCancelModal(true);
+            }
+        } else if (newStatus === 'RETURN') {
+            // Add confirmation before marking as return
+            if (window.confirm("Êtes-vous sûr de vouloir marquer cette commande comme retour ?")) {
+                handleSubmit(newStatus);
+            }
+        } else if (newStatus === 'RECEIVED') {
+            // Add confirmation before marking as received
+            if (window.confirm("Êtes-vous sûr de vouloir marquer cette commande comme reçue ?")) {
+                handleSubmit(newStatus);
+            }
         } else if (newStatus === 'IN_TRANSIT') {
             // Logic 2: Intercept IN_TRANSIT to open TransitModal
             setPendingStatus(newStatus);

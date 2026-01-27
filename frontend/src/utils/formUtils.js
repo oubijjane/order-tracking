@@ -80,7 +80,7 @@ export const statusLabel = (statusValue, userRoles = []) => {
                 return isLogisticien || isGaragiste;
 
             case 'REPAIRED':
-                return isGaragiste;
+                return isLogisticien || isGaragiste;
 
             case 'RETURN':
                 return isLogisticien || isGaragiste;
