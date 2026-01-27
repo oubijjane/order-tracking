@@ -1,6 +1,6 @@
 import api from './api';
 
-// 1. Get All Brands
+// 1. Get All Brandsd
     const getAllBrands = async () => {
      
         try {
