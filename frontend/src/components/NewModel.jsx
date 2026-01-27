@@ -4,9 +4,8 @@ import { useNavigate } from 'react-router';
 import { InputField, Dropdown } from "./Input";
 import modelService from '../services/modelService';
 import brandService from "../services/brandService";
-import { formatNewUserPayload } from '../utils/formUtils'; // Import helpers
 import {brand_validation, car_model_input} from '../validation/inputValidation';
-import { useCitySelection } from "../hooks/useCitySelection";
+
 
 function ModelFom() {
     const navigate = useNavigate();
