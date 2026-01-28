@@ -10,6 +10,7 @@ import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.enums.CompanyAssignmentType;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -45,9 +46,14 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public User findById(int id) {
-        return userDAO.findDetailedById(id)
+        User user = userDAO.findDetailedById(id)
                 .orElseThrow(() -> new RuntimeException("could not find user with ths id - " + id));
+        user.getCompanies().size();
+        user.getRoles().size();
+        user.getCity().getCityName();
+        return user;
     }
     @Override
     public User findUserByName(String name) {
