@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService{
                         .distinct()
                         .toList()
         );
-        userDTO.setStatus(user.getIsActive());
+        userDTO.setStatus(user.getIsActive());  
 
         return userDTO;
     }
