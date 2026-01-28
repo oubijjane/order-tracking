@@ -52,6 +52,9 @@ public class UserServiceImpl implements UserService{
     public UserDTO findById(int id) {
         User user = userDAO.findDetailedById(id)
                 .orElseThrow(() -> new RuntimeException("could not find user with ths id - " + id));
+        user.getCompanies().forEach(uc -> uc.getCompany().getId());
+        user.getRoles().forEach(r -> r.getRole().getId());
+        user.getCity().getCityName();
         UserDTO userDTO = new UserDTO();
 
 
@@ -60,10 +63,6 @@ public class UserServiceImpl implements UserService{
         if(user.getEmail() != null) {
             userDTO.setEmail(user.getEmail());
         }
-        /*List<Long> pCompanies = user.getPrimaryCompanies()
-                .stream()
-                .map(company -> company.getCompany().getId())
-                .collect(Collectors.toCollection(ArrayList::new));*/
 
         List<Long> pCompanies = user.getCompanies().stream()
                 .filter(c -> c.getType() == CompanyAssignmentType.PRIMARY) // Keep only PRIMARY
@@ -71,10 +70,6 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
         userDTO.setCompanies(pCompanies);
         userDTO.setCompanies(pCompanies);
-        /*List<Long> sCompanies = user.getAuxiliaryCompanies()
-                .stream()
-                .map(company -> company.getCompany().getId())
-                .collect(Collectors.toCollection(ArrayList::new));*/
 
         List<Long> sCompanies = user.getCompanies().stream()
                 .filter(c -> c.getType() == CompanyAssignmentType.AUXILIARY) // Keep only AUXILIARY
