@@ -99,7 +99,7 @@ function EditUserForm() {
     { value: true, label: 'Actif' },
     { value: false, label: 'Inactif' }
   ];
-
+  
   if (isLoading) return <div className="loader">Chargement des statistiques...</div>;
 
   return (
