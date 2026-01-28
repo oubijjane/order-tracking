@@ -11,12 +11,12 @@ import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.entity.UserCompany;
 import com.verAuto.orderTracking.enums.CompanyAssignmentType;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -48,13 +48,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDTO findById(int id) {
         User user = userDAO.findDetailedById(id)
                 .orElseThrow(() -> new RuntimeException("could not find user with ths id - " + id));
         UserDTO userDTO = new UserDTO();
 
-        
+
         userDTO.setCityId(user.getCity().getId());
         userDTO.setUsername(user.getUsername());
         if(user.getEmail() != null) {
