@@ -52,7 +52,7 @@ function EditUserForm() {
         username: data.username || '',
         password: '',
         email: data.email || '',
-        status: data.isActive,
+        status: data.status,
         companies: data.companies?.map(String) || [],
         secondaryCompanies: data.secondaryCompanies?.map(String) || [],
         roles: data.roles?.map(String) || [],
