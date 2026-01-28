@@ -13,13 +13,13 @@ public class UserRole {
     @EmbeddedId
     private UserRoleId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference(value = "user-userrole")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("roleId")
     @JoinColumn(name = "role_id", nullable = false)
     @JsonBackReference(value = "role-userrole")

@@ -16,13 +16,13 @@ public class UserCompany {
     @EmbeddedId
     private UserCompanyId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference(value = "user-usercompany")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("companyId")
     @JoinColumn(name = "company_id", nullable = false)
     @JsonBackReference(value = "company-usercompany")

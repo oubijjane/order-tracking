@@ -40,12 +40,12 @@ public class User implements UserDetails {
     @Email
     private String email;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonManagedReference(value = "user-userrole")
     @Nullable
     private Set<UserRole> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonManagedReference(value = "user-usercompany")
     @Nullable
     private Set<UserCompany> companies;

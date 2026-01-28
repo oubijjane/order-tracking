@@ -20,7 +20,7 @@ public class Company {
     @Column
     private String companyName;
 
-    @OneToMany(mappedBy = "company")
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     @JsonManagedReference(value = "company-usercompany")
     private Set<UserCompany> users = new HashSet<>();
 }

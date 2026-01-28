@@ -19,7 +19,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     @JsonManagedReference(value = "role-userrole")
     private Set<UserRole> users;
 
