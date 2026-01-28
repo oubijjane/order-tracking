@@ -50,36 +50,60 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional(readOnly = true)
     public UserDTO findById(int id) {
+        // Fetch user with roles, companies, and city in one query
         User user = userDAO.findDetailedById(id)
-                .orElseThrow(() -> new RuntimeException("could not find user with ths id - " + id));
-        user.getCompanies().forEach(uc -> uc.getCompany().getId());
-        user.getRoles().forEach(r -> r.getRole().getId());
-        user.getCity().getCityName();
-        UserDTO userDTO = new UserDTO();
+                .orElseThrow(() -> new RuntimeException("Could not find user with id: " + id));
 
-
-        userDTO.setCityId(user.getCity().getId());
-        userDTO.setUsername(user.getUsername());
-        if(user.getEmail() != null) {
-            userDTO.setEmail(user.getEmail());
+        // Force initialization of collections to avoid lazy-loading issues
+        if (user.getCompanies() != null) {
+            user.getCompanies().forEach(uc -> {
+                if (uc.getCompany() != null) uc.getCompany().getId(); // touch company
+            });
         }
 
-        List<Long> pCompanies = user.getCompanies().stream()
-                .filter(c -> c.getType() == CompanyAssignmentType.PRIMARY) // Keep only PRIMARY
-                .map(c -> c.getCompany().getId())                          // Get the ID
-                .collect(Collectors.toList());
-        userDTO.setCompanies(pCompanies);
-        userDTO.setCompanies(pCompanies);
+        if (user.getRoles() != null) {
+            user.getRoles().forEach(ur -> {
+                if (ur.getRole() != null) ur.getRole().getId(); // touch role
+            });
+        }
 
-        List<Long> sCompanies = user.getCompanies().stream()
-                .filter(c -> c.getType() == CompanyAssignmentType.AUXILIARY) // Keep only AUXILIARY
-                .map(c -> c.getCompany().getId())                            // Get the ID
-                .collect(Collectors.toList());
-        userDTO.setSecondaryCompanies(sCompanies);
-        userDTO.setSecondaryCompanies(sCompanies);
-        userDTO.setRoles(user.getRoles().stream().map(role->role.getRole().getId()).toList());
+        if (user.getCity() != null) user.getCity().getCityName(); // touch city
+
+        // Map to DTO
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(user.getUsername());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setCityId(user.getCity() != null ? user.getCity().getId() : null);
+
+        // Map primary companies
+        userDTO.setCompanies(
+                user.getCompanies().stream()
+                        .filter(c -> c.getType() == CompanyAssignmentType.PRIMARY)
+                        .map(c -> c.getCompany().getId())
+                        .distinct() // remove duplicates from join
+                        .toList()
+        );
+
+        // Map auxiliary companies
+        userDTO.setSecondaryCompanies(
+                user.getCompanies().stream()
+                        .filter(c -> c.getType() == CompanyAssignmentType.AUXILIARY)
+                        .map(c -> c.getCompany().getId())
+                        .distinct()
+                        .toList()
+        );
+
+        // Map roles
+        userDTO.setRoles(
+                user.getRoles().stream()
+                        .map(r -> r.getRole().getId())
+                        .distinct()
+                        .toList()
+        );
+
         return userDTO;
     }
+
     @Override
     public User findUserByName(String name) {
         return userDAO.findByUserName(name)
