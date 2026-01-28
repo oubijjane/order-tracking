@@ -35,8 +35,8 @@ function EditUserForm() {
         apiCall = userService.getUserById(id);
         apiCall.then(data => {
             setUser(data);
-            console.log("user companies " + data.auxiliaryCompanies);
-            data.roles.map(r => console.log("role name " + r.id.roleId ));
+            console.log("user companies " + data.secondaryCompanies);
+            data.roles.map(r => console.log("role name " + r.id ));
             setIsLoading(false);
         }
     )
@@ -77,22 +77,22 @@ function EditUserForm() {
   }
     });
     useEffect(() => {
-  if (!user || !user.id) return;
+  if (!user || !user.username) return;
   methods.reset({
     username: user.username || '',
     password: '',
     email: user.email || '',
     status: user.isActive,
     companies: user.companies
-      ? user.primaryCompanies.map(c => String(c.id.companyId))
+      ? user.companies.map(c => String(c))
       : [],
-    secondaryCompanies: user.auxiliaryCompanies
-      ? user.auxiliaryCompanies.map(c => String(c.id.companyId))
+    secondaryCompanies: user.secondaryCompanies
+      ? user.secondaryCompanies.map(c => String(c))
       : [],
     roles: user.roles
-      ? user.roles.map(r => String(r.id.roleId))
+      ? user.roles.map(r => String(r))
       : [],
-    cityId: user.city?.id ? String(user.city.id) : ''
+    cityId: user.cityId ? String(user.cityId) : ''
   });
 }, [user, methods]);
 

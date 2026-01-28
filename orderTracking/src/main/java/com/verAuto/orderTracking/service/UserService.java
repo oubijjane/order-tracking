@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserService {
     List<User> findAll();
-    User findById(int id);
+    UserDTO findById(int id);
     User findUserByName(String name);
     List<Company> getUserCompany(int id);
     User saveNewUser(UserDTO user);

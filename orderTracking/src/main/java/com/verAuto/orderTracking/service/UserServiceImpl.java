@@ -9,6 +9,7 @@ import com.verAuto.orderTracking.dao.UserDAO;
 import com.verAuto.orderTracking.entity.City;
 import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.User;
+import com.verAuto.orderTracking.entity.UserCompany;
 import com.verAuto.orderTracking.enums.CompanyAssignmentType;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -47,13 +49,29 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public User findById(int id) {
+    public UserDTO findById(int id) {
         User user = userDAO.findDetailedById(id)
                 .orElseThrow(() -> new RuntimeException("could not find user with ths id - " + id));
-        user.getCompanies().size();
-        user.getRoles().size();
-        user.getCity().getCityName();
-        return user;
+        UserDTO userDTO = new UserDTO();
+
+        
+        userDTO.setCityId(user.getCity().getId());
+        userDTO.setUsername(user.getUsername());
+        if(user.getEmail() != null) {
+            userDTO.setEmail(user.getEmail());
+        }
+        List<Long> pCompanies = user.getPrimaryCompanies()
+                .stream()
+                .map(company -> company.getCompany().getId())
+                .collect(Collectors.toCollection(ArrayList::new));
+        userDTO.setCompanies(pCompanies);
+        List<Long> sCompanies = user.getAuxiliaryCompanies()
+                .stream()
+                .map(company -> company.getCompany().getId())
+                .collect(Collectors.toCollection(ArrayList::new));
+        userDTO.setSecondaryCompanies(sCompanies);
+        userDTO.setRoles(user.getRoles().stream().map(role->role.getRole().getId()).toList());
+        return userDTO;
     }
     @Override
     public User findUserByName(String name) {
@@ -84,7 +102,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public User updateUser(int id, UserDTO userDto) {
 
-        User existingUser = findById(id);
+        User existingUser = userDAO.findById(id).orElseThrow(() -> new RuntimeException("could not find user with ths id - " + id));
 
 
         if (userDAO.existsByUserName(userDto.getUsername()) && !existingUser.getUsername().equals(userDto.getUsername())) {
