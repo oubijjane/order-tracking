@@ -58,6 +58,7 @@ function EditUserForm() {
         roles: data.roles?.map(String) || [],
         cityId: data.cityId ? String(data.cityId) : ''
       });
+      console.log("Fetched user data:", data);
       setIsLoading(false);
     } catch (err) {
       console.error("Failed to fetch user:", err);
