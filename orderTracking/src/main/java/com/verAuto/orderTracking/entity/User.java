@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -68,6 +69,9 @@ public class User implements UserDetails {
     @Transient
     @JsonProperty("primaryCompanies")
     public List<UserCompany> getPrimaryCompanies() {
+        if (this.companies != null) {
+            Hibernate.initialize(this.companies);
+        }
         if (this.companies == null) return Collections.emptyList();
         return this.companies.stream()
                 .filter(c -> c.getType() == CompanyAssignmentType.PRIMARY)
@@ -77,6 +81,9 @@ public class User implements UserDetails {
     @Transient
     @JsonProperty("auxiliaryCompanies")
     public List<UserCompany> getAuxiliaryCompanies() {
+        if (this.companies != null) {
+            Hibernate.initialize(this.companies);
+        }
         if (this.companies == null) return Collections.emptyList();
         return this.companies.stream()
                 .filter(c -> c.getType() == CompanyAssignmentType.AUXILIARY)
