@@ -60,15 +60,27 @@ public class UserServiceImpl implements UserService{
         if(user.getEmail() != null) {
             userDTO.setEmail(user.getEmail());
         }
-        List<Long> pCompanies = user.getPrimaryCompanies()
+        /*List<Long> pCompanies = user.getPrimaryCompanies()
                 .stream()
                 .map(company -> company.getCompany().getId())
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toCollection(ArrayList::new));*/
+
+        List<Long> pCompanies = user.getCompanies().stream()
+                .filter(c -> c.getType() == CompanyAssignmentType.PRIMARY) // Keep only PRIMARY
+                .map(c -> c.getCompany().getId())                          // Get the ID
+                .collect(Collectors.toList());
         userDTO.setCompanies(pCompanies);
-        List<Long> sCompanies = user.getAuxiliaryCompanies()
+        userDTO.setCompanies(pCompanies);
+        /*List<Long> sCompanies = user.getAuxiliaryCompanies()
                 .stream()
                 .map(company -> company.getCompany().getId())
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toCollection(ArrayList::new));*/
+
+        List<Long> sCompanies = user.getCompanies().stream()
+                .filter(c -> c.getType() == CompanyAssignmentType.AUXILIARY) // Keep only AUXILIARY
+                .map(c -> c.getCompany().getId())                            // Get the ID
+                .collect(Collectors.toList());
+        userDTO.setSecondaryCompanies(sCompanies);
         userDTO.setSecondaryCompanies(sCompanies);
         userDTO.setRoles(user.getRoles().stream().map(role->role.getRole().getId()).toList());
         return userDTO;
