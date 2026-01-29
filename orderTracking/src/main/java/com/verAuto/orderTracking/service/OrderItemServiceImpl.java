@@ -513,7 +513,13 @@ public class OrderItemServiceImpl implements OrderItemService {
                 predicates.add(cb.like(cb.lower(cityJoin.get("cityName")), "%" + cityName.toLowerCase() + "%"));
             }
             if (StringUtils.hasText(registrationNumber)) {
-                predicates.add(cb.like(cb.lower(root.get("registrationNumber")), registrationNumber.toLowerCase() + "%"));
+                // Wrapping with % on both sides enables the "contains" logic
+                String searchPattern = "%" + registrationNumber.toLowerCase() + "%";
+
+                predicates.add(cb.like(
+                        cb.lower(root.get("registrationNumber")),
+                        searchPattern
+                ));
             }
             if (StringUtils.hasText(status)) {
                 try {
