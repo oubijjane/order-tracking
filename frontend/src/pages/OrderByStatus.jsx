@@ -26,7 +26,7 @@ function OrdersByStatus() {
     OrderService.getOrderByStatus(status, 9, currentPage)
       .then(data => {
         setOrders(data.content || []);
-        setTotalPages(data.totalPages || 0);
+        setTotalPages(data?.page?.totalPages || 0);
         setLoading(false);
       })
       .catch(err => {

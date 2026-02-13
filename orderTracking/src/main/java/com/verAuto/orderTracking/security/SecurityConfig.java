@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +34,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("${app.cors.origin}")
-    private String allowedOrigin;
+    private List<String> allowedOrigins;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
@@ -107,7 +108,7 @@ public class SecurityConfig {
         CorsConfiguration source = new CorsConfiguration();
 
         // Allow your React Frontend
-        source.setAllowedOriginPatterns(Arrays.asList(allowedOrigin));
+        source.setAllowedOriginPatterns(allowedOrigins);
 
         // Allow these methods
         source.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));

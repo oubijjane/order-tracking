@@ -1,5 +1,5 @@
-import Form from '../components/Form';
-
+import Form from '../components/CreateOrders';
+    
 function CreateOrderPage() {
     return (
         <div className='create-order'>

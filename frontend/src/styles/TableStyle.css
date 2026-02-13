@@ -16,6 +16,7 @@
     border-spacing: 0;
     font-family: 'Inter', sans-serif;
 }
+
 .table-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -36,23 +37,27 @@
     border-bottom: 2px solid #e2e8f0;
 }
 
-.form-input, select {
+.form-input,
+select {
     width: 100%;
     padding: 12px 15px;
     box-sizing: border-box;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background-color: #f8fafc;
+    background-color: #ffffff;
+    min-height: 44px;
+    border-radius: 6px;
 }
 
-.form-input:focus, select:focus {
+.form-input:focus,
+select:focus {
     outline: none;
     border-color: #2563eb;
     background-color: #fff;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
+
 /* Row & Cell Styling */
 .user-table tbody tr {
     transition: background-color 0.2s ease;
@@ -93,8 +98,9 @@
         display: block;
         overflow-x: auto;
     }
+
     .table-container {
-    display: block;
-    overflow-x: auto;
-}
+        display: block;
+        overflow-x: auto;
+    }
 }

@@ -15,11 +15,16 @@ function Navbar() {
   const roles = user?.roles || [];
   const { isDownloading } = useDownload();
 
-  const logout = () => {
-    // 1. Remove the token from storage
-    localStorage.removeItem('token');
-    navigate('/login');
+  const { logout: authLogout } = useAuth();
 
+  const logout = async () => {
+    // Call shared logout which will remove FCM token and clear storage
+    try {
+      await authLogout();
+    } catch (e) {
+      console.warn('Logout cleanup failed', e);
+    }
+    navigate('/login');
   };
 
   return (
@@ -63,7 +68,7 @@ function Navbar() {
             </NavLink>
           )}
           <NavLink to="/login" className="nav-item" onClick={logout}>
-            logout
+            Déconnexion
           </NavLink>
           {isDownloading && (
         <div className="nav-status">
@@ -76,4 +81,6 @@ function Navbar() {
     </nav>
   );
 }
+
+
 export default Navbar;

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserDAO extends JpaRepository<User, Integer> {
-    @EntityGraph(attributePaths = {"roles", "roles.role", "companies", "companies.company"})
+    @EntityGraph(attributePaths = {"roles", "roles.role", "companies", "companies.company", "city"})
     Optional<User> findByUserName(String name);
 
     @EntityGraph(attributePaths = {"roles", "roles.role", "companies", "companies.company", "city"})

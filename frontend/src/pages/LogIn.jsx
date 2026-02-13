@@ -104,7 +104,7 @@ function LogIn() {
                     type="submit"
                     disabled={isLoading}
                 >
-                    {isLoading ? "Logging in..." : "Submit"}
+                    {isLoading ? "Logging in..." : "Connecter"}
                 </button>
             </form>
         </FormProvider>

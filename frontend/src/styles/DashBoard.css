@@ -73,7 +73,7 @@
 .stat-card.en-cours { border-bottom-color: #3b82f6; }
 .stat-card.disponible { border-bottom-color: #10b981; }
 .stat-card.non-disponible { border-bottom-color: #6366f1; }
-.stat-card.envoyer { border-bottom-color: var(--verauto-orange); }
+.stat-card.à-envoyer { border-bottom-color: var(--verauto-orange); }
 .stat-card.annulé { border-bottom-color: #ef4444; }
 .stat-card.réparé { border-bottom-color: #44bfef; }
 .stat-card.reçu { border-bottom-color: #bf44ef; }

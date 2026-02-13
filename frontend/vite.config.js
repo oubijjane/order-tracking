@@ -14,7 +14,9 @@ export default defineConfig({
       '/uploads': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-      }
-    }
+      }, 
+    },
+    host: true, // allow network access
+    allowedHosts: ['.ngrok-free.dev']
   }
 })

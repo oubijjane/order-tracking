@@ -64,7 +64,7 @@ body {
     border-radius: 8px;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background-color: #f8fafc;
+    background-color: #ffffff;
 }
 
 .form-input:focus, select:focus {
@@ -225,4 +225,5 @@ body {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
 

@@ -20,7 +20,7 @@ export const ORDER_STATUS = [
     { value: 'IN_PROGRESS', label: 'En cours' },
     { value: 'AVAILABLE', label: 'Disponible' },
     { value: 'NOT_AVAILABLE', label: 'Non Disponible' },
-    { value: 'SENT', label: 'Envoyer' },
+    { value: 'SENT', label: 'À envoyer' },
     { value: 'CANCELLED', label: 'Annulé' }, 
     { value: 'IN_TRANSIT', label: 'En transite' },
     { value: 'RECEIVED', label: 'Reçu' },
@@ -105,6 +105,22 @@ export const formatOrderPayload = (data) => {
         }
     };
 };
+// Helper to format data for backend
+export const formatOrderPayload2 = (data) => {
+    const datas = data.windowType.map((item) => {
+        return {
+            carModelId: data.carModelId ? parseInt(data.carModelId, 10) : null,
+            companyId: data.companyId ? parseInt(data.companyId, 10) : null,
+            cityId: data.cityId ? parseInt(data.cityId, 10) : null,
+            orderItem: {
+                registrationNumber: data.registrationNumber,
+                comment: data.comment || '',
+                windowType: item || null
+            }
+        };
+    });
+    return datas;
+}
 
 export const formatNewUserPayload = (data) => {
     return {

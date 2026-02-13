@@ -15,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemDTO {
+
+    private Long orderId;
     private OrderStatus orderStatus;
     private List<WindowDetailsDTO> windowDetailsList = new ArrayList<>();
     private Long comment;
@@ -22,6 +24,7 @@ public class OrderItemDTO {
     private Long transitCompanyId;
     private String declarationNumber;
     private Long selectedWindowDetail;
+    private String windowType;
     private Long cityId;
     private String windowBrand;
     private BigDecimal price;

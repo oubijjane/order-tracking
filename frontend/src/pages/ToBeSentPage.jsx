@@ -40,7 +40,7 @@ function Orders() {
             );
             // Using .content based on your code snippet
             setOrders(apiCall.content || []);
-            setTotalPages(apiCall.totalPages || 0);
+            setTotalPages(apiCall.page.totalPages || 0);
         } catch (err) {
             console.error("Fetch error:", err);
             setError("Impossible de charger les commandes.");
@@ -122,16 +122,16 @@ function Orders() {
             </header>
 
             {/* Optional Selection Toolbar */}
-            {selectedIds.length > 0 && (
-                <div className="selection-toolbar" style={{ padding: '10px', background: '#e3f2fd', marginBottom: '10px', borderRadius: '4px' }}>
-                    <strong>{selectedIds.length}</strong> commande(s) sélectionnée(s)
+           <div className="selection-toolbar" style={{ padding: '10px', background: '#e3f2fd', marginBottom: '10px', borderRadius: '4px', visibility: selectedIds.length > 0 ? 'visible' : 'hidden' }}>
+                    <strong>{selectedIds.length > 0 ? selectedIds.length : 0}</strong> commande(s) sélectionnée(s)
                 </div>
-            )}
+               
+            
 
             {loading ? (
                 <div className="loading-spinner">Chargement...</div>
             ) : (
-            
+                
                 <OrdersList 
                     orders={orders} 
                     error={error} 
@@ -141,6 +141,7 @@ function Orders() {
                     handelClick={() => setShowTransitModal(true)}
                     cityLabel={cityOptions.find(opt => Number(opt.value) === Number(selectedCityId))?.label || ""}
                 />
+                
             )}
 
             {!loading && totalPages > 1 && (

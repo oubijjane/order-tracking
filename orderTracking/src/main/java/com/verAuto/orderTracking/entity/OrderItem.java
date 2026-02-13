@@ -3,11 +3,7 @@ package com.verAuto.orderTracking.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.verAuto.orderTracking.enums.OrderStatus;
 import com.verAuto.orderTracking.enums.WindowType;
-import jakarta.annotation.Generated;
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -15,10 +11,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Year;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -84,6 +76,9 @@ public class OrderItem {
     @Column
     @NotBlank(message = "L'immatriculation est obligatoire")
     private String registrationNumber;
+
+    @Column
+    private String groupId;
 
     @Column
     private String comment;

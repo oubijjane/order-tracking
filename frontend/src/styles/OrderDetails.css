@@ -448,10 +448,28 @@
     text-transform: uppercase;
     font-size: 0.85rem;
 }
-
+.grouped-orders {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    max-height: 200px;
+    overflow: auto;
+}
 .new-value {
     color: #212529;
 }
+.items-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
+.status-badge {
+    height: fit-content;
+    /* width: min-content; */
+    text-align: center;
+}
+
 .info-card.border-available,
 .info-card.border-disponible { border-top-color: #10b981; } /* Success Green */
 
@@ -466,3 +484,57 @@
 
 .info-card.border-not_available,
 .info-card.border-non-disponible { border-top-color: #6366f1; } /* Indigo */
+
+.info-card.border-available,
+.info-card.border-disponible { border-top-color: #10b981; } /* Success Green */
+
+.info-card.border-cancelled,
+.info-card.border-annulé { border-top-color: #ef4444; }    /* Danger Red */
+
+.info-card.border-in_progress,
+.info-card.border-en-cours { border-top-color: #3b82f6; }   /* Info Blue */
+
+.info-card.border-sent,
+.info-card.border-envoyer { border-top-color: var(--verauto-orange); } /* Brand Orange */
+
+.info-card.border-not_available,
+.info-card.border-non-disponible { border-top-color: #6366f1; } /* Indigo */
+
+.info-card.border-pending,
+.info-card.border-en-attente { border-top-color: #f59e0b; } /* Warning Orange */
+
+/****************************************
+ status badge styles
+*****************************************/
+
+.status-badge.border-available,
+.status-badge.border-disponible { background-color: #10b981; } /* Success Green */
+
+.status-badge.border-cancelled,
+.status-badge.border-annulé { background-color: #ef4444; }    /* Danger Red */
+
+.status-badge.border-in_progress,
+.status-badge.border-en-cours { background-color: #3b82f6; }   /* Info Blue */
+
+.status-badge.border-sent,
+.status-badge.border-envoyer { background-color: var(--verauto-orange); } /* Brand Orange */
+
+.info-card.border-not_available,
+.info-card.border-non-disponible { border-top-color: #6366f1; } /* Indigo */
+
+.status-badge.border-available,
+.status-badge.border-disponible { background-color: #10b981; } /* Success Green */
+
+.status-badge.border-cancelled,
+.status-badge.border-annulé { background-color: #ef4444; }    /* Danger Red */
+.status-badge.border-in_progress,
+.status-badge.border-en-cours { background-color: #3b82f6; }   /* Info Blue */
+
+.status-badge.border-sent,
+.status-badge.border-envoyer { background-color: var(--verauto-orange); } /* Brand Orange */
+
+.status-badge.border-not_available,
+.status-badge.border-non-disponible { background-color: #6366f1; } /* Indigo */
+
+.status-badge.border-pending,
+.status-badge.border-en-attente { background-color:  #f59e0b; } 

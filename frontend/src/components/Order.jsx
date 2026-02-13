@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import {ORDER_STATUS_MAP} from '../utils/formUtils';
+import { ORDER_STATUS_MAP } from '../utils/formUtils';
 import { WINDOW_TYPES, formatDate } from '../utils/formUtils';
 
 
@@ -8,8 +8,8 @@ function Order({ order }) {
   return (
     <div className={`info-card border-${order.status?.toLowerCase().replace(/\s+/g, '-')}`}>
       <h3><Link to={`/orders/${order.id}`} style={{ textDecoration: 'none', color: '#333' }}>
-            {order.company.companyName}
-          </Link>
+        {order.company.companyName}
+      </Link>
       </h3>
       <p><strong>Numero de commande:</strong> {order.id} </p>
       <p><strong>Crée par:</strong> {order.user.username}</p>
@@ -20,6 +20,12 @@ function Order({ order }) {
       <p><strong>Status:</strong> {ORDER_STATUS_MAP[order.status]}</p>
       {order.status === 'REPAIRED' && (
         <p className='order-id'><strong>Numer de dossier:</strong> {order.fileNumber ? order.fileNumber : 'Non renseigné'}</p>)}
+      {(order.status !== 'IN_TRANSIT' && order.status !== 'REPAIRED')
+        && order.comment && (
+          <p className='order-id'>
+            <strong>Commentaire:</strong> {order.comment}
+          </p>
+        )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { useParams} from 'react-router';
-import {Dropdown, InputField} from "./Input";
-import {window_detail_selection, Phone_number_input} from '../validation/inputValidation';
+import {Dropdown, InputField, OrderCheckboxList} from "./Input";
+import {window_detail_selection, Phone_number_input, additional_orders} from '../validation/inputValidation';
 import { useWindowDetailsSelection} from '../hooks/useWindowDetailsSelection'; // Import comment hook
 import { city_validation } from '../validation/inputValidation';
 import { useCitySelection } from '../hooks/useCitySelection'; // Import city hook
@@ -9,7 +9,7 @@ import { useCitySelection } from '../hooks/useCitySelection'; // Import city hoo
 
 
 
-export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating }) {
+export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating, groupedOrders = [] }) {
     const methods = useForm({
         defaultValues: {
             windowDetailId: '',
@@ -50,6 +50,7 @@ export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating }) {
                             <Dropdown {...window_detail_selection} options={windowDetailsOptions} />
                             <Dropdown {...city_validation} options={cityOptions} />
                             <InputField {...Phone_number_input} />
+                            {/*<OrderCheckboxList {...additional_orders} orders={groupedOrders} />*/}
                             
                             <div className="modal-footer">
                                 <button type="button" className="cancel-btn" onClick={onClose}>Annuler</button>

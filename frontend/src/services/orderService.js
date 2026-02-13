@@ -53,6 +53,16 @@ const getOrderById = async (id) => {
         throw error;
     }
 };
+
+const getGroupedOrdersById = async (id) => {
+    try {
+        const response = await api.get(`/orders/grouped-orders/${id}`);
+        return response.data; // CRITICAL: This passes the data back to App.jsx
+    } catch (error) {
+        console.error("Error fetching order with ID: " + id, error);
+        throw error;
+    }
+};
 // 2. Create Order with JSON and Multiple Images
 const createOrder = async (jsonData, imageFiles) => {
     try {
@@ -76,6 +86,56 @@ const createOrder = async (jsonData, imageFiles) => {
         return response.data;
     } catch (error) {
         console.error("Error creating order:", error);
+        throw error;
+    }
+};
+
+// 2. Create Order with JSON and Multiple Images
+const createOrders = async (jsonData, imageFiles) => {
+    try {
+        const formData = new FormData();
+
+        // A. Add the JSON Data
+        const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
+        formData.append("data", jsonBlob);
+
+        // B. Add Multiple Image Files
+        if (imageFiles && imageFiles.length > 0) {
+            imageFiles.forEach(file => {
+                formData.append("images", file); // Must match @RequestPart("images")
+            });
+        }
+
+        const response = await api.post('/orders/create-orders', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        return response.data;
+    } catch (error) {
+        console.error("Error creating order:", error);
+        throw error;
+    }
+};
+
+// Update order images by ID
+const updateOrderImages = async (orderId, imageFiles) => {
+    try {
+        const formData = new FormData();
+
+        // Add Multiple Image Files
+        if (imageFiles && imageFiles.length > 0) {
+            imageFiles.forEach(file => {
+                formData.append("images", file); // Must match @RequestPart("images")
+            });
+        }
+
+        const response = await api.patch(`/orders/add-images/${orderId}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating images for order ${orderId}:`, error);
         throw error;
     }
 };
@@ -217,13 +277,16 @@ const downloadExcelReport = async (company, status, registrationNumber, city) =>
 // EXPORT DEFAULT: This bundles the functions into one object
 export default {
     getAllOrders,
+    getGroupedOrdersById,
     getOrderCountByStatus,
+    updateOrderImages,
     getUserOrders,
     getOrderByStatus,
     getFilteredOrders,
     getOrderHistory,
     getOrderById,
     createOrder,
+    createOrders,
     updateOrder,
     deleteOrder,
     handleDecision,

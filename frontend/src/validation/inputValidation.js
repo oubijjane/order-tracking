@@ -116,6 +116,24 @@ export const window_detail_selection = {
     },
   },
 }
+
+export const additional_orders = {
+  name: 'additionalOrderIds',
+  label: 'Commandes supplémentaires',
+  type: 'select',
+  id: 'additionalOrderIds',
+  placeholder: 'Commandes supplémentaires',
+  validation: {
+    required: {
+      value: true,
+      message: 'required',
+    },
+    maxLength: {
+      value: 30,
+      message: '30 characters max',
+    },
+  },
+}
 export const car_model_validation = {
   name: 'carModelId',
   label: 'Modèle',

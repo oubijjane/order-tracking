@@ -53,7 +53,7 @@ function SearchPage() {
     )
     .then(data => {
       setOrders(data.content);
-      setTotalPages(data.totalPages);
+      setTotalPages(data?.page?.totalPages || 0);
     })
     .catch(err => setError("Could not load orders."));
   };

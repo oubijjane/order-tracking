@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import companyService from '../services/companyService';
-
 
 export const useCompanySelection = () => {
     const [companies, setCompanies] = useState([]);
-    // 1. Fetch Companies on Mount
+
     useEffect(() => {
         companyService.getAllCompanies()
             .then(data => setCompanies(data))
             .catch(err => console.error("Failed to load companies:", err));
     }, []); 
-    // 2. Format options for the Dropdown component
-    const companyOptions = companies.map(c => ({ value: c.id, label: c.companyName }));
+
+    // FIX: useMemo ensures companyOptions only changes when companies changes
+    const companyOptions = useMemo(() => {
+        return companies.map(c => ({ 
+            value: c.id, 
+            label: c.companyName 
+        }));
+    }, [companies]); 
+
     return companyOptions;
 }

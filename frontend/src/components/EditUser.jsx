@@ -30,6 +30,11 @@ function EditUserForm() {
   const [roles, setRoles] = useState([]);
   const submitLock = useRef(false);
 
+  useEffect(() => {
+    fetchUser();
+    fetchRoles();
+  }, [id,companyOptions]);
+
   const methods = useForm({
     defaultValues: {
       username: '',
@@ -75,10 +80,6 @@ function EditUserForm() {
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-    fetchRoles();
-  }, [id]);
 
   const onValidSubmit = async (data) => {
     if (submitLock.current) return;
@@ -98,10 +99,11 @@ function EditUserForm() {
     { value: true, label: 'Actif' },
     { value: false, label: 'Inactif' }
   ];
-
+  
   if (isLoading) return <div className="loader">Chargement des statistiques...</div>;
 
   return (
+    
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onValidSubmit)} className="form-content" noValidate>
         {/* Text Inputs */}

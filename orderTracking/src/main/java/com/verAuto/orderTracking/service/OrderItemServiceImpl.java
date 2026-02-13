@@ -1,10 +1,12 @@
 package com.verAuto.orderTracking.service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.verAuto.orderTracking.DTO.HistoryDTO;
 import com.verAuto.orderTracking.DTO.OrderItemDTO;
 import com.verAuto.orderTracking.DTO.WindowDetailsDTO;
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
+import com.verAuto.orderTracking.dao.UserDeviceDAO;
 import com.verAuto.orderTracking.entity.*;
 import com.verAuto.orderTracking.enums.CompanyAssignmentType;
 import com.verAuto.orderTracking.enums.OrderStatus;
@@ -13,6 +15,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
+import jdk.swing.interop.SwingInterOpUtils;
 import org.hibernate.type.descriptor.jdbc.JsonArrayJdbcType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +32,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -47,6 +52,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final CommentService commentService;
     private final UserRoleServiceImpl userRoleService;
     private final TransitCompanyService transitCompanyService;
+    private final NotificationService notificationService;
+    private final UserDeviceDAO deviceRepo;
 
     private static final String MOROCCAN_PLATE_REGEX = "^(?:\\d{5}[A-Za-z\\u0600-\\u06FF]\\d{2}|[A-Za-z]{2}\\d{6})$";
     private static final Pattern PLATE_PATTERN = Pattern.compile(MOROCCAN_PLATE_REGEX);
@@ -54,7 +61,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Autowired
     public OrderItemServiceImpl (EmailService emailService, WindowDetailsService windowDetailsService, HistoryService historyService, OrderItemDAO orderItemDAO,
                                  CityDAO cityDAO,
-                                 OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService) {
+                                 OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService, NotificationService notificationService, UserDeviceDAO deviceRepo) {
         this.emailService = emailService;
         this.windowDetailsService = windowDetailsService;
         this.historyService = historyService;
@@ -64,6 +71,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         this.commentService = commentService;
         this.userRoleService = userRoleService;
         this.transitCompanyService = transitCompanyService;
+        this.notificationService = notificationService;
+        this.deviceRepo = deviceRepo;
     }
 
     @Override
@@ -228,9 +237,49 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public OrderItem findById(Long id) {
+
         OrderItem orderItem = orderItemDAO.findById(id) // This already returns Optional<OrderItem>
                 .orElseThrow(() -> new RuntimeException("Did not find order number - " + id));
         return orderItem;
+    }
+
+    @Override
+    public OrderItem addNewImages(Long id, User user, MultipartFile[] files) {
+        OrderItem orderItem = findByIdBasedOnRole(id, user);
+
+        if (files != null && files.length > 0) {
+            try {
+                orderItemImagesService.saveImages(files, orderItem);
+            } catch (IOException e) {
+                // Throwing a RuntimeException triggers the @Transactional rollback
+                throw new RuntimeException("Failed to store images, rolling back order creation", e);
+            }
+        }
+        addHistory(orderItem,user.getUsername(), "Ajout d'une nouvelle image",
+                " ",
+                " ");
+        notifyOrderCreated(orderItem);
+        return null;
+    }
+
+    @Override
+    public OrderItem findByIdBasedOnRole(Long id, User user) {
+        Set<String> roleNames = user.getRoles().stream()
+                .map(r -> r.getRole().getName().toUpperCase())
+                .collect(Collectors.toSet());
+        if(roleNames.contains("ROLE_GESTIONNAIRE")) {
+            List<Long> companiesIds = user.getCompanies().stream()
+                    .map(company -> company.getCompany().getId())
+                            .toList();
+           return orderItemDAO.findByIdByCompany(companiesIds, id);
+        } if(roleNames.contains("ROLE_GARAGISTE")) {
+            Long cityId = user.getCity().getId();
+            return orderItemDAO.findByIdByCity(cityId, id);
+        }
+
+        System.out.println("test");
+
+        return findById(id);
     }
 
     @Override
@@ -272,13 +321,78 @@ public class OrderItemServiceImpl implements OrderItemService {
         // orderItem.setUpdatedAt();
        //3. send emails to the logistic team
         emailService.sendOrderNotification(savedOrder, getLogisticTeamEmails());
-
         return savedOrder;
     }
 
     @Override
+    public List<OrderItemDTO> findByGroupId(User user, Long orderId) {
+
+
+        List<Long> companyIds = user.getCompanies().stream()
+                .map(uc -> uc.getCompany().getId())
+                .toList();
+        OrderItem order = findByIdBasedOnRole(orderId, user);
+        List<OrderItemDTO> orders = new ArrayList<>();
+        if (order != null) {
+            orders = orderItemDAO
+                    .findGroupOrdersExceptSelf(order.getGroupId(), companyIds, orderId)
+                    .stream()
+                    .map(orderItem -> {
+                        OrderItemDTO orderDetails = new OrderItemDTO();
+                        orderDetails.setOrderId(orderItem.getId());
+
+                        String details = orderItem.getCarModel().getCarBrand().getBrand()
+                                + " " + orderItem.getCarModel().getModel();
+
+                        orderDetails.setWindowBrand(details);
+                        orderDetails.setWindowType(orderItem.getWindowType().getLabel());
+                        orderDetails.setOrderStatus(orderItem.getStatus());
+
+                        return orderDetails;
+                    })
+                    .toList();
+        }
+
+        return orders;
+    }
+
+    @Override
+    public List<OrderItem> saveOrderWithMultiParts(List<OrderItem> items, User user, MultipartFile[] files) {
+        items.forEach(item -> {
+            checkRegFormat(item.getRegistrationNumber());
+            String order = item.getWindowType().toString() + " " + item.getCarModel().getModel();
+            doubleOrderCheckByRegNumber(item.getRegistrationNumber(), order);
+        } );
+        String groupId = UUID.randomUUID().toString();
+
+
+        return items.stream().map( orderItem -> {
+            String normalizedReg = orderItem.getRegistrationNumber().trim().toUpperCase();
+            orderItem.setRegistrationNumber(normalizedReg);
+            orderItem.setUser(user);
+            orderItem.setFileNumber("");
+            orderItem.setGroupId(groupId);
+            OrderItem savedOrder = orderItemDAO.save(orderItem);
+
+            // 2. If there are images, delegate to ImageService
+            if (files != null && files.length > 0) {
+                try {
+                    orderItemImagesService.saveImages(files, savedOrder);
+                } catch (IOException e) {
+                    // Throwing a RuntimeException triggers the @Transactional rollback
+                    throw new RuntimeException("Failed to store images, rolling back order creation", e);
+                }
+            }
+            // orderItem.setUpdatedAt();
+            //3. send emails to the logistic team
+            emailService.sendOrderNotification(savedOrder, getLogisticTeamEmails());
+            return savedOrder;
+        }).toList();
+    }
+
+    @Override
     @Transactional
-    public OrderItem updateStatusAndComment(Long id, OrderItemDTO newStatus, User user) {
+    public OrderItem updateStatusAndComment(Long id, OrderItemDTO newStatus, User user) throws FirebaseMessagingException {
         // 1. Normalize user roles
         assert user.getRoles() != null;
         Set<String> roleNames = user.getRoles().stream()
@@ -513,7 +627,13 @@ public class OrderItemServiceImpl implements OrderItemService {
                 predicates.add(cb.like(cb.lower(cityJoin.get("cityName")), "%" + cityName.toLowerCase() + "%"));
             }
             if (StringUtils.hasText(registrationNumber)) {
-                predicates.add(cb.like(cb.lower(root.get("registrationNumber")), registrationNumber.toLowerCase() + "%"));
+                // Wrapping with % on both sides enables the "contains" logic
+                String searchPattern = "%" + registrationNumber.toLowerCase() + "%";
+
+                predicates.add(cb.like(
+                        cb.lower(root.get("registrationNumber")),
+                        searchPattern
+                ));
             }
             if (StringUtils.hasText(status)) {
                 try {
@@ -618,6 +738,40 @@ public class OrderItemServiceImpl implements OrderItemService {
                                 " (Statut: " + status.getLabel() + "). " +
                                 "Pour créer une nouvelle commande, merci d'annuler la commande précédente.");
             }
+        }
+    }
+    private void notifyOrderCreated(OrderItem order) {
+        try {
+            // Get all admin devices
+            // Assuming this returns a list of devices for User 52
+            List<UserDevice> adminDevices = deviceRepo.findByUserId(52L);
+
+            if (adminDevices == null || adminDevices.isEmpty()) {
+                logger.warn("No admin devices found for notifications");
+                return;
+            }
+
+            // CORRECTED: Collect ALL tokens, just removing duplicate strings
+            List<String> tokens = adminDevices.stream()
+                    .filter(d -> d.getToken() != null && !d.getToken().isEmpty())
+                    .map(UserDevice::getToken) // Extract the token string directly
+                    .distinct()                // Prevent duplicate tokens if DB has same token twice
+                    .collect(Collectors.toList());
+
+            if (tokens.isEmpty()) {
+                logger.warn("No valid tokens found for admin devices");
+                return;
+            }
+
+            // Send notification to all tokens found
+            notificationService.sendToMany(tokens,
+                    "New Order Created",
+                    "Order #" + order.getId() + " has been created");
+
+            logger.info("Notification sent to {} admin devices", tokens.size());
+
+        } catch (Exception e) {
+            logger.error("Error sending notification for order: " + order.getId(), e);
         }
     }
 }

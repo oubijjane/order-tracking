@@ -1,6 +1,7 @@
 package com.verAuto.orderTracking.dao;
 
 import com.verAuto.orderTracking.entity.City;
+import com.verAuto.orderTracking.entity.Company;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.entity.User;
 import com.verAuto.orderTracking.enums.OrderStatus;
@@ -80,6 +81,32 @@ public interface OrderItemDAO extends JpaRepository<OrderItem, Long>, JpaSpecifi
     // Admin report (Be careful with data size!)
     @Query("SELECT o FROM OrderItem o JOIN FETCH o.company JOIN FETCH o.carModel m JOIN FETCH o.city LEFT JOIN FETCH o.transitCompany ORDER BY o.createdAt DESC")
     List<OrderItem> findAllForReportAdmin();
+
+    @Query("SELECT o FROM OrderItem o " +
+            "WHERE o.groupId = :groupId " +
+            "AND o.id <> :orderId " +
+            "ORDER BY o.createdAt DESC")
+    List<OrderItem> findGroupOrdersExceptSelf(
+            @Param("groupId") String groupId,
+            @Param("companyIds") List<Long> companyIds,
+            @Param("orderId") Long orderId
+    );
+
+    @Query("SELECT o FROM OrderItem o " +
+            "WHERE o.company.id IN :companyIds " +
+            "AND o.id = :orderId " )
+    OrderItem findByIdByCompany(
+            @Param("companyIds") List<Long> companyIds,
+            @Param("orderId") Long orderId
+    );
+
+    @Query("SELECT o FROM OrderItem o " +
+            "WHERE o.city.id = :cityId " +
+            "AND o.id = :orderId " )
+    OrderItem findByIdByCity(
+            @Param("cityId") Long cityId,
+            @Param("orderId") Long orderId
+    );
 
 
 }

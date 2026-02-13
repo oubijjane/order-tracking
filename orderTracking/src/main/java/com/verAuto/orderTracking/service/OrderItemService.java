@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.verAuto.orderTracking.DTO.OrderItemDTO;
 import com.verAuto.orderTracking.entity.OrderItem;
 import com.verAuto.orderTracking.entity.User;
@@ -22,8 +23,12 @@ public interface OrderItemService {
     Map<OrderStatus, Long> getStatusCounts(User user);
     Page<OrderItem> findOrderByStatus(OrderStatus status, User user, int page, int size);
     OrderItem findById(Long id);
+    OrderItem addNewImages(Long id, User user, MultipartFile[] files);
+    OrderItem findByIdBasedOnRole(Long id, User user);
     List<OrderItem> findUserOrders(User user);
     OrderItem save(OrderItem orderItem, User user, MultipartFile[] files);
-    OrderItem updateStatusAndComment(Long id, OrderItemDTO status, User user);
+    List<OrderItemDTO> findByGroupId(User user, Long orderId);
+    List<OrderItem> saveOrderWithMultiParts(List<OrderItem> items, User user, MultipartFile[] files);
+    OrderItem updateStatusAndComment(Long id, OrderItemDTO status, User user) throws FirebaseMessagingException;
     void deleteById(Long id);
 }

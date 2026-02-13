@@ -1,5 +1,6 @@
 package com.verAuto.orderTracking.restController;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.verAuto.orderTracking.DTO.CreateOrderRequest;
 import com.verAuto.orderTracking.DTO.HistoryDTO;
 import com.verAuto.orderTracking.DTO.OrderItemDTO;
@@ -116,7 +117,7 @@ public class OrderItemController {
         return ResponseEntity.ok(orderItemService.findOrdersDynamic(user, company, city, reg, status, page, size));
     }
 
-    @GetMapping("/user")
+        @GetMapping("/user")
     public ResponseEntity<Page<OrderItem>> getUserOrder(@AuthenticationPrincipal User user,
                                                         @RequestParam(required = false) String company,
                                                         @RequestParam(defaultValue = "0") int page,
@@ -124,10 +125,18 @@ public class OrderItemController {
         return ResponseEntity.ok(orderItemService.findOrderItemByUserId(user, page, size));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderItem> getOrderById(@PathVariable Long id) {
-        return new ResponseEntity<>(orderItemService.findById(id), HttpStatus.OK);
+    @GetMapping("/grouped-orders/{id}")
+    public ResponseEntity<List<OrderItemDTO>> getOrderByGroupId(@AuthenticationPrincipal User user,
+                                                             @PathVariable Long id) {
+        return ResponseEntity.ok(orderItemService.findByGroupId(user, id));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderItem> getOrderById(@AuthenticationPrincipal User user,@PathVariable Long id) {
+        return new ResponseEntity<>(orderItemService.findByIdBasedOnRole(id, user), HttpStatus.OK);
+    }
+
+
 
     @GetMapping("/{id}/history")
     public ResponseEntity<List<HistoryDTO>> getOrderHistory(@PathVariable Long id) {
@@ -160,11 +169,46 @@ public class OrderItemController {
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 
+    @PostMapping(
+            value = "/create-orders",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<List<OrderItem>> createOrders(
+            @RequestPart("data") List<CreateOrderRequest> requests,
+            @RequestPart(value = "images", required = false) MultipartFile[] files, // Changed to array
+            @AuthenticationPrincipal User user) {
+
+        List<OrderItem> orders =  requests.stream().map( request -> {
+            // 1. Fetch dependencies
+            CarModel model = carModelService.findById(request.getCarModelId());
+            Company company = companyService.findById(request.getCompanyId());
+
+
+            // 2. Map DTO to Entity
+            OrderItem orderItem = request.getOrderItem();
+            orderItem.setId(null); // Ensure new record
+            orderItem.setCarModel(model);
+            orderItem.setCompany(company);
+            orderItem.setStatus(OrderStatus.PENDING);
+
+            return orderItem;
+        }).toList();
+
+        // 3. Save Order and Images via Service
+        // We pass the files array directly to the service
+        List<OrderItem> createdOrder = orderItemService.saveOrderWithMultiParts(orders, user, files);
+
+        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+    }
+
+
+
+
     @PatchMapping("/{id}")
     public ResponseEntity<OrderItem> updateStatusAndComment(
             @PathVariable Long id,
-            @RequestBody OrderItemDTO dto, // Change this from @RequestParam to @RequestBody
-            @AuthenticationPrincipal User user) {
+            @RequestBody OrderItemDTO dto,
+            @AuthenticationPrincipal User user) throws FirebaseMessagingException {
 
         System.out.println("comment id" + dto.getComment());
         // Use dto.getStatus() and dto.getComment() here
@@ -172,6 +216,21 @@ public class OrderItemController {
 
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
     }
+
+    @PatchMapping("/add-images/{id}")
+    public ResponseEntity<OrderItem> addNewImages(
+            @PathVariable Long id,
+            @RequestPart(value = "images", required = true) MultipartFile[] files, // Change this from @RequestParam to @RequestBody
+            @AuthenticationPrincipal User user) {
+
+
+        // Use dto.getStatus() and dto.getComment() here
+        OrderItem savedOrder = orderItemService.addNewImages(id, user, files);
+
+        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+    }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrderById(@PathVariable Long id) {

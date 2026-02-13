@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import OrderService from '../services/orderService';
-import { ORDER_STATUS_MAP, statusLabel, formatDate, WINDOW_TYPES } from '../utils/formUtils';
+import { ORDER_STATUS_MAP, statusLabel, formatDate, WINDOW_TYPES } from '../utils/formUtils'; 
+import {ImagesModal} from '../components/AddNewImagesModal';
 import ButtonStatus from '../components/ButtonStatus';
 import { CancelationModal } from '../components/CancelationModal';
 import { CommentModal } from '../components/CommentModal';
@@ -14,7 +15,7 @@ import OrderHistory from '../components/OrderHistory';
 import { useAuth } from '../context/AuthContext';
 import { useWindowDetailsSelection } from '../hooks/useWindowDetailsSelection';
 import '../styles/OrderDetails.css';
-import { set } from 'react-hook-form';
+
 
 
 function OrderDetailsPage() {
@@ -26,6 +27,7 @@ function OrderDetailsPage() {
     const [selectedImgIndex, setSelectedImgIndex] = useState(0);
     const [isUpdating, setIsUpdating] = useState(false);
     const [commentId, setCommentId] = useState("");
+    const [ImagesModalOpen, setImagesModalOpen] = useState(false);
     const [additionalCommentState, setAdditionalCommentState] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -33,6 +35,7 @@ function OrderDetailsPage() {
 
     // Data State
     const [order, setOrder] = useState(null);
+    const [groupedOrders, setGroupedOrders] = useState(null);
     const [orderHistory, setOrderHistory] = useState([]); // New State for Order History
 
     // Modal States
@@ -60,6 +63,9 @@ function OrderDetailsPage() {
             OrderService.getOrderHistory(id)
                 .then(historyData => setOrderHistory(historyData))
                 .catch(err => console.error("Erreur historique:", err));
+            OrderService.getGroupedOrdersById(id)
+                .then(groupedData => setGroupedOrders(groupedData))
+                .catch(err => console.error("Erreur grouped orders:", err));
         }
     }, [id, authLoading]);
 
@@ -69,10 +75,10 @@ function OrderDetailsPage() {
     const handleStatusClick = (newStatus) => {
         if (newStatus === 'CANCELLED' || newStatus === 'NOT_AVAILABLE') {
             // Add confirmation before opening the cancellation modal
-            const confirmMessage = newStatus === 'CANCELLED' 
-                ? "Êtes-vous sûr de vouloir annuler cette commande ?" 
+            const confirmMessage = newStatus === 'CANCELLED'
+                ? "Êtes-vous sûr de vouloir annuler cette commande ?"
                 : "Êtes-vous sûr de vouloir marquer cette commande comme non disponible ?";
-            
+
             if (window.confirm(confirmMessage)) {
                 setPendingStatus(newStatus);
                 setShowCancelModal(true);
@@ -115,6 +121,21 @@ function OrderDetailsPage() {
     /**
      * Logic 3: Update handleSubmit to accept transit parameters and window details
      */
+
+    const handelImagesSubmit = async (processedImages) => {
+        setIsUpdating(true);
+        try {
+            await OrderService.updateOrderImages(id, processedImages);
+            // Refresh order details to show new images
+            const updatedOrder = await OrderService.getOrderById(id);
+            setOrder(updatedOrder);
+        } catch (err) {
+            console.error("Failed to update images:", err);
+            alert("Erreur lors de la mise à jour des images.");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
     const handleSubmit = async (updatedStatus, reasonId = commentId, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null, cityId = null, phoneNumber = null, additionalComment = null) => {
         setIsUpdating(true);
         try {
@@ -190,7 +211,10 @@ function OrderDetailsPage() {
                             IMAGE_BASE_URL=""
                         />
                     </div>
-
+                     
+                    <button className="btn-action-outline" onClick={() => setImagesModalOpen(true)} disabled={isUpdating}>
+                                    Ajouter des images
+                    </button>
                     <div className="history-wrapper">
                         <OrderHistory history={orderHistory} />
                     </div>
@@ -215,6 +239,9 @@ function OrderDetailsPage() {
                             <div className="spec-item"><label>Dernier mise a jour</label><p>{formatDate(order.updatedAt)}</p></div>
                             <div className="spec-item"><label>Matricule</label><p className="plate-number">{order.registrationNumber}</p></div>
                             <div className="spec-item"><label>Type de vitre</label><p>{WINDOW_TYPES.find(type => type.value === order.windowType)?.label || order.windowType}</p></div>
+                            {groupedOrders && groupedOrders.length > 0 && (
+                                <div className="spec-item"><label>vitre supplémentaire: </label><div className="grouped-orders">{groupedOrders.map((item) => <Link to={`/orders/${item.orderId}`} className='items-row' style={{ textDecoration: 'none', color: '#333' }} key={item.orderId}>{item.windowType} <p className={`status-badge border-${item.orderStatus?.toLowerCase().replace(/\s+/g, '-')}`}>{ORDER_STATUS_MAP[item.orderStatus] || item.orderStatus}</p></Link>)}</div></div>
+                            )}
                             <div className="spec-item"><label>Destination</label><p>{order.city ? order.city.cityName : 'Non renseigné'}</p></div>
 
                             {order.transitCompany && (
@@ -277,6 +304,12 @@ function OrderDetailsPage() {
             </div>
 
             {/* Modals */}
+            <ImagesModal
+                isOpen={ImagesModalOpen}
+                onClose={() => setImagesModalOpen(false)}
+                onSubmit={(processedImages) => handelImagesSubmit(processedImages)}
+                isUpdating={isUpdating}
+            />
             <CancelationModal
                 isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
@@ -312,7 +345,21 @@ function OrderDetailsPage() {
             <OfferSelectionModal
                 isOpen={showWindowOfferModal}
                 onClose={() => setShowWindowOfferModal(false)}
-                onSubmit={(windowDetailId, cityId, phoneNumber) => handleSubmit(pendingStatus, commentId, null, null, null, null, windowDetailId, cityId, phoneNumber)}
+                groupedOrders={groupedOrders}   // <-- add this
+                onSubmit={(windowDetailId, cityId, phoneNumber, selectedOrders) =>
+                    handleSubmit(
+                        pendingStatus,
+                        commentId,
+                        null,
+                        null,
+                        null,
+                        null,
+                        windowDetailId,
+                        cityId,
+                        phoneNumber,
+                        selectedOrders
+                    )
+                }
                 isUpdating={isUpdating}
             />
         </div>
