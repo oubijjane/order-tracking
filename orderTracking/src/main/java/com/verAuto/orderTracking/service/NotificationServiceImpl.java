@@ -24,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService{
     }
     
     @Override
-    public void send(String token, String title, String body) throws FirebaseMessagingException {
+    public void send(String token, String title, String body, String url) throws FirebaseMessagingException {
         if (!isFirebaseInitialized()) {
             logger.warn("Firebase not initialized - notification skipped");
             return;
@@ -38,9 +38,16 @@ public class NotificationServiceImpl implements NotificationService{
         try {
             Message message = Message.builder()
                     .setToken(token)
-                    .setNotification(Notification.builder()
-                            .setTitle(title)
-                            .setBody(body)
+                    // ❌ REMOVE THIS: .setNotification(...)
+
+                    // ✅ ADD EVERYTHING TO DATA:
+                    .putData("title", title)
+                    .putData("body", body)
+                    .putData("click_action", url)
+
+                    // Optional: High priority ensures it wakes up the phone immediately
+                    .setAndroidConfig(AndroidConfig.builder()
+                            .setPriority(AndroidConfig.Priority.HIGH)
                             .build())
                     .build();
 
@@ -67,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService{
     }
 
     @Override
-    public void sendToMany(List<String> tokens, String title, String body) {
+    public void sendToMany(List<String> tokens, String title, String body, String url) {
         if (tokens == null || tokens.isEmpty()) return;
 
         // Deduplicate to avoid double notifications
@@ -80,7 +87,7 @@ public class NotificationServiceImpl implements NotificationService{
         for (String token : uniqueTokens) {
             try {
                 // Send individually - this works (proven by your logs)
-                send(token, title, body);
+                send(token, title, body, url);
                 success++;
             } catch (FirebaseMessagingException e) {
                 failure++;

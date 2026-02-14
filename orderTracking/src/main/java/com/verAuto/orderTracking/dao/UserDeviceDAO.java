@@ -14,7 +14,21 @@ public interface UserDeviceDAO extends JpaRepository<UserDevice, Integer> {
     
     @Query("SELECT ud FROM UserDevice ud WHERE ud.user.userName = :userName")
     List<UserDevice> findByUserName(@Param("userName") String userName);
-    
+
+    @Query("SELECT ud FROM UserDevice ud JOIN FETCH ud.user WHERE ud.user.id IN :userIds")
+    List<UserDevice> findByIds(@Param("userIds") List<Integer> userIds);
+
+    @Query("SELECT ud FROM UserDevice ud " +
+            "JOIN FETCH ud.user u " +
+            "JOIN UserRole ur ON ur.user.id = u.id " +
+            "WHERE ur.role.id = :roleId")
+    List<UserDevice> findAllDevicesByRoleId(@Param("roleId") Integer roleId);
+
+    @Query("SELECT ud FROM UserDevice ud " +
+            "JOIN FETCH ud.user u " +
+            "JOIN UserRole ur ON ur.user.id = u.id " +
+            "WHERE ur.role.id in :roleId")
+    List<UserDevice> findAllDevicesByRoleIds(@Param("roleId") List<Integer> roleId);
     // Delete device(s) by token
     @Modifying
     @Transactional

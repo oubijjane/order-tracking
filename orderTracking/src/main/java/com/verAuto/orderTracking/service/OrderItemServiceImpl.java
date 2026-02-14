@@ -15,8 +15,6 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
-import jdk.swing.interop.SwingInterOpUtils;
-import org.hibernate.type.descriptor.jdbc.JsonArrayJdbcType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
@@ -258,7 +254,13 @@ public class OrderItemServiceImpl implements OrderItemService {
         addHistory(orderItem,user.getUsername(), "Ajout d'une nouvelle image",
                 " ",
                 " ");
-        notifyOrderCreated(orderItem);
+        //notifyOrderCreated(orderItem);
+        String title = "Nouvelle image ";
+        String body = user.getUsername() + " "
+                + orderItem.getWindowType().getLabel() + " " + orderItem.getCarModel().getCarBrand().getBrand() + " "
+                + " " + orderItem.getCarModel().getModel()
+                + " " + orderItem.getCompany().getCompanyName();
+        notifyUsers(orderItem, user, title, body);
         return null;
     }
 
@@ -740,7 +742,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             }
         }
     }
-    private void notifyOrderCreated(OrderItem order) {
+    /*private void notifyOrderCreated(OrderItem order) {
         try {
             // Get all admin devices
             // Assuming this returns a list of devices for User 52
@@ -773,5 +775,61 @@ public class OrderItemServiceImpl implements OrderItemService {
         } catch (Exception e) {
             logger.error("Error sending notification for order: " + order.getId(), e);
         }
+    }*/
+    private void notifyUsers(OrderItem order, User user, String title, String body) {
+        List<Integer> ids = new ArrayList<>();
+        try {
+            // Get all admin devices
+            // Assuming this returns a list of devices for User 52
+            List<UserDevice> adminDevices = new ArrayList<>();
+            assert user.getRoles() != null;
+            if(containsRole(user.getRoles(), 3) || containsRole(user.getRoles(), 1)) {
+                ids.add(4);
+                adminDevices = deviceRepo.findAllDevicesByRoleIds(ids);
+            } else {
+                adminDevices = deviceRepo.findByUserName(order.getUser().getUsername());
+                ids.add(order.getUser().getId());
+            }
+            ids.forEach(userId -> System.out.println("this is the ids: " + userId));
+
+            String url = "/orders/" + order.getId();
+
+            if (adminDevices == null || adminDevices.isEmpty()) {
+                logger.warn("No admin devices found for notifications");
+                return;
+            }
+
+            // CORRECTED: Collect ALL tokens, just removing duplicate strings
+            List<String> tokens = adminDevices.stream()
+                    .filter(d -> d.getToken() != null && !d.getToken().isEmpty())
+                    .map(UserDevice::getToken) // Extract the token string directly
+                    .distinct()                // Prevent duplicate tokens if DB has same token twice
+                    .collect(Collectors.toList());
+
+            if (tokens.isEmpty()) {
+                logger.warn("No valid tokens found for admin devices");
+                return;
+            }
+
+            // Send notification to all tokens found
+            notificationService.sendToMany(tokens,
+                    title,
+                    body,
+                    url);
+
+            logger.info("Notification sent to {} admin devices", tokens.size());
+
+        } catch (Exception e) {
+            logger.error("Error sending notification for order: " + order.getId(), e);
+        }
+    }
+
+    private boolean containsRole(Set<UserRole> userRoles, Integer targetRoleId) {
+        for (UserRole ur : userRoles) {
+            if (ur.getRole().getId().equals(targetRoleId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
