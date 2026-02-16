@@ -25,7 +25,7 @@ export const registerForNotifications = async () => {
       }
 
       // 🚀 FOREGROUND HANDLER
-    onMessage(messaging, async (payload) => {
+      onMessage(messaging, async (payload) => {
         const title = payload.data?.title || "Verauto Update";
         const body = payload.data?.body || "New update on your order.";
         const url = payload.data?.click_action || "/";
@@ -47,3 +47,13 @@ export const registerForNotifications = async () => {
     console.error("Notification Setup Error", err);
   }
 };
+
+// 🚀 LISTEN FOR REDIRECT MESSAGES FROM THE SERVICE WORKER
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data?.action === 'REDIRECT') {
+      // Navigate the browser to the exact URL sent by the notification
+      window.location.href = event.data.url;
+    }
+  });
+}
