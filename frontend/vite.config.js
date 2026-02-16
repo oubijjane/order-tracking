@@ -17,6 +17,6 @@ export default defineConfig({
       }, 
     },
     host: true, // allow network access
-    allowedHosts: ['.ngrok-free.dev']
+    allowedHosts: ['.ngrok-free.dev', 'verauto-tracker.loca.lt','.trycloudflare.com']
   }
 })
