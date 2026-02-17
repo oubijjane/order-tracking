@@ -255,11 +255,10 @@ public class OrderItemServiceImpl implements OrderItemService {
                 " ",
                 " ");
         //notifyOrderCreated(orderItem);
-        String title = "Nouvelle image ";
-        String body = user.getUsername() + " "
-                + orderItem.getWindowType().getLabel() + " " + orderItem.getCarModel().getCarBrand().getBrand() + " "
+        String title = orderItem.getWindowType().getLabel() + " " + orderItem.getCarModel().getCarBrand().getBrand() + " "
                 + " " + orderItem.getCarModel().getModel()
                 + " " + orderItem.getCompany().getCompanyName();
+        String body = user.getUsername() + " Nouvelle image ";
         notifyUsers(orderItem, user, title, body);
         return null;
     }
@@ -278,8 +277,6 @@ public class OrderItemServiceImpl implements OrderItemService {
             Long cityId = user.getCity().getId();
             return orderItemDAO.findByIdByCity(cityId, id);
         }
-
-        System.out.println("test");
 
         return findById(id);
     }
@@ -388,6 +385,12 @@ public class OrderItemServiceImpl implements OrderItemService {
             // orderItem.setUpdatedAt();
             //3. send emails to the logistic team
             emailService.sendOrderNotification(savedOrder, getLogisticTeamEmails());
+             String title = savedOrder.getWindowType().getLabel() + " "
+                    + savedOrder.getCarModel().getCarBrand().getBrand() + " "
+                    + savedOrder.getCarModel().getModel();
+             String body = user.getUsername() + "-Nouvelle Commande Créée pour la companie: "
+                     + savedOrder.getCompany().getCompanyName();
+            notifyUsers(savedOrder, user, title, body);
             return savedOrder;
         }).toList();
     }
@@ -396,6 +399,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public OrderItem updateStatusAndComment(Long id, OrderItemDTO newStatus, User user) throws FirebaseMessagingException {
         // 1. Normalize user roles
+        String body = "";
         assert user.getRoles() != null;
         Set<String> roleNames = user.getRoles().stream()
                 .map(r -> r.getRole().getName().toUpperCase())
@@ -403,7 +407,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         // 2. Fetch the existing order
         OrderItem existingOrder = findById(id);
-        String action;
+        String action = "";
         OrderStatus currentStatus = existingOrder.getStatus();
         String userName = user.getUsername();
         // check if the order is repaired before adding a file number
@@ -416,6 +420,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         // 3. If everything is fine, set it
         if (isProvidingFileNumber) {
             action = "Changement du numéro de dossier vers";
+            body = userName + " " + action + existingOrder.getFileNumber();
             addHistory(existingOrder,userName, action,
                     existingOrder.getFileNumber(),
                     newStatus.getFileNumber().trim());
@@ -424,6 +429,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         if(newStatus.getAdditionalComment() != null && !existingOrder.getStatus().equals(OrderStatus.CANCELLED)) {
             action = "Ajout d’un commentaire";
             String commentLabel = newStatus.getAdditionalComment();
+            body = userName + " a ajouté un nouveau commentaire pour la companie: "
+                    + existingOrder.getCompany().getCompanyName();;
             addHistory(existingOrder,userName, action,
                     existingOrder.getComment(),
                     commentLabel);
@@ -435,6 +442,8 @@ public class OrderItemServiceImpl implements OrderItemService {
             validateStatusTransition(currentStatus, newStatus.getOrderStatus());
             action = "Changement du statut de la commande vers";
             checkRolePermissions(roleNames, newStatus.getOrderStatus());
+            body = userName + " status: " + newStatus.getOrderStatus().getLabel() + " pour la companie: "
+                    + existingOrder.getCompany().getCompanyName();
             addHistory(existingOrder,userName, action,
                     existingOrder.getStatus().getLabel(),
                     newStatus.getOrderStatus().getLabel());
@@ -501,6 +510,11 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
         // 5. Finalize
        // existingOrder.setUpdatedAt();
+        String title = existingOrder.getWindowType().getLabel() + " "
+                + existingOrder.getCarModel().getCarBrand().getBrand() + " "
+                + existingOrder.getCarModel().getModel();
+
+        notifyUsers(existingOrder, user, title, body);
         return orderItemDAO.save(existingOrder);
     }
 

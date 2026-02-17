@@ -17,7 +17,8 @@
 .header-line {
     width: 80px;
     height: 5px;
-    background-color: #ef7d00; /* Verauto Orange */
+    background-color: #ef7d00;
+    /* Verauto Orange */
     margin-bottom: 40px;
 }
 
@@ -29,22 +30,22 @@
 }
 
 /* Styling the Order component container */
-.order-card-wrapper > .info-card {
+.order-card-wrapper>.info-card {
     /* This targets the div inside your Order component */
-    background: white ;
-    border: 1px solid #e2e8f0 ;
-    border-left: 6px solid #1a1a1b; 
-    border-radius: 8px ;
-    padding: 20px ;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-left: 6px solid #1a1a1b;
+    border-radius: 8px;
+    padding: 20px;
     transition: all 0.3s ease;
-    height: 80%;
+    height: 85%;
 }
 
-.order-card-wrapper > div:hover {
+.order-card-wrapper>div:hover {
     transform: translateY(-5px);
     border-left-color: #ef7d00 !important;
     border-top-color: #ef7d00 !important;
-    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 /* Typography inside the card */
@@ -91,55 +92,127 @@
 }
 
 .pagination {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 30px;
 }
 
 .pagination button {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-  border-radius: 4px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
 .pagination button.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
 }
 
 .pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .info-card.border-pending,
-.info-card.border-en-attente { border-left-color: #f59e0b; } /* Warning Orange */
+.info-card.border-en-attente {
+    border-left-color: #f59e0b;
+}
+
+/* Warning Orange */
+.info-card.border-casablanca {
+    border-left-color: #0019fa;
+}
 
 .info-card.border-available,
-.info-card.border-disponible { border-left-color: #10b981; } /* Success Green */
+.info-card.border-disponible {
+    border-left-color: #10b981;
+}
+
+/* Success Green */
 
 .info-card.border-cancelled,
-.info-card.border-annulé { border-left-color: #ef4444; }    /* Danger Red */
+.info-card.border-annulé {
+    border-left-color: #ef4444;
+}
+
+/* Danger Red */
 
 .info-card.border-in_progress,
-.info-card.border-en-cours { border-left-color: #3b82f6; }   /* Info Blue */
+.info-card.border-en-cours {
+    border-left-color: #3b82f6;
+}
+
+/* Info Blue */
 
 .info-card.border-sent,
-.info-card.border-envoyer { border-left-color: var(--verauto-orange); } /* Brand Orange */
-.info-card.border-not_available,
-.info-card.border-non-disponible { border-left-color: #6366f1; }
+.info-card.border-envoyer {
+    border-left-color: var(--verauto-orange);
+}
 
-.stat-card.envoyer { border-bottom-color: var(--verauto-orange); }
-.stat-card.annulé { border-bottom-color: #ef4444; }
-.stat-card.réparé { border-bottom-color: #44bfef; }
-.info-card.border-return { border-left-color: #ef4444; }
-.info-card.border-in_transit{ border-left-color: #616161; }
-.info-card.border-repaired{ border-left-color: #44bfef; }
-.info-card.border-received{ border-left-color: #bf44ef; }
-.stat-card.action { border-bottom-color: #000000; }
+/* Brand Orange */
+.info-card.border-not_available,
+.info-card.border-non-disponible {
+    border-left-color: #6366f1;
+}
+
+.stat-card.envoyer {
+    border-bottom-color: var(--verauto-orange);
+}
+
+.stat-card.annulé {
+    border-bottom-color: #ef4444;
+}
+
+.stat-card.réparé {
+    border-bottom-color: #44bfef;
+}
+
+.info-card.border-return {
+    border-left-color: #ef4444;
+}
+
+.info-card.border-in_transit {
+    border-left-color: #616161;
+}
+
+.info-card.border-repaired {
+    border-left-color: #44bfef;
+}
+
+.info-card.border-received {
+    border-left-color: #bf44ef;
+}
+
+.stat-card.action {
+    border-bottom-color: #000000;
+}
 
 /* Indigo */
+
+.order-button {
+
+    text-decoration: none;
+    color: #6b0c0c;
+    background-color: #ffb24e;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: small;
+    display: inline-block;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.order-button:hover {
+    background-color: #d77300;
+}
+
+.card-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}

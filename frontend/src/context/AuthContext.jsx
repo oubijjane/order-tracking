@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const LAST_TOKEN_KEY = 'fcm_last_sent_token';
+            const LAST_TOKEN_KEY = 'fcm_token';
             const token = localStorage.getItem(LAST_TOKEN_KEY);
             if (token) {
                 // Ask backend to remove this device token

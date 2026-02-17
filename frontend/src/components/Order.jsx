@@ -2,15 +2,22 @@ import { Link } from 'react-router';
 import { ORDER_STATUS_MAP } from '../utils/formUtils';
 import { WINDOW_TYPES, formatDate } from '../utils/formUtils';
 
-
 function Order({ order }) {
   const window = WINDOW_TYPES.find(type => type.value === order.windowType)?.label || order.windowType;
+  const borderClass = order.city && order.city.cityName === 'Casablanca'
+    ? 'casablanca'
+    : order.status?.toLowerCase().replace(/\s+/g, '-');
   return (
-    <div className={`info-card border-${order.status?.toLowerCase().replace(/\s+/g, '-')}`}>
-      <h3><Link to={`/orders/${order.id}`} style={{ textDecoration: 'none', color: '#333' }}>
-        {order.company.companyName}
-      </Link>
-      </h3>
+    <div className={`info-card border-${borderClass}`}>
+      <div className='card-header'>
+        <h3><Link to={`/orders/${order.id}`} style={{ textDecoration: 'none', color: '#333' }}>
+          {order.company.companyName}
+        </Link>
+        </h3>
+        <p><Link to={`/orders/${order.id}`} className="order-button">
+          Consulter le dossier
+        </Link></p>
+      </div>
       <p><strong>Numero de commande:</strong> {order.id} </p>
       <p><strong>Crée par:</strong> {order.user.username}</p>
       <p><strong>Details:</strong> {window} {order.carModel.carBrand.brand} {order.carModel.model}</p>

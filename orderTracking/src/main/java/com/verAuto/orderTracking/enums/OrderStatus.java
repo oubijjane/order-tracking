@@ -5,7 +5,7 @@ public enum OrderStatus {
     IN_PROGRESS("En cours"),
     AVAILABLE("Disponible"),
     NOT_AVAILABLE("Non Disponible"),
-    SENT("Envoyer"),
+    SENT("À envoyer"),
     IN_TRANSIT("En transite"),
     CANCELLED("Annulé"),
     RECEIVED("reçu"),

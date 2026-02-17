@@ -1,6 +1,6 @@
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { app } from "./firebase";
-import api from "./services/api";
+import {registerDeviceToken} from "./services/registerDevice";
 
 export const registerForNotifications = async () => {
   if (!('serviceWorker' in navigator)) return;
@@ -20,7 +20,7 @@ export const registerForNotifications = async () => {
     if (token) {
       // Send to backend only if changed
       if (localStorage.getItem('fcm_token') !== token) {
-        await api.post('/devices', { token });
+        registerDeviceToken(token);
         localStorage.setItem('fcm_token', token);
       }
 
@@ -47,13 +47,3 @@ export const registerForNotifications = async () => {
     console.error("Notification Setup Error", err);
   }
 };
-
-// 🚀 LISTEN FOR REDIRECT MESSAGES FROM THE SERVICE WORKER
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event.data?.action === 'REDIRECT') {
-      // Navigate the browser to the exact URL sent by the notification
-      window.location.href = event.data.url;
-    }
-  });
-}

@@ -24,7 +24,8 @@ public interface UserDAO extends JpaRepository<User, Integer> {
     Optional<User> findByIdWithCollections(@Param("id") Integer id);
 
 
-
+    @Query("SELECT u.id FROM User u WHERE u.city.id = :cityId")
+    List<Integer> findUsersIdByCityId(@Param("cityId") Long cityId);
 
     boolean existsByUserName(String name);
 }
