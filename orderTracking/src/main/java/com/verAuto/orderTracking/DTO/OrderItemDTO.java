@@ -27,6 +27,8 @@ public class OrderItemDTO {
     private String windowType;
     private Long cityId;
     private String windowBrand;
+    private Long brandId;
+    private Long modelId;
     private BigDecimal price;
     private String phoneNumber;
     private String fileNumber;

@@ -41,6 +41,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     private final EmailService emailService;
     private final WindowDetailsService windowDetailsService;
+    private final WindowBrandService windowBrand;
     private final HistoryService historyService;
     private final OrderItemImagesService orderItemImagesService;
     private final OrderItemDAO orderItemDAO;
@@ -55,11 +56,14 @@ public class OrderItemServiceImpl implements OrderItemService {
     private static final Pattern PLATE_PATTERN = Pattern.compile(MOROCCAN_PLATE_REGEX);
 
     @Autowired
-    public OrderItemServiceImpl (EmailService emailService, WindowDetailsService windowDetailsService, HistoryService historyService, OrderItemDAO orderItemDAO,
-                                 CityDAO cityDAO,
-                                 OrderItemImagesService orderItemImagesService, CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService, NotificationService notificationService, UserDeviceDAO deviceRepo) {
+    public OrderItemServiceImpl (EmailService emailService, WindowDetailsService windowDetailsService,
+                                 WindowBrandService windowBrand, HistoryService historyService,
+                                 OrderItemDAO orderItemDAO, CityDAO cityDAO, OrderItemImagesService orderItemImagesService,
+                                 CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService,
+                                 NotificationService notificationService, UserDeviceDAO deviceRepo) {
         this.emailService = emailService;
         this.windowDetailsService = windowDetailsService;
+        this.windowBrand = windowBrand;
         this.historyService = historyService;
         this.orderItemDAO = orderItemDAO;
         this.cityDAO = cityDAO;
@@ -449,6 +453,9 @@ public class OrderItemServiceImpl implements OrderItemService {
                     newStatus.getOrderStatus().getLabel());
             addOffersToOrder(newStatus.getWindowDetailsList(), newStatus.getOrderStatus());
             selectOffer(id, newStatus.getSelectedWindowDetail(), newStatus.getOrderStatus());
+            if(newStatus.getModelId() != null && newStatus.getModelId() > 0) {
+                CarModel car
+            }
 
             if (newStatus.getOrderStatus() == OrderStatus.SENT) {
                 // 1. Validate Transit Company

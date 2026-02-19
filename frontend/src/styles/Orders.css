@@ -216,3 +216,17 @@
     align-items: center;
     gap: 10px;
 }
+
+.city.default {
+    background-color: rgb(237, 178, 100);
+    width: max-content;
+    border-radius: 5px;
+    padding: 0px 3px;
+}
+
+.city.headquarter {
+    background-color: rgb(55 245 114);
+    width: max-content;
+    border-radius: 5px;
+    padding: 0px 3px;
+}

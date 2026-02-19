@@ -36,7 +36,7 @@ function OrderDetailsPage() {
     // Data State
     const [order, setOrder] = useState(null);
     const [groupedOrders, setGroupedOrders] = useState(null);
-    const [orderHistory, setOrderHistory] = useState([]); // New State for Order History
+    const [orderHistory, setOrderHistory] = useState([]); 
 
     // Modal States
     const [showCancelModal, setShowCancelModal] = useState(false);
@@ -74,7 +74,6 @@ function OrderDetailsPage() {
      */
     const handleStatusClick = (newStatus) => {
         if (newStatus === 'CANCELLED' || newStatus === 'NOT_AVAILABLE') {
-            // Add confirmation before opening the cancellation modal
             const confirmMessage = newStatus === 'CANCELLED'
                 ? "Êtes-vous sûr de vouloir annuler cette commande ?"
                 : "Êtes-vous sûr de vouloir marquer cette commande comme non disponible ?";
@@ -84,49 +83,40 @@ function OrderDetailsPage() {
                 setShowCancelModal(true);
             }
         } else if (newStatus === 'RETURN') {
-            // Add confirmation before marking as return
             if (window.confirm("Êtes-vous sûr de vouloir marquer cette commande comme retour ?")) {
-                handleSubmit(newStatus);
+                handleSubmit({ updatedStatus: newStatus }); // <-- REFACTORED
             }
         } else if (newStatus === 'RECEIVED') {
-            // Add confirmation before marking as received
             if (window.confirm("Êtes-vous sûr de vouloir marquer cette commande comme reçue ?")) {
-                handleSubmit(newStatus);
+                handleSubmit({ updatedStatus: newStatus }); // <-- REFACTORED
             }
         } else if (newStatus === 'IN_TRANSIT') {
-            // Logic 2: Intercept IN_TRANSIT to open TransitModal
             setPendingStatus(newStatus);
             setShowTransitModal(true);
         } else if (newStatus === 'AVAILABLE') {
-            // Logic: Intercept AVAILABLE to open WindowDetailsModal
             setPendingStatus(newStatus);
             setShowWindowDetailsModal(true);
         } else if (newStatus === 'SENT') {
-            // Logic: Intercept AVAILABLE to open WindowDetailsModal
             setPendingStatus(newStatus);
             setShowWindowOfferModal(true);
         } else if (order.status === 'REPAIRED') {
             setFileNumberModal(true);
         }
         else {
-            handleSubmit(newStatus);
+            handleSubmit({ updatedStatus: newStatus }); // <-- REFACTORED
         }
     };
+
     const handleFileNumberClick = () => {
         if (order.status === 'REPAIRED') {
             setFileNumberModal(true);
         }
     };
 
-    /**
-     * Logic 3: Update handleSubmit to accept transit parameters and window details
-     */
-
     const handelImagesSubmit = async (processedImages) => {
         setIsUpdating(true);
         try {
             await OrderService.updateOrderImages(id, processedImages);
-            // Refresh order details to show new images
             const updatedOrder = await OrderService.getOrderById(id);
             setOrder(updatedOrder);
         } catch (err) {
@@ -136,23 +126,42 @@ function OrderDetailsPage() {
             setIsUpdating(false);
         }
     };
-    const handleSubmit = async (updatedStatus, reasonId = commentId, transitCompanyId = null, declarationNumber = null, fileNumber = null, windowsList = null, windowDetailId = null, cityId = null, phoneNumber = null, additionalComment = null) => {
+
+    /**
+     * Logic 3: Refactored handleSubmit using the Object Pattern! 
+     */
+    const handleSubmit = async ({
+        updatedStatus,
+        reasonId = commentId,
+        transitCompanyId = null,
+        declarationNumber = null,
+        fileNumber = null,
+        windowsList = null,
+        windowDetailId = null,
+        cityId = null,
+        phoneNumber = null,
+        additionalComment = null
+    }) => {
         setIsUpdating(true);
         try {
-            // If caller didn't provide an additionalComment, fall back to the modal-stored value
-            const finalAdditional = additionalComment !== null && additionalComment !== undefined ? additionalComment : additionalCommentState;
+            const finalAdditional = additionalComment ?? additionalCommentState;
 
-            // The service call now takes all potential extra data
-            await OrderService.handleDecision(id, updatedStatus, reasonId, transitCompanyId, declarationNumber, fileNumber, windowsList, windowDetailId, cityId, phoneNumber, finalAdditional);
-            // Refresh local state
-            console.log("resonId after submit " + reasonId);
+            // Notice how we still pass them normally to the backend service!
+            await OrderService.handleDecision(
+                id, updatedStatus, reasonId, transitCompanyId, 
+                declarationNumber, fileNumber, windowsList, 
+                windowDetailId, cityId, phoneNumber, finalAdditional
+            );
+            
+            console.log("reasonId after submit " + reasonId);
+            
             const [freshOrder, freshHistory] = await Promise.all([
                 OrderService.getOrderById(id),
                 OrderService.getOrderHistory(id)
             ]);
+            
             setOrder(freshOrder);
             setOrderHistory(freshHistory);
-
 
             // Close any open modals
             setShowCancelModal(false);
@@ -160,7 +169,6 @@ function OrderDetailsPage() {
             setShowWindowDetailsModal(false);
         } catch (err) {
             console.error("Update failed:", err);
-            // Show the actual backend error message if available
             alert(err.response?.data?.message || "La mise à jour a échoué.");
         } finally {
             setIsUpdating(false);
@@ -213,7 +221,7 @@ function OrderDetailsPage() {
                     </div>
                      
                     <button className="btn-action-outline" onClick={() => setImagesModalOpen(true)} disabled={isUpdating}>
-                                    Ajouter des images
+                                  Ajouter des images
                     </button>
                     <div className="history-wrapper">
                         <OrderHistory history={orderHistory} />
@@ -303,67 +311,79 @@ function OrderDetailsPage() {
                 </div>
             </div>
 
-            {/* Modals */}
+            {/* 🔥 Look how clean all these Modals are now! */}
             <ImagesModal
                 isOpen={ImagesModalOpen}
                 onClose={() => setImagesModalOpen(false)}
                 onSubmit={(processedImages) => handelImagesSubmit(processedImages)}
                 isUpdating={isUpdating}
             />
+            
             <CancelationModal
                 isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
-                onSubmit={(reasonId) => handleSubmit(pendingStatus, reasonId)}
+                onSubmit={(reasonId) => handleSubmit({ updatedStatus: pendingStatus, reasonId })}
                 isUpdating={isUpdating}
             />
+            
             <CommentModal
                 isOpen={isCommentModalOpen}
                 onClose={() => setIsCommentModalOpen(false)}
-                onSubmit={(additionalComment) => handleSubmit(null, null, null, null, null, null, null, null, null, additionalComment)}
+                onSubmit={(additionalComment) => handleSubmit({ additionalComment })}
                 isUpdating={isUpdating}
             />
+            
             <TransitModal
                 isOpen={showTransitModal}
                 onClose={() => setShowTransitModal(false)}
-                onSubmit={(companyId, decNumber) => handleSubmit(pendingStatus, null, companyId, decNumber)}
+                onSubmit={(companyId, decNumber) => handleSubmit({ 
+                    updatedStatus: pendingStatus, 
+                    transitCompanyId: companyId, 
+                    declarationNumber: decNumber 
+                })}
                 isUpdating={isUpdating}
             />
 
             <WindowDetailsModal
                 isOpen={showWindowDetailsModal}
                 onClose={() => setShowWindowDetailsModal(false)}
-                onSubmit={(windowsList) => handleSubmit(pendingStatus, commentId, null, null, null, windowsList)}
+                onSubmit={(windowsList) => handleSubmit({ 
+                    updatedStatus: pendingStatus, 
+                    reasonId: commentId, 
+                    windowsList 
+                })}
                 isUpdating={isUpdating}
+                carModel={order.carModel}
+                windowType={order.windowType}
             />
 
             <FileNumberModal
                 isOpen={showFileNumberModal}
                 onClose={() => setFileNumberModal(false)}
-                onSubmit={(fileNumber) => handleSubmit(null, commentId, null, null, fileNumber)}
+                onSubmit={(fileNumber) => handleSubmit({ 
+                    reasonId: commentId, 
+                    fileNumber 
+                })}
                 isUpdating={isUpdating}
             />
+            
             <OfferSelectionModal
                 isOpen={showWindowOfferModal}
                 onClose={() => setShowWindowOfferModal(false)}
-                groupedOrders={groupedOrders}   // <-- add this
+                groupedOrders={groupedOrders}
                 onSubmit={(windowDetailId, cityId, phoneNumber, selectedOrders) =>
-                    handleSubmit(
-                        pendingStatus,
-                        commentId,
-                        null,
-                        null,
-                        null,
-                        null,
+                    handleSubmit({
+                        updatedStatus: pendingStatus,
+                        reasonId: commentId,
                         windowDetailId,
                         cityId,
                         phoneNumber,
-                        selectedOrders
-                    )
+                        additionalComment: selectedOrders // mapped exactly as it was!
+                    })
                 }
                 isUpdating={isUpdating}
             />
         </div>
-
     );
 }
 

@@ -7,6 +7,10 @@ function Order({ order }) {
   const borderClass = order.city && order.city.cityName === 'Casablanca'
     ? 'casablanca'
     : order.status?.toLowerCase().replace(/\s+/g, '-');
+
+    const cityStyle = order.city && order.city.cityName === 'Casablanca'
+    ? 'headquarter'
+    : 'default';
   return (
     <div className={`info-card border-${borderClass}`}>
       <div className='card-header'>
@@ -23,7 +27,7 @@ function Order({ order }) {
       <p><strong>Details:</strong> {window} {order.carModel.carBrand.brand} {order.carModel.model}</p>
       <p><strong>Date de creation:</strong> {formatDate(order.createdAt)}</p>
       <p><strong>Matricule n°:</strong> <span className='plate-number'>{order.registrationNumber}</span></p>
-      <p><strong>Ville:</strong> {order.city ? order.city.cityName : 'Non renseigné'}</p>
+      <p><strong>Ville:</strong> <span className={`city ${cityStyle}`}>{order.city ? order.city.cityName : 'Non renseigné'}</span></p>
       <p><strong>Status:</strong> {ORDER_STATUS_MAP[order.status]}</p>
       {order.status === 'REPAIRED' && (
         <p className='order-id'><strong>Numer de dossier:</strong> {order.fileNumber ? order.fileNumber : 'Non renseigné'}</p>)}
