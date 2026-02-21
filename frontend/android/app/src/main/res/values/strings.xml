@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VerAuto</string>
+    <string name="title_activity_main">VerAuto</string>
+    <string name="package_name">com.verauto.app</string>
+    <string name="custom_url_scheme">com.verauto.app</string>
+</resources>

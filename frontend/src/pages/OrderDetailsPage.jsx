@@ -140,7 +140,8 @@ function OrderDetailsPage() {
         windowDetailId = null,
         cityId = null,
         phoneNumber = null,
-        additionalComment = null
+        additionalComment = null,
+        carModelId = null
     }) => {
         setIsUpdating(true);
         try {
@@ -150,7 +151,7 @@ function OrderDetailsPage() {
             await OrderService.handleDecision(
                 id, updatedStatus, reasonId, transitCompanyId, 
                 declarationNumber, fileNumber, windowsList, 
-                windowDetailId, cityId, phoneNumber, finalAdditional
+                windowDetailId, cityId, phoneNumber, finalAdditional, carModelId
             );
             
             console.log("reasonId after submit " + reasonId);
@@ -347,10 +348,11 @@ function OrderDetailsPage() {
             <WindowDetailsModal
                 isOpen={showWindowDetailsModal}
                 onClose={() => setShowWindowDetailsModal(false)}
-                onSubmit={(windowsList) => handleSubmit({ 
+                onSubmit={(windowsList, carModelId) => handleSubmit({ 
                     updatedStatus: pendingStatus, 
                     reasonId: commentId, 
-                    windowsList 
+                    windowsList, 
+                    carModelId
                 })}
                 isUpdating={isUpdating}
                 carModel={order.carModel}
@@ -362,7 +364,7 @@ function OrderDetailsPage() {
                 onClose={() => setFileNumberModal(false)}
                 onSubmit={(fileNumber) => handleSubmit({ 
                     reasonId: commentId, 
-                    fileNumber 
+                    fileNumber ,
                 })}
                 isUpdating={isUpdating}
             />

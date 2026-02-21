@@ -4,6 +4,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.verAuto.orderTracking.DTO.HistoryDTO;
 import com.verAuto.orderTracking.DTO.OrderItemDTO;
 import com.verAuto.orderTracking.DTO.WindowDetailsDTO;
+import com.verAuto.orderTracking.dao.CarModelDAO;
 import com.verAuto.orderTracking.dao.CityDAO;
 import com.verAuto.orderTracking.dao.OrderItemDAO;
 import com.verAuto.orderTracking.dao.UserDeviceDAO;
@@ -40,6 +41,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private static final Logger logger = LoggerFactory.getLogger(OrderItemService.class);
 
     private final EmailService emailService;
+    private final CarModelDAO carModelDAO;
     private final WindowDetailsService windowDetailsService;
     private final WindowBrandService windowBrand;
     private final HistoryService historyService;
@@ -56,12 +58,13 @@ public class OrderItemServiceImpl implements OrderItemService {
     private static final Pattern PLATE_PATTERN = Pattern.compile(MOROCCAN_PLATE_REGEX);
 
     @Autowired
-    public OrderItemServiceImpl (EmailService emailService, WindowDetailsService windowDetailsService,
+    public OrderItemServiceImpl (EmailService emailService, CarModelDAO carModelDAO, WindowDetailsService windowDetailsService,
                                  WindowBrandService windowBrand, HistoryService historyService,
                                  OrderItemDAO orderItemDAO, CityDAO cityDAO, OrderItemImagesService orderItemImagesService,
                                  CommentService commentService, UserRoleServiceImpl userRoleService, TransitCompanyService transitCompanyService,
                                  NotificationService notificationService, UserDeviceDAO deviceRepo) {
         this.emailService = emailService;
+        this.carModelDAO = carModelDAO;
         this.windowDetailsService = windowDetailsService;
         this.windowBrand = windowBrand;
         this.historyService = historyService;
@@ -454,7 +457,8 @@ public class OrderItemServiceImpl implements OrderItemService {
             addOffersToOrder(newStatus.getWindowDetailsList(), newStatus.getOrderStatus());
             selectOffer(id, newStatus.getSelectedWindowDetail(), newStatus.getOrderStatus());
             if(newStatus.getModelId() != null && newStatus.getModelId() > 0) {
-                CarModel car
+              CarModel model = carModelDAO.findById(newStatus.getModelId()).orElse(null);
+              existingOrder.setCarModel(model);
             }
 
             if (newStatus.getOrderStatus() == OrderStatus.SENT) {

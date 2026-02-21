@@ -81,7 +81,7 @@ export function WindowDetailsModal({ isOpen, onClose, onSubmit, isUpdating, carM
     const handleRemoveWindow = (id) => {
         setWindows(windows.filter(w => w.id !== id));
     };
-
+    const currentCarModelId = methods.getValues("carModelId");
     const handleFinalSubmit = () => {
         if (windows.length === 0) {
             setError('Ajoutez au moins une vitre avant de confirmer.');
@@ -91,9 +91,9 @@ export function WindowDetailsModal({ isOpen, onClose, onSubmit, isUpdating, carM
         const resultWindows = windows.map(win => ({
             windowBrandId: win.windowBrandId,
             orderId: Number(id),
-            price: win.price
+            price: win.price,
         }));
-        onSubmit(resultWindows);
+        onSubmit(resultWindows, currentCarModelId);
         handleClose();
     };
 

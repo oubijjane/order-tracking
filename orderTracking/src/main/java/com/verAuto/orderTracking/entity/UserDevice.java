@@ -21,6 +21,9 @@ public class UserDevice {
     @Column(length = 512)
     private String token;
 
+    @Column(name = "device_type")
+    private String deviceType;
+
     @Column(name = "last_seen")
     private Instant lastSeen;
 }

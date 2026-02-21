@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "143564317747",
+    "project_id": "verauto-order-tracking",
+    "storage_bucket": "verauto-order-tracking.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143564317747:android:2729319c3ac6ba49c8ef46",
+        "android_client_info": {
+          "package_name": "com.verauto.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL89y4UBQK22ut0JlUpfz9RTDmPPdxoHg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -22,33 +22,33 @@ public class NotificationServiceImpl implements NotificationService{
     public NotificationServiceImpl(UserDeviceDAO deviceDAO) {
         this.deviceDAO = deviceDAO;
     }
-    
+
     @Override
     public void send(String token, String title, String body, String url) throws FirebaseMessagingException {
         if (!isFirebaseInitialized()) {
             logger.warn("Firebase not initialized - notification skipped");
             return;
         }
-        
+
         if (token == null || token.isEmpty()) {
             logger.warn("Cannot send notification - token is null or empty");
             return;
         }
-        
+
         try {
-                Message message = Message.builder()
-                        .setToken(token)
-                        // ❌ DO NOT use .setNotification(...) here to avoid double notifications
-                        .putData("title", title)
-                        .putData("body", body)
-                        .putData("click_action", url)
-                        .setAndroidConfig(AndroidConfig.builder()
-                                .setPriority(AndroidConfig.Priority.HIGH)
-                                .build())
-                        .setWebpushConfig(WebpushConfig.builder()
-                                .setFcmOptions(WebpushFcmOptions.withLink(url))
-                                .build())
-                        .build();
+            Message message = Message.builder()
+                    .setToken(token)
+                     // ❌ DO NOT use .setNotification(...) here to avoid double notifications
+                    .putData("title", title)
+                    .putData("body", body)
+                    .putData("click_action", url)
+                    .setAndroidConfig(AndroidConfig.builder()
+                            .setPriority(AndroidConfig.Priority.HIGH)
+                            .build())
+                    .setWebpushConfig(WebpushConfig.builder()
+                            .setFcmOptions(WebpushFcmOptions.withLink(url))
+                            .build())
+                    .build();
 
             String messageId = FirebaseMessaging.getInstance().send(message);
             logger.info("Notification sent successfully. Message ID: {}", messageId);

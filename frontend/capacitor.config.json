@@ -1,0 +1,9 @@
+{
+  "appId": "com.account.app", 
+  "appName": "Verauto",
+  "webDir": "build",
+  "server": {
+    "url": "https://unlikely-tunes-writes-nine.trycloudflare.com", 
+    "cleartext": true
+  }
+}
