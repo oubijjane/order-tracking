@@ -125,10 +125,14 @@ function SearchableDropdown({
   name,
   options = [],
   validation,
+  optional = false,
   multiple = false
 }) {
   const { control, formState: { errors } } = useFormContext();
-
+  
+  const appliedValidation = optional
+    ? { ...validation, required: false } // disable required
+    : validation;
   // Normalize options so both string[] and {value,label}[] work
   const formattedOptions = options.map(opt =>
     typeof opt === "string"
@@ -145,7 +149,7 @@ function SearchableDropdown({
       <Controller
         name={name}
         control={control}
-        rules={validation}
+        rules={appliedValidation}
         render={({ field }) => {
           // For single select we must convert stored value to option object
           const selectedValue = multiple

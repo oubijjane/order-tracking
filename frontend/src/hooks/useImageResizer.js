@@ -7,7 +7,7 @@ export const useImageResizer = () => {
     const resizeImage = async (file) => {
         const options = {
             maxSizeMB: 1,
-            maxWidthOrHeight: 800,
+            maxWidthOrHeight: 1600,
             useWebWorker: true,
             fileType: 'image/jpeg'
         };

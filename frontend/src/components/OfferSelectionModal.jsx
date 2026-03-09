@@ -9,12 +9,12 @@ import { useCitySelection } from '../hooks/useCitySelection'; // Import city hoo
 
 
 
-export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating, groupedOrders = [] }) {
+export function OfferSelectionModal({ isOpen, onClose, onSubmit, isUpdating, city }) {
     const methods = useForm({
         defaultValues: {
             windowDetailId: '',
             phoneNumber: '',
-            cityId: ''// This will store the ID from the Dropdown
+            cityId: city // This will store the ID from the Dropdown
         }
     });
      const { id } = useParams();

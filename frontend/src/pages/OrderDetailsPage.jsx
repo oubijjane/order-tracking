@@ -312,7 +312,7 @@ function OrderDetailsPage() {
                 </div>
             </div>
 
-            {/* 🔥 Look how clean all these Modals are now! */}
+           
             <ImagesModal
                 isOpen={ImagesModalOpen}
                 onClose={() => setImagesModalOpen(false)}
@@ -373,6 +373,7 @@ function OrderDetailsPage() {
                 isOpen={showWindowOfferModal}
                 onClose={() => setShowWindowOfferModal(false)}
                 groupedOrders={groupedOrders}
+                city={order.city ? order.city.id : null}
                 onSubmit={(windowDetailId, cityId, phoneNumber, selectedOrders) =>
                     handleSubmit({
                         updatedStatus: pendingStatus,

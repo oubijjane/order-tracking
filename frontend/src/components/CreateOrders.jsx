@@ -23,6 +23,7 @@ function Form() {
             brandId: '',
             carModelId: '',
             companyName: '', 
+            CityId: '',
             windowsType: [],
             comment: '',
             destination: '',
@@ -97,7 +98,14 @@ function Form() {
                 <InputField {...image_validation} />
                 
                 {/* Dropdowns */}
-                
+                <SearchableDropdown 
+                    {...city_validation} 
+                    options={cityOptions} 
+                    classNamePrefix="custom-select"
+                    optional={true} // City is optional
+                  
+                />
+
                 <SearchableDropdown 
                     {...company_validation} 
                     options={companyOptions} 
