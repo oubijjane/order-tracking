@@ -182,6 +182,10 @@ public class OrderItemController {
             // 1. Fetch dependencies
             CarModel model = carModelService.findById(request.getCarModelId());
             Company company = companyService.findById(request.getCompanyId());
+            if( request.getCityId() != null ) {
+                City city = cityService.findCityById(request.getCityId());
+            }
+
 
 
             // 2. Map DTO to Entity
@@ -190,6 +194,10 @@ public class OrderItemController {
             orderItem.setCarModel(model);
             orderItem.setCompany(company);
             orderItem.setStatus(OrderStatus.PENDING);
+            if( request.getCityId() != null ) {
+                City city = cityService.findCityById(request.getCityId());
+                orderItem.setCity(city);
+            }
 
             return orderItem;
         }).toList();
