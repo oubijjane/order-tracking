@@ -129,7 +129,9 @@ function SearchableDropdown({
   multiple = false
 }) {
   const { control, formState: { errors } } = useFormContext();
-  
+  // 1. Append the text if optional is true
+  const displayLabel = optional ? `${label} (facultatif)` : label;
+
   const appliedValidation = optional
     ? { ...validation, required: false } // disable required
     : validation;
@@ -143,7 +145,7 @@ function SearchableDropdown({
   return (
     <div className="input-field">
       <div className="lable-field">
-        <label>{label}</label>
+        <label>{displayLabel}</label>
       </div>
 
       <Controller

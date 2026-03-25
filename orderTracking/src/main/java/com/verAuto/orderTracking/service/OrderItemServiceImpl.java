@@ -208,7 +208,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .collect(Collectors.toSet());
 
         // 1. Create the pageable object once
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
         Integer userId = user.getId();
 
         // 1. Get ONLY Primary Company IDs
@@ -438,23 +438,40 @@ public class OrderItemServiceImpl implements OrderItemService {
             String commentLabel = newStatus.getAdditionalComment();
             body = userName + " a ajouté un nouveau commentaire pour la companie: "
                     + existingOrder.getCompany().getCompanyName();;
+
+
+            existingOrder.setComment(commentLabel);
             addHistory(existingOrder,userName, action,
                     existingOrder.getComment(),
                     commentLabel);
-
-            existingOrder.setComment(commentLabel);
         }
+
         // 3. Status and Role Logic
         if (newStatus.getOrderStatus() != null) {
             validateStatusTransition(currentStatus, newStatus.getOrderStatus());
+            if(!currentStatus.equals(newStatus.getOrderStatus())) {
             action = "Changement du statut de la commande vers";
             checkRolePermissions(roleNames, newStatus.getOrderStatus());
             body = userName + " status: " + newStatus.getOrderStatus().getLabel() + " pour la companie: "
                     + existingOrder.getCompany().getCompanyName();
+
             addHistory(existingOrder,userName, action,
                     existingOrder.getStatus().getLabel(),
                     newStatus.getOrderStatus().getLabel());
-            addOffersToOrder(newStatus.getWindowDetailsList(), newStatus.getOrderStatus());
+            } else {
+                body = userName + " Ajouter un prix " + " pour la companie: "
+                        + existingOrder.getCompany().getCompanyName();
+            }
+            if(newStatus.getWindowDetailsList() != null) {
+                addOffersToOrder(newStatus.getWindowDetailsList(), newStatus.getOrderStatus());
+                action = "Modifier la marque / Ajouter un prix";
+
+
+                addHistory(existingOrder,userName, action,
+                        existingOrder.getStatus().getLabel(),
+                        "");
+            }
+
             selectOffer(id, newStatus.getSelectedWindowDetail(), newStatus.getOrderStatus());
             if(newStatus.getModelId() != null && newStatus.getModelId() > 0) {
               CarModel model = carModelDAO.findById(newStatus.getModelId()).orElse(null);
@@ -554,7 +571,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             default -> false;
         };
 
-        if (!isValid) {
+        if (!isValid && !current.equals(next)) {
             throw new RuntimeException("Invalid transition: Cannot move order from " + current + " to " + next);
         }
     }
@@ -709,8 +726,6 @@ public class OrderItemServiceImpl implements OrderItemService {
             windowDetailsService.saveWindowsDetails(windowDetailsDTOList);
         }
 
-        // 2. If the status is NOT 'AVAILABLE', we skip the saving logic entirely
-        // We return an empty list (or null) because no windows were processed in this step
     }
     private void selectOffer(Long orderId, Long selectedWindowId, OrderStatus newStatus) {
 

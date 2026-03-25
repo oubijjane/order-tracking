@@ -2,3 +2,7 @@ orderTracking/src/main/resources/firebase-service-account.json
 frontend/.env
 uploads/
 frontend/public/firebase-messaging-sw.js
+orderTracking/src/main/resources/static/firebase-messaging-sw.js
+orderTracking/src/main/resources/application.properties
+orderTracking/src/main/resources/application.properties
+orderTracking/src/main/resources/application-prod.properties

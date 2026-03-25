@@ -26,6 +26,7 @@ function Order({ order }) {
       <p><strong>Crée par:</strong> {order.user.username}</p>
       <p><strong>Details:</strong> {window} {order.carModel.carBrand.brand} {order.carModel.model}</p>
       <p><strong>Date de creation:</strong> {formatDate(order.createdAt)}</p>
+      <p><strong>Dernier mise à jour:</strong> {formatDate(order.updatedAt)}</p>
       <p><strong>Matricule n°:</strong> <span className='plate-number'>{order.registrationNumber}</span></p>
       <p><strong>Ville:</strong> <span className={`city ${cityStyle}`}>{order.city ? order.city.cityName : 'Non renseigné'}</span></p>
       <p><strong>Status:</strong> {ORDER_STATUS_MAP[order.status]}</p>

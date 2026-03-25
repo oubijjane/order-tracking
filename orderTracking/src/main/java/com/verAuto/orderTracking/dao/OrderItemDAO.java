@@ -32,7 +32,7 @@ public interface OrderItemDAO extends JpaRepository<OrderItem, Long>, JpaSpecifi
     List<Object[]> countOrdersByStatusAndCityOrUser(@Param("city") City city, @Param("user") User user);
     @Query("SELECT o FROM OrderItem o WHERE o.company.id IN :companyIds")
     List<OrderItem> findAllByCompanyIds(@Param("companyIds") List<Long> companyIds);
-    @Query("SELECT oi FROM OrderItem oi WHERE (oi.status = :status AND oi.city = :city) OR oi.user = :user")
+    @Query("SELECT oi FROM OrderItem oi WHERE (oi.status = :status AND oi.city = :city) OR oi.user = :user ORDER BY oi.updatedAt DESC")
     Page<OrderItem> findByStatusAndCity(@Param("status") OrderStatus status, @Param("city") City city,
                                         @Param("user") User user,Pageable pageable);
     // 1. Count Orders (Dashboard)
@@ -48,7 +48,7 @@ public interface OrderItemDAO extends JpaRepository<OrderItem, Long>, JpaSpecifi
     @Query("SELECT oi FROM OrderItem oi " +
             "WHERE oi.status = :status " +
             "AND (oi.company.id IN :companyIds OR oi.user.id = :userId) " + // <--- Key Change
-            "ORDER BY oi.createdAt DESC")
+            "ORDER BY oi.updatedAt DESC")
     Page<OrderItem> findByStatusAndCompanies(
             @Param("status") OrderStatus status,
             @Param("companyIds") List<Long> companyIds,
@@ -85,7 +85,7 @@ public interface OrderItemDAO extends JpaRepository<OrderItem, Long>, JpaSpecifi
     @Query("SELECT o FROM OrderItem o " +
             "WHERE o.groupId = :groupId " +
             "AND o.id <> :orderId " +
-            "ORDER BY o.createdAt DESC")
+            "ORDER BY o.updatedAt DESC")
     List<OrderItem> findGroupOrdersExceptSelf(
             @Param("groupId") String groupId,
             @Param("companyIds") List<Long> companyIds,

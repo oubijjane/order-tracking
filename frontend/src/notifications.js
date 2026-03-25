@@ -27,7 +27,7 @@ export const registerForNotifications = async () => {
       // 🚀 FOREGROUND HANDLER
       onMessage(messaging, async (payload) => {
         const title = payload.data?.title || "Verauto Update";
-        const body = payload.data?.body || "New update on your order.";
+        const body = payload.data?.body || "Nouvelle mise à jour concernant votre commande.";
         const url = payload.data?.click_action || "/";
 
         // 1. Wait for the service worker to be completely ready

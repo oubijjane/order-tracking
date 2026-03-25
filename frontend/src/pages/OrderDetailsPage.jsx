@@ -302,6 +302,11 @@ function OrderDetailsPage() {
                                 Ajouter un commentaire
                             </button>
                             )}
+                            {(roles.includes('ROLE_ADMIN') || roles.includes('ROLE_LOGISTICIEN')) && order.status === 'AVAILABLE' && (
+                                <button className="btn-action-outline" onClick={() => setShowWindowDetailsModal(true)} disabled={isUpdating}>
+                                    Ajout prix/ marque vitre
+                                </button>
+                            )}
                             {roles.includes('ROLE_ADMIN') && (
                                 <button className="btn-delete-simple" onClick={handleDelete} disabled={isUpdating}>
                                     Supprimer l'ordre
@@ -349,7 +354,7 @@ function OrderDetailsPage() {
                 isOpen={showWindowDetailsModal}
                 onClose={() => setShowWindowDetailsModal(false)}
                 onSubmit={(windowsList, carModelId) => handleSubmit({ 
-                    updatedStatus: pendingStatus, 
+                    updatedStatus: "AVAILABLE", 
                     reasonId: commentId, 
                     windowsList, 
                     carModelId
