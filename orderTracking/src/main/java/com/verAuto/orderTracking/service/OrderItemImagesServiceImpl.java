@@ -69,9 +69,9 @@ public class OrderItemImagesServiceImpl implements OrderItemImagesService{
 
             // 4. Create the Database Entity
             OrderImage image = new OrderImage();
-            //image.setUrl("/" + uploadPath + "/" + fileName);
+            image.setUrl("/" + uploadPath + "/" + fileName);
 
-            image.setUrl(uploadPath + "/" + fileName); // no leading "/"
+            //image.setUrl(uploadPath + "/" + fileName); // no leading "/"
             image.setOrderItem(orderItem);
 
             savedImages.add(orderImageDAO.save(image));

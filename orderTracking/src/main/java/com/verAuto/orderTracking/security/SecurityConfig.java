@@ -7,16 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -48,7 +44,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers("/assets/**", "/static/**", "/verauto-logo.png", "/*.js", "/*.css");
+                .requestMatchers("/assets/**", "/static/**", "/static/assets/verauto-logo.png", "/*.js", "/*.css", "/manifest.json");
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,7 +55,9 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                         .requestMatchers("/{path:[^\\.]*}", "/**/{path:[^\\.]*}").permitAll()
                         .requestMatchers("/api/auth/**", "/uploads/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/verauto-logo.png", "/*.js", "/*.css").permitAll()
+                        .requestMatchers("/", "/static/index.html", "/static/**", "/manifest.json", "/static/assets/manifest.json",
+                                    "/assets/**", "/static/verauto-logo.png", "/*.js", "/*.css", "/firebase-messaging-sw.js", "/*.json",
+                                "/static/*.json", "/vite.svg", "/static/vite.svg", "/static/assets/vite.svg", "/verauto-logo.png").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
                         .requestMatchers("/api/**").authenticated()
